@@ -1,0 +1,574 @@
+[
+ {
+  "label": "AFO (FT) Placing self-support fiber (ADSS) Aerial o",
+  "value": "AFO"
+ },
+ {
+  "label": "AFO.B (FT) Placing self-support fiber (ADSS) Aerial o",
+  "value": "AFO.B"
+ },
+ {
+  "label": "AFO.T (FT) Placing self-support fiber (ADSS) Aerial o",
+  "value": "AFO.T"
+ },
+ {
+  "label": "AFO.TC (FT) Placing self-support fiber (ADSS) Aerial o",
+  "value": "AFO.TC"
+ },
+ {
+  "label": "AFO.RTD (FT) Placing MST/RTD Aerial Fiber* Pricing is a",
+  "value": "AFO.RTD"
+ },
+ {
+  "label": "AFO.RESAG (EA) Resag Fiber Per Span (Prior Approval Requi",
+  "value": "AFO.RESAG"
+ },
+ {
+  "label": "AFO.S (EA) install Slack Coils or Snowshoes",
+  "value": "AFO.S"
+ },
+ {
+  "label": "AFO.CO ML (EA) Install Slack Coil/Snowshoe Fiber and Moun",
+  "value": "AFO.CO ML"
+ },
+ {
+  "label": "AFO.TRAN1 (EA) Pole Transfers (Moving Existing Fiber from",
+  "value": "AFO.TRAN1"
+ },
+ {
+  "label": "AFO.TRAN2 (EA) Pole Transfers (Moving Existing Fiber up o",
+  "value": "AFO.TRAN2"
+ },
+ {
+  "label": "FLAG (HR) Flagging Traffic(Outside normal conditions",
+  "value": "FLAG"
+ },
+ {
+  "label": "AFO.SL (FT) Placing Strand & Lash Fiber on Distributio",
+  "value": "AFO.SL"
+ },
+ {
+  "label": "AFO.GAA (EA) Place Screw Anchor With Down Guy",
+  "value": "AFO.GAA"
+ },
+ {
+  "label": "AFO.GG (EA) Install Down Guy With Guy Guard",
+  "value": "AFO.GG"
+ },
+ {
+  "label": "AFO.EYE (EA) Install Auxilliary Eye",
+  "value": "AFO.EYE"
+ },
+ {
+  "label": "AFO.BOND (EA) Aerial Bond (When Needed)",
+  "value": "AFO.BOND"
+ },
+ {
+  "label": "AFO.OLASH (FT) Overlash Fiber",
+  "value": "AFO.OLASH"
+ },
+ {
+  "label": "AFO.RELASH (FT) Delash/Relash",
+  "value": "AFO.RELASH"
+ },
+ {
+  "label": "AFO SL Strand (FT) Strand Only",
+  "value": "AFO SL Strand"
+ },
+ {
+  "label": "BHF-10 (EA) Labor only to install 10x15x12 drop vault ",
+  "value": "BHF-10"
+ },
+ {
+  "label": "BHF-17T (EA) Labor only to install small handholle. Siz",
+  "value": "BHF-17T"
+ },
+ {
+  "label": "BHF-30T (EA) Labor only to install 24x3 x3 Tier 22 Traf",
+  "value": "BHF-30T"
+ },
+ {
+  "label": "BHF-48T (EA) Labor only to install 30x48x3 Tier 22 Traf",
+  "value": "BHF-48T"
+ },
+ {
+  "label": "BHF-60T (EA) Labor only to install 30\"<VAULT 60\" Tier 2",
+  "value": "BHF-60T"
+ },
+ {
+  "label": "BDO-SC144 (EA) Labor to install 30\"<VAULT 48\" Tier 22 Tra",
+  "value": "BDO-SC144"
+ },
+ {
+  "label": "BDO-SC288 (EA) Labor to install 30\"<VAULT 48\" Tier 22 Tra",
+  "value": "BDO-SC288"
+ },
+ {
+  "label": "BDO-SC432 (EA) Labor to install 30\"<VAULT 60\" Tier 22 Tra",
+  "value": "BDO-SC432"
+ },
+ {
+  "label": "BDO-SC576 (EA) Labor to install 30\"<VAULT 60\" Tier 22 Tra",
+  "value": "BDO-SC576"
+ },
+ {
+  "label": "BM60(MICRO) (FT) Labor to place a vacant M CRO conduit insi",
+  "value": "BM60(MICRO)"
+ },
+ {
+  "label": "BM60(1)(1.25) (FT) Labor to place a vacant 1.25\" conduit insi",
+  "value": "BM60(1)(1.25)"
+ },
+ {
+  "label": "BM60(1)(0.75) T (FT) Labor to place one (1) vacant 3/4\" conduit",
+  "value": "BM60(1)(0.75) T"
+ },
+ {
+  "label": "BM60(1)(1.25) T (FT) Labor to place one (1) vacant 1.25\" condui",
+  "value": "BM60(1)(1.25) T"
+ },
+ {
+  "label": "BM60(1)(2) T (FT) Labor to place one (1) vacant 2\" conduits ",
+  "value": "BM60(1)(2) T"
+ },
+ {
+  "label": "BM60(1)(4) T (FT) Labor to place one (1) vacant 4\" conduits ",
+  "value": "BM60(1)(4) T"
+ },
+ {
+  "label": "BM60(2)(1.25) T (FT) Labor to place two (2) vacant 1.25\" condui",
+  "value": "BM60(2)(1.25) T"
+ },
+ {
+  "label": "BM60(2)(2) T (FT) Labor to place two (2) vacant 2\" conduits ",
+  "value": "BM60(2)(2) T"
+ },
+ {
+  "label": "BM60(2)(4) T (FT) Labor to place two (2) vacant 4\" conduits ",
+  "value": "BM60(2)(4) T"
+ },
+ {
+  "label": "BM60(3)(1.25) T (FT) Labor to place three (3) vacant 1.25\" cond",
+  "value": "BM60(3)(1.25) T"
+ },
+ {
+  "label": "BM60(3)(2) T (FT) Labor to place three (3) vacant 2\" conduit",
+  "value": "BM60(3)(2) T"
+ },
+ {
+  "label": "BM60(3)(4) T (FT) Labor to place three (3) vacant 4\" conduit",
+  "value": "BM60(3)(4) T"
+ },
+ {
+  "label": "BM60(1)(1.25) TD (FT) Labor to place one (1) vacant 1.25\" condui",
+  "value": "BM60(1)(1.25) TD"
+ },
+ {
+  "label": "BM60(1)(2) TD (FT) Labor to place one (1) vacant 2\" conduit d",
+  "value": "BM60(1)(2) TD"
+ },
+ {
+  "label": "BM60(1)(4) TD (FT) Labor to place one (1) vacant 4\" conduit d",
+  "value": "BM60(1)(4) TD"
+ },
+ {
+  "label": "BM60(2)(1.25) TD (FT) Labor to place two (2) vacant 1.25\" condui",
+  "value": "BM60(2)(1.25) TD"
+ },
+ {
+  "label": "BM60(2)(2) TD (FT) Labor to place two (2) vacant 2\" conduit d",
+  "value": "BM60(2)(2) TD"
+ },
+ {
+  "label": "BM60(2)(4) TD (FT) Labor to place two (2) vacant 4\" conduit d",
+  "value": "BM60(2)(4) TD"
+ },
+ {
+  "label": "BM60(3)(1.25) TD (FT) Labor to place three (3) vacant 1.25\" cond",
+  "value": "BM60(3)(1.25) TD"
+ },
+ {
+  "label": "BM60(3)(2) TD (FT) Labor to place three (3) vacant 2\" conduit",
+  "value": "BM60(3)(2) TD"
+ },
+ {
+  "label": "BM60(3)(4) TD (FT) Labor to place three (3) vacant 1.25\" cond",
+  "value": "BM60(3)(4) TD"
+ },
+ {
+  "label": "BM60(1)(0.75) P (FT) \"Labor to place one (1) vacant 3/4\"\" (non-",
+  "value": "BM60(1)(0.75) P"
+ },
+ {
+  "label": "BM60(1)(1.25) P (FT) the plow method Min depth to be 36\"\" to 42",
+  "value": "BM60(1)(1.25) P"
+ },
+ {
+  "label": "BM60(1)(2) P (FT) \"Labor to place one (1) vacant 1 2 \"\" cond",
+  "value": "BM60(1)(2) P"
+ },
+ {
+  "label": "BM60(1)(4) P (FT) method Min depth to be 36\"\" to 42\"\" \"",
+  "value": "BM60(1)(4) P"
+ },
+ {
+  "label": "BM60(2)(1.25) P (FT) \"Labor to place one (1) vacant 2\"\" conduit",
+  "value": "BM60(2)(1.25) P"
+ },
+ {
+  "label": "BM60(2)(2) P (FT) method Min depth to be 36\"\" to 42\"\" \"",
+  "value": "BM60(2)(2) P"
+ },
+ {
+  "label": "BM60(3)(1.25) P (FT) \"Labor to place one (1) vacant 4\"\" conduit",
+  "value": "BM60(3)(1.25) P"
+ },
+ {
+  "label": "BFO.12.I (FT) Install a buried fiber optic cable contain",
+  "value": "BFO.12.I"
+ },
+ {
+  "label": "BFO.48.I (FT) Install a buried fiber optic cable contain",
+  "value": "BFO.48.I"
+ },
+ {
+  "label": "BFO.72.I (FT) Install a buried fiber optic cable contain",
+  "value": "BFO.72.I"
+ },
+ {
+  "label": "BFO.144.I (FT) Install a buried fiber optic cable contain",
+  "value": "BFO.144.I"
+ },
+ {
+  "label": "BFO.288.I (FT) Install a buried fiber optic cable contain",
+  "value": "BFO.288.I"
+ },
+ {
+  "label": "BFO.HST.150 (EA) HST 150 FT-Pricing is lump sum and include",
+  "value": "BFO.HST.150"
+ },
+ {
+  "label": "BFO.HST.250 (EA) HST 250 FT-Pricing is lump sum and include",
+  "value": "BFO.HST.250"
+ },
+ {
+  "label": "BFO.HST.350 (EA) HST 350 FT-Pricing is lump sum and include",
+  "value": "BFO.HST.350"
+ },
+ {
+  "label": "BFO.HST.500 (EA) HST 500 FT-Pricing is lump sum and include",
+  "value": "BFO.HST.500"
+ },
+ {
+  "label": "BFO.HST.750 (EA) HST 750 FT-Pricing is lump sum and include",
+  "value": "BFO.HST.750"
+ },
+ {
+  "label": "BFO.HST.1000 (EA) HST 1000 FT-Pricing is lump sum and includ",
+  "value": "BFO.HST.1000"
+ },
+ {
+  "label": "BFO.HST.1250 (EA) HST 1250 FT-Pricing is lump sum and includ",
+  "value": "BFO.HST.1250"
+ },
+ {
+  "label": "BFO.HST.1500 (EA) HST 1500 FT-Pricing is lump sum and includ",
+  "value": "BFO.HST.1500"
+ },
+ {
+  "label": "BFO.12.IE (FT) Install a buried fiber optic cable contain",
+  "value": "BFO.12.IE"
+ },
+ {
+  "label": "BFO.48.IE (FT) Install a buried fiber optic cable contain",
+  "value": "BFO.48.IE"
+ },
+ {
+  "label": "BFO.72.IE (FT) Install a buried fiber optic cable contain",
+  "value": "BFO.72.IE"
+ },
+ {
+  "label": "BFO.144.IE (FT) Install a buried fiber optic cable contain",
+  "value": "BFO.144.IE"
+ },
+ {
+  "label": "BFO.288.IE (FT) Install a buried fiber optic cable contain",
+  "value": "BFO.288.IE"
+ },
+ {
+  "label": "BFO.RTD.IE (FT) Install buried MST/RTD Fiber in an exiting",
+  "value": "BFO.RTD.IE"
+ },
+ {
+  "label": "BM53 (EA) Labor to install an above round Fiber mark",
+  "value": "BM53"
+ },
+ {
+  "label": "BM55A (EA) Labor to install a 3M locate disk or locat",
+  "value": "BM55A"
+ },
+ {
+  "label": "BM60-(7Way)P Micro Duct (FT) Labor to install a 7 Way Micro Duct condui",
+  "value": "BM60-(7Way)P Micro Duct"
+ },
+ {
+  "label": "BM60-(1.25)MB (FT) Labor to install a 1.25\" conduit bore or r",
+  "value": "BM60-(1.25)MB"
+ },
+ {
+  "label": "BM60-(2)MB (FT) Labor to install a 2\" conduit bore or road",
+  "value": "BM60-(2)MB"
+ },
+ {
+  "label": "BM60-(4)MB (FT) Labor to install a 4\" conduit bore or road",
+  "value": "BM60-(4)MB"
+ },
+ {
+  "label": "BM60-(7Way)DP Micro Duct (FT) Labor to install a 7 Way Micro Duct condui",
+  "value": "BM60-(7Way)DP Micro Duct"
+ },
+ {
+  "label": "BM60-(1.25)DP (FT) Labor to install a 1.25\" conduit bore or r",
+  "value": "BM60-(1.25)DP"
+ },
+ {
+  "label": "BM60-(2)DP (FT) Labor to install a 2\" conduit bore or road",
+  "value": "BM60-(2)DP"
+ },
+ {
+  "label": "BM60-(4)DP (FT) Labor to install a 4\" conduit bore or road",
+  "value": "BM60-(4)DP"
+ },
+ {
+  "label": "BM60-(1.25)DPD Dual (FT) Labor to install a second or more 1.25\" co",
+  "value": "BM60-(1.25)DPD Dual"
+ },
+ {
+  "label": "BM60-(2) DPD Dual (FT) Labor to install a second or more 2\" condu",
+  "value": "BM60-(2) DPD Dual"
+ },
+ {
+  "label": "BM60-(4) DPD Dual (FT) Labor to install a second or more 4\" condu",
+  "value": "BM60-(4) DPD Dual"
+ },
+ {
+  "label": "BM60(1.25)DP SDR Rail Road (FT) Labor to install a SDR 11 1.25\" conduit ra",
+  "value": "BM60(1.25)DP SDR Rail Road"
+ },
+ {
+  "label": "BM60(2)DP SDR Rail Road (FT) Labor to install a SDR 11 2\" conduit railr",
+  "value": "BM60(2)DP SDR Rail Road"
+ },
+ {
+  "label": "BM72 (SF) Labor and material to remove and restore a",
+  "value": "BM72"
+ },
+ {
+  "label": "BM7 (SF) Labor and material to remove and restore a",
+  "value": "BM7"
+ },
+ {
+  "label": "BMHD (FT) Labor to hand dig cables or conduit to pro",
+  "value": "BMHD"
+ },
+ {
+  "label": "BM60-R (FT) Rock adder to be added to BM60 for any si ",
+  "value": "BM60-R"
+ },
+ {
+  "label": "BM71 (FT) Rock adder to be added to the plow or open",
+  "value": "BM71"
+ },
+ {
+  "label": "BM81 (EA) Labor to install 10' Riser Guard.",
+  "value": "BM81"
+ },
+ {
+  "label": "BM90 (FT) Install Pull Rope/Install Tracer Wire in C",
+  "value": "BM90"
+ },
+ {
+  "label": "HO-1 (1-24) (SPLICE) This unit is labor for fusion splicing up ",
+  "value": "HO-1 (1-24)"
+ },
+ {
+  "label": "HO-1 (25-48) (SPLICE) This unit is labor for fusion splicing up ",
+  "value": "HO-1 (25-48)"
+ },
+ {
+  "label": "HO-1 (49-72) (SPLICE) This unit is labor for fusion splicing up ",
+  "value": "HO-1 (49-72)"
+ },
+ {
+  "label": "HO-1 (73 -144) (SPLICE) This unit is labor for fusion splicing up ",
+  "value": "HO-1 (73 -144)"
+ },
+ {
+  "label": "HO-1 (145 or above) (SPLICE) This unit is labor for fusion splicing 145",
+  "value": "HO-1 (145 or above)"
+ },
+ {
+  "label": "HO-1T (EA) Labor for fiber OTDR Testing. Testing can ",
+  "value": "HO-1T"
+ },
+ {
+  "label": "HO-1TB (EA) Labor for fiber OTDR Bare Fiber Testing. P",
+  "value": "HO-1TB"
+ },
+ {
+  "label": "HAFOx (EA) Labor to install Aerial Fiber Splice Closu",
+  "value": "HAFOx"
+ },
+ {
+  "label": "HBFOx (EA) Labor to install Buried Fiber Splice Closu",
+  "value": "HBFOx"
+ },
+ {
+  "label": "WHAFOx (EA) Labor and material to enter an existing sp",
+  "value": "WHAFOx"
+ },
+ {
+  "label": "BMHR-SPLICE (HR) Emergency Fiber Splicer with Trailer, Tool",
+  "value": "BMHR-SPLICE"
+ },
+ {
+  "label": "(XZ}B007 (EA) Labor unit to dig up, remove, and return t",
+  "value": "(XZ}B007"
+ },
+ {
+  "label": "(XZ}BHF-48T (EA) Labor unit to dig up, remove, and return t",
+  "value": "(XZ}BHF-48T"
+ },
+ {
+  "label": "(XZ)BHF-48 (EA) Labor unit to dig up, remove, and return t",
+  "value": "(XZ)BHF-48"
+ },
+ {
+  "label": "(XZ)BHF- 0T (EA) Labor unit to dig up, remove, and return t",
+  "value": "(XZ)BHF- 0T"
+ },
+ {
+  "label": "(XZ)BHF- 0 (EA) Labor unit to dig up, remove, and return t",
+  "value": "(XZ)BHF- 0"
+ },
+ {
+  "label": "(XZ)BHF-10 (EA) Labor unit to dig up, remove, and return t",
+  "value": "(XZ)BHF-10"
+ },
+ {
+  "label": "(XX)BDO7 (EA) Labor unit to dig up, remove, and discard ",
+  "value": "(XX)BDO7"
+ },
+ {
+  "label": "(XX)BHF-48T (EA) Labor unit to dig up, remove, and discard ",
+  "value": "(XX)BHF-48T"
+ },
+ {
+  "label": "(XX)BHF-48 (EA) Labor unit to dig up, remove, and discard ",
+  "value": "(XX)BHF-48"
+ },
+ {
+  "label": "(XX)BHF- 0T (EA) Labor unit to dig up, remove, and discard ",
+  "value": "(XX)BHF- 0T"
+ },
+ {
+  "label": "(XX)BHF- 0 (EA) Labor unit to dig up, remove, and discard ",
+  "value": "(XX)BHF- 0"
+ },
+ {
+  "label": "(XX)BHF-10 (EA) Labor unit to dig up, remove, and discard ",
+  "value": "(XX)BHF-10"
+ },
+ {
+  "label": "BMHR 1A (HR) Labor unit per hour for 1 Aerial Foreman, ",
+  "value": "BMHR 1A"
+ },
+ {
+  "label": "BMHR 2A (HR) Labor unit per hour for 2 Man Aerial Fiber",
+  "value": "BMHR 2A"
+ },
+ {
+  "label": "BMHR A (HR) Labor unit per hour for Man Aerial Fiber C",
+  "value": "BMHR A"
+ },
+ {
+  "label": "BMHR 4A (HR) Labor unit per hour for 4 Man Aerial Fiber",
+  "value": "BMHR 4A"
+ },
+ {
+  "label": "BMHR 1B (HR) Labor unit per hour for 1 Buried Fiber For",
+  "value": "BMHR 1B"
+ },
+ {
+  "label": "BMHR 2B (HR) Labor unit per hour for 2 Man Buried Fiber",
+  "value": "BMHR 2B"
+ },
+ {
+  "label": "BMHR B (HR) Labor unit per hour for Man Buried Fiber C",
+  "value": "BMHR B"
+ },
+ {
+  "label": "BMHR 4B (HR) Labor unit per hour for 4 Man Buried Fiber",
+  "value": "BMHR 4B"
+ },
+ {
+  "label": "BMHR ER1 (EVENT) Emergency Call Out. After hours, weekend o",
+  "value": "BMHR ER1"
+ },
+ {
+  "label": "BMHR ER2 (HR) Emergency Aerial Line/Bucket Truck with Tw",
+  "value": "BMHR ER2"
+ },
+ {
+  "label": "BMHR ER (HR) Emergency Heavy Equipment Operator with ba",
+  "value": "BMHR ER"
+ },
+ {
+  "label": "BMHR ER4 (HR) Emergency Ground Hand, or General Laborer.",
+  "value": "BMHR ER4"
+ },
+ {
+  "label": "BFO-DROP (FT) Labor to install underground conduit and p",
+  "value": "BFO-DROP"
+ },
+ {
+  "label": "BM60-DROP (FT) Labor to install underground conduit and p",
+  "value": "BM60-DROP"
+ },
+ {
+  "label": "BMHD-DROP (FT) Labor to Hand Dig portion of underground c",
+  "value": "BMHD-DROP"
+ },
+ {
+  "label": "AFO.DROP (FT) Install Aerial Drop Fiber.",
+  "value": "AFO.DROP"
+ },
+ {
+  "label": "RISER (EA) Install Fiber Optic Drop Riser Guard",
+  "value": "RISER"
+ },
+ {
+  "label": "ONT (EA) Install Demarcation Box on side of buildin",
+  "value": "ONT"
+ },
+ {
+  "label": "HO-1TL (EA) Labor for fiber tests with light meter.",
+  "value": "HO-1TL"
+ },
+ {
+  "label": "BFO-DROP.IE (FT) Labor to install Drop Fiber and Tracer Wir",
+  "value": "BFO-DROP.IE"
+ },
+ {
+  "label": "BM60(1)(0.75)Drop (FT) Labor to place a second vacant /4\" conduit",
+  "value": "BM60(1)(0.75)Drop"
+ },
+ {
+  "label": "BDO7 (EA) PEDESTAL",
+  "value": "BDO7"
+ },
+ {
+  "label": "BM2 (EA) Ground Rod",
+  "value": "BM2"
+ }
+]

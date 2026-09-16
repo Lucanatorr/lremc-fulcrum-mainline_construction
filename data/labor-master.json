@@ -1,0 +1,860 @@
+[
+ {
+  "code": "AFO",
+  "description": "Placing self-support fiber (ADSS) Aerial on Distribution Wood and Steel Poles. *",
+  "unit": "FT",
+  "rate": "1.85"
+ },
+ {
+  "code": "AFO.B",
+  "description": "Placing self-support fiber (ADSS) Aerial on Distribution Wood and Steel Poles attaching hardware by banding to pole. *",
+  "unit": "FT",
+  "rate": "1.95"
+ },
+ {
+  "code": "AFO.T",
+  "description": "Placing self-support fiber (ADSS) Aerial on Transmission Wood & Steel Structures. *",
+  "unit": "FT",
+  "rate": "1.85"
+ },
+ {
+  "code": "AFO.TC",
+  "description": "Placing self-support fiber (ADSS) Aerial on Transmission Concrete Structures. Poles will require banding. *",
+  "unit": "FT",
+  "rate": "1.95"
+ },
+ {
+  "code": "AFO.RTD",
+  "description": "Placing MST/RTD Aerial Fiber* Pricing is actual tail footage installed from recorded tic marks and includes mounting for anything over 1500ft MST/RTD.",
+  "unit": "FT",
+  "rate": "1.25"
+ },
+ {
+  "code": "AFO.RESAG",
+  "description": "Resag Fiber Per Span (Prior Approval Required)",
+  "unit": "EA",
+  "rate": "65"
+ },
+ {
+  "code": "AFO.S",
+  "description": "install Slack Coils or Snowshoes",
+  "unit": "EA",
+  "rate": "75"
+ },
+ {
+  "code": "AFO.CO ML",
+  "description": "Install Slack Coil/Snowshoe Fiber and Mount Splice Enclosures.",
+  "unit": "EA",
+  "rate": "100"
+ },
+ {
+  "code": "AFO.TRAN1",
+  "description": "Pole Transfers (Moving Existing Fiber from Pole to Pole)",
+  "unit": "EA",
+  "rate": "125"
+ },
+ {
+  "code": "AFO.TRAN2",
+  "description": "Pole Transfers (Moving Existing Fiber up or down the same pole)",
+  "unit": "EA",
+  "rate": "55"
+ },
+ {
+  "code": "FLAG",
+  "description": "Flagging Traffic(Outside normal conditions with prior approval)",
+  "unit": "HR",
+  "rate": "175"
+ },
+ {
+  "code": "AFO.SL",
+  "description": "Placing Strand & Lash Fiber on Distribution Wood and Steel Poles.*",
+  "unit": "FT",
+  "rate": "2.25"
+ },
+ {
+  "code": "AFO.GAA",
+  "description": "Place Screw Anchor With Down Guy",
+  "unit": "EA",
+  "rate": "85"
+ },
+ {
+  "code": "AFO.GG",
+  "description": "Install Down Guy With Guy Guard",
+  "unit": "EA",
+  "rate": "45"
+ },
+ {
+  "code": "AFO.EYE",
+  "description": "Install Auxilliary Eye",
+  "unit": "EA",
+  "rate": "35"
+ },
+ {
+  "code": "AFO.BOND",
+  "description": "Aerial Bond (When Needed)",
+  "unit": "EA",
+  "rate": "7"
+ },
+ {
+  "code": "AFO.OLASH",
+  "description": "Overlash Fiber",
+  "unit": "FT",
+  "rate": "1.2"
+ },
+ {
+  "code": "AFO.RELASH",
+  "description": "Delash/Relash",
+  "unit": "FT",
+  "rate": "1.3"
+ },
+ {
+  "code": "AFO SL Strand",
+  "description": "Strand Only",
+  "unit": "FT",
+  "rate": "1.1000000000000001"
+ },
+ {
+  "code": "BHF-10",
+  "description": "Labor only to install 10x15x12 drop vault / Labor only to install 10\" Fiber Storage. (Flower Pot)",
+  "unit": "EA",
+  "rate": "55"
+ },
+ {
+  "code": "BHF-17T",
+  "description": "Labor only to install small handholle. Size 17x30x24 Tier 22 Traffic rated.",
+  "unit": "EA",
+  "rate": "250"
+ },
+ {
+  "code": "BHF-30T",
+  "description": "Labor only to install 24x3 x3 Tier 22 Traffic rated.",
+  "unit": "EA",
+  "rate": "250"
+ },
+ {
+  "code": "BHF-48T",
+  "description": "Labor only to install 30x48x3 Tier 22 Traffic rated.",
+  "unit": "EA",
+  "rate": "400"
+ },
+ {
+  "code": "BHF-60T",
+  "description": "Labor only to install 30\"<VAULT 60\" Tier 22 Traffic rated.",
+  "unit": "EA",
+  "rate": "475"
+ },
+ {
+  "code": "BDO-SC144",
+  "description": "Labor to install 30\"<VAULT 48\" Tier 22 Traffic rated and mount 144 cabinet",
+  "unit": "EA",
+  "rate": "550"
+ },
+ {
+  "code": "BDO-SC288",
+  "description": "Labor to install 30\"<VAULT 48\" Tier 22 Traffic rated and mount 288 cabinet",
+  "unit": "EA",
+  "rate": "550"
+ },
+ {
+  "code": "BDO-SC432",
+  "description": "Labor to install 30\"<VAULT 60\" Tier 22 Traffic rated and mount 432 cabinet",
+  "unit": "EA",
+  "rate": "650"
+ },
+ {
+  "code": "BDO-SC576",
+  "description": "Labor to install 30\"<VAULT 60\" Tier 22 Traffic rated and mount 576 cabinet",
+  "unit": "EA",
+  "rate": "750"
+ },
+ {
+  "code": "BM60(MICRO)",
+  "description": "Labor to place a vacant M CRO conduit inside an existing larger conduit.",
+  "unit": "FT",
+  "rate": "1.25"
+ },
+ {
+  "code": "BM60(1)(1.25)",
+  "description": "Labor to place a vacant 1.25\" conduit inside an existing larger conduit.",
+  "unit": "FT",
+  "rate": "1.25"
+ },
+ {
+  "code": "BM60(1)(0.75) T",
+  "description": "Labor to place one (1) vacant 3/4\" conduit via the open trench method. Min depth to be 3 \" to 42\".",
+  "unit": "FT",
+  "rate": "6"
+ },
+ {
+  "code": "BM60(1)(1.25) T",
+  "description": "Labor to place one (1) vacant 1.25\" conduit via the open trench method. Min depth to be 3 \" to 42\".",
+  "unit": "FT",
+  "rate": "6"
+ },
+ {
+  "code": "BM60(1)(2) T",
+  "description": "Labor to place one (1) vacant 2\" conduits via the open trench method. Min depth to be 3 \" to 42\".",
+  "unit": "FT",
+  "rate": "7.05"
+ },
+ {
+  "code": "BM60(1)(4) T",
+  "description": "Labor to place one (1) vacant 4\" conduits via the open trench method. Min depth to be 3 \" to 42\".",
+  "unit": "FT",
+  "rate": "7.5"
+ },
+ {
+  "code": "BM60(2)(1.25) T",
+  "description": "Labor to place two (2) vacant 1.25\" conduits via the open trench method. Min depth to be 3 \" to 42\".",
+  "unit": "FT",
+  "rate": "7.7"
+ },
+ {
+  "code": "BM60(2)(2) T",
+  "description": "Labor to place two (2) vacant 2\" conduits via the open trench method. Min depth to be 3 \" to 42\".",
+  "unit": "FT",
+  "rate": "8.0500000000000007"
+ },
+ {
+  "code": "BM60(2)(4) T",
+  "description": "Labor to place two (2) vacant 4\" conduits via the open trench method. Min depth to be 3 \" to 42\".",
+  "unit": "FT",
+  "rate": "11.8"
+ },
+ {
+  "code": "BM60(3)(1.25) T",
+  "description": "Labor to place three (3) vacant 1.25\" conduits via the open trench method. Min depth to be 3 \" to 42\".",
+  "unit": "FT",
+  "rate": "9.4"
+ },
+ {
+  "code": "BM60(3)(2) T",
+  "description": "Labor to place three (3) vacant 2\" conduits via the open trench method. Min depth to be 3 \" to 42\".",
+  "unit": "FT",
+  "rate": "9.15"
+ },
+ {
+  "code": "BM60(3)(4) T",
+  "description": "Labor to place three (3) vacant 4\" conduits via the open trench method. Min depth to be 3 \" to 42\".",
+  "unit": "FT",
+  "rate": "15.95"
+ },
+ {
+  "code": "BM60(1)(1.25) TD",
+  "description": "Labor to place one (1) vacant 1.25\" conduit dual (joint trench) with another conduit or cable via the open trench method.",
+  "unit": "FT",
+  "rate": "3"
+ },
+ {
+  "code": "BM60(1)(2) TD",
+  "description": "Labor to place one (1) vacant 2\" conduit dual(joint trench) with another conduit or cable via the open trench method.",
+  "unit": "FT",
+  "rate": "3"
+ },
+ {
+  "code": "BM60(1)(4) TD",
+  "description": "Labor to place one (1) vacant 4\" conduit dual(joint trench) with another conduit or cable via the open trench method.",
+  "unit": "FT",
+  "rate": "4.8499999999999996"
+ },
+ {
+  "code": "BM60(2)(1.25) TD",
+  "description": "Labor to place two (2) vacant 1.25\" conduit dual(joint trench) with another conduit or cable via the open trench method.",
+  "unit": "FT",
+  "rate": "3.25"
+ },
+ {
+  "code": "BM60(2)(2) TD",
+  "description": "Labor to place two (2) vacant 2\" conduit dual(joint trench) with another conduit or cable via the open trench method.",
+  "unit": "FT",
+  "rate": "4"
+ },
+ {
+  "code": "BM60(2)(4) TD",
+  "description": "Labor to place two (2) vacant 4\" conduit dual(joint trench) with another conduit or cable via the open trench method.",
+  "unit": "FT",
+  "rate": "9.4499999999999993"
+ },
+ {
+  "code": "BM60(3)(1.25) TD",
+  "description": "Labor to place three (3) vacant 1.25\" conduit dual(joint trench) with another conduit or cable via the open trench method.",
+  "unit": "FT",
+  "rate": "4"
+ },
+ {
+  "code": "BM60(3)(2) TD",
+  "description": "Labor to place three (3) vacant 2\" conduit dual(joint trench) with another conduit or cable via the open trench method.",
+  "unit": "FT",
+  "rate": "5.45"
+ },
+ {
+  "code": "BM60(3)(4) TD",
+  "description": "Labor to place three (3) vacant 1.25\" conduit dual(joint trench) with another conduit or cable via the open trench method.",
+  "unit": "FT",
+  "rate": "4"
+ },
+ {
+  "code": "BM60(1)(0.75) P",
+  "description": "\"Labor to place one (1) vacant 3/4\"\" (non-drop) conduit via",
+  "unit": "FT",
+  "rate": "3.25"
+ },
+ {
+  "code": "BM60(1)(1.25) P",
+  "description": "the plow method Min depth to be 36\"\" to 42\"\" \"",
+  "unit": "FT",
+  "rate": "3.25"
+ },
+ {
+  "code": "BM60(1)(2) P",
+  "description": "\"Labor to place one (1) vacant 1 2 \"\" conduit via the plow",
+  "unit": "FT",
+  "rate": "3.35"
+ },
+ {
+  "code": "BM60(1)(4) P",
+  "description": "method Min depth to be 36\"\" to 42\"\" \"",
+  "unit": "FT",
+  "rate": "6.5"
+ },
+ {
+  "code": "BM60(2)(1.25) P",
+  "description": "\"Labor to place one (1) vacant 2\"\" conduits via the plow",
+  "unit": "FT",
+  "rate": "3.4"
+ },
+ {
+  "code": "BM60(2)(2) P",
+  "description": "method Min depth to be 36\"\" to 42\"\" \"",
+  "unit": "FT",
+  "rate": "4.75"
+ },
+ {
+  "code": "BM60(3)(1.25) P",
+  "description": "\"Labor to place one (1) vacant 4\"\" conduits via the plow",
+  "unit": "FT",
+  "rate": "3.45"
+ },
+ {
+  "code": "BFO.12.I",
+  "description": "Install a buried fiber optic cable containing 12 fibers in conduit.",
+  "unit": "FT",
+  "rate": "1.5"
+ },
+ {
+  "code": "BFO.48.I",
+  "description": "Install a buried fiber optic cable containing 48 fibers in conduit.",
+  "unit": "FT",
+  "rate": "1.5"
+ },
+ {
+  "code": "BFO.72.I",
+  "description": "Install a buried fiber optic cable containing 72 fibers in conduit.",
+  "unit": "FT",
+  "rate": "1.5"
+ },
+ {
+  "code": "BFO.144.I",
+  "description": "Install a buried fiber optic cable containing 144 fibers in conduit.",
+  "unit": "FT",
+  "rate": "1.65"
+ },
+ {
+  "code": "BFO.288.I",
+  "description": "Install a buried fiber optic cable containing 288 fibers in conduit.",
+  "unit": "FT",
+  "rate": "1.65"
+ },
+ {
+  "code": "BFO.HST.150",
+  "description": "HST 150 FT-Pricing is lump sum and includes mountin the head in pedestal",
+  "unit": "EA",
+  "rate": "300"
+ },
+ {
+  "code": "BFO.HST.250",
+  "description": "HST 250 FT-Pricing is lump sum and includes mountin the head in pedestal",
+  "unit": "EA",
+  "rate": "375"
+ },
+ {
+  "code": "BFO.HST.350",
+  "description": "HST 350 FT-Pricing is lump sum and includes mountin the head in pedestal",
+  "unit": "EA",
+  "rate": "490"
+ },
+ {
+  "code": "BFO.HST.500",
+  "description": "HST 500 FT-Pricing is lump sum and includes mountin the head in pedestal",
+  "unit": "EA",
+  "rate": "625"
+ },
+ {
+  "code": "BFO.HST.750",
+  "description": "HST 750 FT-Pricing is lump sum and includes mountin the head in pedestal",
+  "unit": "EA",
+  "rate": "937.5"
+ },
+ {
+  "code": "BFO.HST.1000",
+  "description": "HST 1000 FT-Pricing is lump sum and includes mountin the head in pedestal",
+  "unit": "EA",
+  "rate": "1250"
+ },
+ {
+  "code": "BFO.HST.1250",
+  "description": "HST 1250 FT-Pricing is lump sum and includes mountin the head in pedestal",
+  "unit": "EA",
+  "rate": "1562.5"
+ },
+ {
+  "code": "BFO.HST.1500",
+  "description": "HST 1500 FT-Pricing is lump sum and includes mountin the head in pedestal",
+  "unit": "EA",
+  "rate": "1875"
+ },
+ {
+  "code": "BFO.12.IE",
+  "description": "Install a buried fiber optic cable containing 12 fibers installed in an existing duct placed by others.",
+  "unit": "FT",
+  "rate": "1.5"
+ },
+ {
+  "code": "BFO.48.IE",
+  "description": "Install a buried fiber optic cable containing 48 fibers installed in an existing duct placed by others.",
+  "unit": "FT",
+  "rate": "1.5"
+ },
+ {
+  "code": "BFO.72.IE",
+  "description": "Install a buried fiber optic cable containing 72 fibers installed in an existing duct placed by others.",
+  "unit": "FT",
+  "rate": "1.5"
+ },
+ {
+  "code": "BFO.144.IE",
+  "description": "Install a buried fiber optic cable containing 144 fibers installed in an existing duct placed by others.",
+  "unit": "FT",
+  "rate": "1.5"
+ },
+ {
+  "code": "BFO.288.IE",
+  "description": "Install a buried fiber optic cable containing 288 fibers installed in an existing duct placed by others.",
+  "unit": "FT",
+  "rate": "1.5"
+ },
+ {
+  "code": "BFO.RTD.IE",
+  "description": "Install buried MST/RTD Fiber in an exiting duct placed by others. Pricing is actual tail footage installed from recorded tic marks and includes mounting MST/RTD.",
+  "unit": "FT",
+  "rate": "2"
+ },
+ {
+  "code": "BM53",
+  "description": "Labor to install an above round Fiber markin post",
+  "unit": "EA",
+  "rate": "22"
+ },
+ {
+  "code": "BM55A",
+  "description": "Labor to install a 3M locate disk or locate ball in vaults, on buried splices, or at the ends of pipe",
+  "unit": "EA",
+  "rate": "4"
+ },
+ {
+  "code": "BM60-(7Way)P Micro Duct",
+  "description": "Labor to install a 7 Way Micro Duct conduit bore or road crossing via the missile bore method. Unit consists of digging entry and exit pits, tamping and backfilling.",
+  "unit": "FT",
+  "rate": "10"
+ },
+ {
+  "code": "BM60-(1.25)MB",
+  "description": "Labor to install a 1.25\" conduit bore or road crossing via the missile bore method. Unit consists of digging entry and exit pits, tamping and backfilling.",
+  "unit": "FT",
+  "rate": "10"
+ },
+ {
+  "code": "BM60-(2)MB",
+  "description": "Labor to install a 2\" conduit bore or road crossing via the missile bore method. Unit consists of digging entry and exit pits, tamping and backfilling.",
+  "unit": "FT",
+  "rate": "10"
+ },
+ {
+  "code": "BM60-(4)MB",
+  "description": "Labor to install a 4\" conduit bore or road crossing via the missile bore method. Unit consists of digging entry and exit pits, tamping and backfilling.",
+  "unit": "FT",
+  "rate": "14.5"
+ },
+ {
+  "code": "BM60-(7Way)DP Micro Duct",
+  "description": "Labor to install a 7 Way Micro Duct conduit bore or road crossing via the hydraulic bore rig method. Unit consists of digging entry and exit pits, tamping and backfilling.",
+  "unit": "FT",
+  "rate": "10"
+ },
+ {
+  "code": "BM60-(1.25)DP",
+  "description": "Labor to install a 1.25\" conduit bore or road crossing via the hydraulic bore rig method. Unit consists of digging entry and exit pits, tamping and backfilling.",
+  "unit": "FT",
+  "rate": "10"
+ },
+ {
+  "code": "BM60-(2)DP",
+  "description": "Labor to install a 2\" conduit bore or road crossing via the hydraulic bore rig method. Unit consists of digging entry and exit pits, tamping and backfilling.",
+  "unit": "FT",
+  "rate": "10"
+ },
+ {
+  "code": "BM60-(4)DP",
+  "description": "Labor to install a 4\" conduit bore or road crossing via the hydraulic bore rig method. Unit consists of digging entry and exit pits, tamping and backfilling.",
+  "unit": "FT",
+  "rate": "14.5"
+ },
+ {
+  "code": "BM60-(1.25)DPD Dual",
+  "description": "Labor to install a second or more 1.25\" conduit bores or road crossings via the hydraulic bore rig method pulling multiple pipes back at one time. Unit consists of digging entry and exit pits, tamping and backfilling.",
+  "unit": "FT",
+  "rate": "2"
+ },
+ {
+  "code": "BM60-(2) DPD Dual",
+  "description": "Labor to install a second or more 2\" conduit bores or road crossings via the hydraulic bore rig method pulling multiple pipes back at one time. Unit consists of digging entry and exit pits, tamping and backfilling.",
+  "unit": "FT",
+  "rate": "9"
+ },
+ {
+  "code": "BM60-(4) DPD Dual",
+  "description": "Labor to install a second or more 4\" conduit bores or road crossings via the hydraulic bore rig method pulling multiple pipes back at one time. Unit consists of digging entry and exit pits, tamping and backfilling.",
+  "unit": "FT",
+  "rate": "11.5"
+ },
+ {
+  "code": "BM60(1.25)DP SDR Rail Road",
+  "description": "Labor to install a SDR 11 1.25\" conduit railroad bore via the hydraulic bore method.",
+  "unit": "FT",
+  "rate": "12"
+ },
+ {
+  "code": "BM60(2)DP SDR Rail Road",
+  "description": "Labor to install a SDR 11 2\" conduit railroad bore via the hydraulic bore method.",
+  "unit": "FT",
+  "rate": "16"
+ },
+ {
+  "code": "BM72",
+  "description": "Labor and material to remove and restore asphalt roadways. All work will be preformed to meet all federal, state, local standards which may include the use of any sub-base material such as concrete or crush and run.",
+  "unit": "SF",
+  "rate": "42"
+ },
+ {
+  "code": "BM7",
+  "description": "Labor and material to remove and restore any concrete. All work will be preformed to meet all federal, state, local standards which may include the use of any sub-base material such crush and run.",
+  "unit": "SF",
+  "rate": "45"
+ },
+ {
+  "code": "BMHD",
+  "description": "Labor to hand dig cables or conduit to proper depth greater than 18\" and up to 42\" where trench cannot be opened by backhoes, trenchers, ect due to existing facilities or room limitations.",
+  "unit": "FT",
+  "rate": "24"
+ },
+ {
+  "code": "BM60-R",
+  "description": "Rock adder to be added to BM60 for any si e conduit.",
+  "unit": "FT",
+  "rate": "15"
+ },
+ {
+  "code": "BM71",
+  "description": "Rock adder to be added to the plow or open trench method where a rock is present. This adder will cover jack hammering or sawing rock to get the conduit a min of 18\" into the rock surface or under the rock surface.",
+  "unit": "FT",
+  "rate": "38"
+ },
+ {
+  "code": "BM81",
+  "description": "Labor to install 10' Riser Guard.",
+  "unit": "EA",
+  "rate": "45"
+ },
+ {
+  "code": "BM90",
+  "description": "Install Pull Rope/Install Tracer Wire in Conduit (Only billed when no fiber pulled)",
+  "unit": "FT",
+  "rate": "1"
+ },
+ {
+  "code": "HO-1 (1-24)",
+  "description": "This unit is labor for fusion splicing up to 24 fibers n one ocat on.",
+  "unit": "SPLICE",
+  "rate": "32"
+ },
+ {
+  "code": "HO-1 (25-48)",
+  "description": "This unit is labor for fusion splicing up to 25 to 48 fibers n one ocat on.",
+  "unit": "SPLICE",
+  "rate": "28"
+ },
+ {
+  "code": "HO-1 (49-72)",
+  "description": "This unit is labor for fusion splicing up to 49 to 72 fibers in one location.",
+  "unit": "SPLICE",
+  "rate": "22"
+ },
+ {
+  "code": "HO-1 (73 -144)",
+  "description": "This unit is labor for fusion splicing up to 7 to 144 fibers in one location.",
+  "unit": "SPLICE",
+  "rate": "16"
+ },
+ {
+  "code": "HO-1 (145 or above)",
+  "description": "This unit is labor for fusion splicing 145 and above fibers in one location.",
+  "unit": "SPLICE",
+  "rate": "15"
+ },
+ {
+  "code": "HO-1T",
+  "description": "Labor for fiber OTDR Testing. Testing can be using jumpers in panels or bare fiber testing in splice cases",
+  "unit": "EA",
+  "rate": "8"
+ },
+ {
+  "code": "HO-1TB",
+  "description": "Labor for fiber OTDR Bare Fiber Testing. Price includes entering place case or other storage and testing bare fiber.",
+  "unit": "EA",
+  "rate": "9"
+ },
+ {
+  "code": "HAFOx",
+  "description": "Labor to install Aerial Fiber Splice Closure and mount on to pole.",
+  "unit": "EA",
+  "rate": "450"
+ },
+ {
+  "code": "HBFOx",
+  "description": "Labor to install Buried Fiber Splice Closure and place or mount in Underground Enclosure.",
+  "unit": "EA",
+  "rate": "450"
+ },
+ {
+  "code": "WHAFOx",
+  "description": "Labor and material to enter an existing splice case for the purpose of splicing more fibers that are not spliced, or splicing in a new cable to be added to the existing case.",
+  "unit": "EA",
+  "rate": "350"
+ },
+ {
+  "code": "BMHR-SPLICE",
+  "description": "Emergency Fiber Splicer with Trailer, Tools and Test Equipment. After hours, weekend or holiday.",
+  "unit": "HR",
+  "rate": "165"
+ },
+ {
+  "code": "(XZ}B007",
+  "description": "Labor unit to dig up, remove, and return to stock and undamaged above ground stake mounted fiber pedesta .",
+  "unit": "EA",
+  "rate": "250"
+ },
+ {
+  "code": "(XZ}BHF-48T",
+  "description": "Labor unit to dig up, remove, and return to stock and undamaged 48\" traffic rated underground vault.",
+  "unit": "EA",
+  "rate": "250"
+ },
+ {
+  "code": "(XZ)BHF-48",
+  "description": "Labor unit to dig up, remove, and return to stock an undamaged 48\" non-traffic rated in ground vault.",
+  "unit": "EA",
+  "rate": "250"
+ },
+ {
+  "code": "(XZ)BHF- 0T",
+  "description": "Labor unit to dig up, remove, and return to stock an undamaged 0\" traffic rated in ground hand hole.",
+  "unit": "EA",
+  "rate": "250"
+ },
+ {
+  "code": "(XZ)BHF- 0",
+  "description": "Labor unit to dig up, remove, and return to stock an undamaged 0\" non-traffic rated in ground hand hole.",
+  "unit": "EA",
+  "rate": "250"
+ },
+ {
+  "code": "(XZ)BHF-10",
+  "description": "Labor unit to dig up, remove, and return to stock an undamaged 10\" fiber storage (flower pot).",
+  "unit": "EA",
+  "rate": "78"
+ },
+ {
+  "code": "(XX)BDO7",
+  "description": "Labor unit to dig up, remove, and discard a damaged above ground stake mounted fiber pedestal.",
+  "unit": "EA",
+  "rate": "250"
+ },
+ {
+  "code": "(XX)BHF-48T",
+  "description": "Labor unit to dig up, remove, and discard a damaged 48\" traffic rated in ground vault.",
+  "unit": "EA",
+  "rate": "250"
+ },
+ {
+  "code": "(XX)BHF-48",
+  "description": "Labor unit to dig up, remove, and discard a damaged 48\" non-traffic rated in ground vault.",
+  "unit": "EA",
+  "rate": "250"
+ },
+ {
+  "code": "(XX)BHF- 0T",
+  "description": "Labor unit to dig up, remove, and discard a damaged 0\" traffic rated in ground hand hole.",
+  "unit": "EA",
+  "rate": "250"
+ },
+ {
+  "code": "(XX)BHF- 0",
+  "description": "Labor unit to dig up, remove, and discard a damaged 0\" non-traffic rated in ground hand hole.",
+  "unit": "EA",
+  "rate": "250"
+ },
+ {
+  "code": "(XX)BHF-10",
+  "description": "Labor unit to dig up, remove, and discard a damaged 10\" fiber storage (flower pot).",
+  "unit": "EA",
+  "rate": "75"
+ },
+ {
+  "code": "BMHR 1A",
+  "description": "Labor unit per hour for 1 Aerial Foreman, truck and tools to be compensated where other units do not apply.",
+  "unit": "HR",
+  "rate": "99.5"
+ },
+ {
+  "code": "BMHR 2A",
+  "description": "Labor unit per hour for 2 Man Aerial Fiber Crew to be compensated where other units do not apply.",
+  "unit": "HR",
+  "rate": "136.5"
+ },
+ {
+  "code": "BMHR A",
+  "description": "Labor unit per hour for Man Aerial Fiber Crew to be compensated where other units do not apply.",
+  "unit": "HR",
+  "rate": "172.5"
+ },
+ {
+  "code": "BMHR 4A",
+  "description": "Labor unit per hour for 4 Man Aerial Fiber Crew to be compensated where other units do not apply.",
+  "unit": "HR",
+  "rate": "232.5"
+ },
+ {
+  "code": "BMHR 1B",
+  "description": "Labor unit per hour for 1 Buried Fiber Foreman, truck and tools, to be compensated where other units do not apply.",
+  "unit": "HR",
+  "rate": "92.5"
+ },
+ {
+  "code": "BMHR 2B",
+  "description": "Labor unit per hour for 2 Man Buried Fiber Crew to be compensated where other units do not apply.",
+  "unit": "HR",
+  "rate": "170"
+ },
+ {
+  "code": "BMHR B",
+  "description": "Labor unit per hour for Man Buried Fiber Crew to be compensated where other units do not apply.",
+  "unit": "HR",
+  "rate": "206"
+ },
+ {
+  "code": "BMHR 4B",
+  "description": "Labor unit per hour for 4 Man Buried Fiber Crew to be compensated where other units do not apply.",
+  "unit": "HR",
+  "rate": "248"
+ },
+ {
+  "code": "BMHR ER1",
+  "description": "Emergency Call Out. After hours, weekend or holiday. Only applicable for emergency repair response. Flat fee for mobili ation of on-site response to emergency plant repair at any time of day or night.",
+  "unit": "EVENT",
+  "rate": "235"
+ },
+ {
+  "code": "BMHR ER2",
+  "description": "Emergency Aerial Line/Bucket Truck with Two Person Crew. After hours, weekend or holiday.",
+  "unit": "HR",
+  "rate": "175"
+ },
+ {
+  "code": "BMHR ER",
+  "description": "Emergency Heavy Equipment Operator with backhoe or excavator to make UG repairs. After hours, weekend or holiday.",
+  "unit": "HR",
+  "rate": "150"
+ },
+ {
+  "code": "BMHR ER4",
+  "description": "Emergency Ground Hand, or General Laborer. After hours, weekend or holiday.",
+  "unit": "HR",
+  "rate": "56"
+ },
+ {
+  "code": "BFO-DROP",
+  "description": "Labor to install underground conduit and pull drop(Plow or Trench). Min depth to be 12\" to 18\" to top of conduit.",
+  "unit": "FT",
+  "rate": "2.5499999999999998"
+ },
+ {
+  "code": "BM60-DROP",
+  "description": "Labor to install underground conduit and pull drop(Missle Bore or Directional Bore). Min depth to be 12\" to 18\" to top of conduit.",
+  "unit": "FT",
+  "rate": "12.5"
+ },
+ {
+  "code": "BMHD-DROP",
+  "description": "Labor to Hand Dig portion of underground conduit and pull drop. Min depth to be 12\" to 18\" to top of conduit.",
+  "unit": "FT",
+  "rate": "11"
+ },
+ {
+  "code": "AFO.DROP",
+  "description": "Install Aerial Drop Fiber.",
+  "unit": "FT",
+  "rate": "1.75"
+ },
+ {
+  "code": "RISER",
+  "description": "Install Fiber Optic Drop Riser Guard",
+  "unit": "EA",
+  "rate": "45"
+ },
+ {
+  "code": "ONT",
+  "description": "Install Demarcation Box on side of building or on Mobile Home Post.",
+  "unit": "EA",
+  "rate": "45"
+ },
+ {
+  "code": "HO-1TL",
+  "description": "Labor for fiber tests with light meter.",
+  "unit": "EA",
+  "rate": "9"
+ },
+ {
+  "code": "BFO-DROP.IE",
+  "description": "Labor to install Drop Fiber and Tracer Wire in existing conduit.",
+  "unit": "FT",
+  "rate": "1.75"
+ },
+ {
+  "code": "BM60(1)(0.75)Drop",
+  "description": "Labor to place a second vacant /4\" conduit. Min depth to be 12\" to 18\".",
+  "unit": "FT",
+  "rate": "1.25"
+ },
+ {
+  "code": "BDO7",
+  "description": "PEDESTAL",
+  "unit": "EA",
+  "rate": "85"
+ },
+ {
+  "code": "BM2",
+  "description": "Ground Rod",
+  "unit": "EA",
+  "rate": "22"
+ }
+]
