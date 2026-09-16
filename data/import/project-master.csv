@@ -1,0 +1,4 @@
+project_id,project_name,customer,market,state,county,project_manager,construction_manager,start_date,required_completion_date,original_contract_value,route_miles,planned_fiber_footage,planned_underground_footage,planned_aerial_footage,planned_splices,notes,status
+PRJ-000001,MCP-TEST-001 Mainline Construction System Test,INTERNAL,TEST,NC,,,,2026-01-01,,1000000,,80000,25000,30000,25,TEST PROJECT - must never contaminate production reporting,ACTIVE
+PRJ-000002,Hoke CAB,,,NC,Hoke,,,,,,,,,,,Existing Fulcrum project,ACTIVE
+PRJ-000003,Laurinburg Pon 12,,,NC,Scotland,,,,,,,,,,,Existing Fulcrum project,ACTIVE

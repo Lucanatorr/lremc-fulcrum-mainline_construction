@@ -8,6 +8,9 @@ no production object has been modified.
 | Name | ID | Purpose |
 |---|---|---|
 | Mainline Construction - Development | `61e3f7b6-f703-4f43-9602-51afb7b7843d` | Sprint 1 production transaction app |
+| MC Contractor Master - Development | `d8a368b5-1e19-4f5f-8cf9-ff8fbdd03ab4` | Sprint 2 contractor master |
+| MC Project Master - Development | `5ce243d4-9ec1-4fbd-8659-7be9f632b55c` | Sprint 2 project master |
+| MC Contractor Rate - Development | `a5529dd0-54fa-4b8d-b595-d0218df0ee97` | Sprint 2 pricing source of truth |
 
 ## Choice lists (the account had none before this project)
 
@@ -44,3 +47,7 @@ no production object has been modified.
   resent with every call.
 - A large `forms_update` can exceed the MCP client timeout while still
   succeeding server-side. Verify before retrying.
+- `CalculatedField` `display.style` must be one of `text`, `number`, `date`,
+  `currency`. `string` is rejected.
+- The MCP server exposes **no record-creation tool**, so master data must be
+  imported through the Fulcrum UI or the Records API.
