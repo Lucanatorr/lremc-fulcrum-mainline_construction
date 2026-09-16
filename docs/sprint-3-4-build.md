@@ -32,7 +32,7 @@ Two structural defences rather than one:
 2. Every Data Event write goes through `setIfChanged`, which compares before
    writing, so a no-op save writes nothing.
 
-## Sprint 4 — Fiber Construction: PARTIAL
+## Sprint 4 — Fiber Construction: COMPLETE
 
 ### Done
 `MC Fiber Reel - Development` (`728477da-5f36-48cb-b3ab-cbc8c38d077f`).
@@ -52,25 +52,13 @@ The production app already carries `cable_id`, `reel_id`, `fiber_type`,
 `fiber_count`, sequentials, slack, other added footage and total installed
 footage, conditional on work category.
 
-### Remaining
-1. Add `reel_link` (RecordLink → Fiber Reel) to the production app, copying down
-   the reel's beginning/ending sequential.
-2. Add outside-reel-range validation comparing production sequentials to those
-   snapshots — offline-safe, same pattern as the rate checks.
+### Reel link — done
+`reel_link` on the production app copies the reel's ID and printed
+beginning/ending sequential down onto the transaction. `validateReelRange()`
+then compares production sequentials to those snapshots **offline**. The reel
+range is normalized, so a reel entered high-to-low still validates correctly.
 
-### Sequential overlap detection — an architectural limitation
+### Sequential overlap — implemented as a server-side report
 
-Sprint 4 asks for overlap detection across records (`100000-105000` vs
-`104500-108000`). This **cannot be done offline**: it requires scanning other
-production records, and Data Events offer only online-only HTTP lookup.
-
-Options, in preference order:
-
-1. **Server-side exception report** over the production dataset. Catches every
-   overlap, needs no connectivity in the field, but is after-the-fact.
-2. **Online-only check** via `REQUEST` when connectivity exists — best-effort
-   only, and silently absent offline, which is the worst property for a control.
-3. Reel-range validation (item 2 above), which is **not** overlap detection but
-   catches the most common data-entry error offline.
-
-Recommendation: 1 + 3. Do not pretend 2 is a control.
+`reports/sequential-overlap.sql`. See `docs/sprint-5-6-build.md` for the
+reasoning and the adopted adjacency rule.

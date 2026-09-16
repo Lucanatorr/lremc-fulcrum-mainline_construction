@@ -1,0 +1,30 @@
+labor_code,conduit_package,issue
+BM60(MICRO),Micro duct (1-way),No micro duct conduit SKU in the material master
+BM60(1)(0.75) T,"0.75"" conduit x1","NO 0.75"" conduit SKU EXISTS in the material master"
+BM60(1)(2) T,"2.0"" conduit x1","NO 2.0"" conduit SKU EXISTS in the material master"
+BM60(1)(4) T,"4.0"" conduit x1","NO 4.0"" conduit SKU EXISTS in the material master"
+BM60(2)(2) T,"2.0"" conduit x2","NO 2.0"" conduit SKU EXISTS in the material master"
+BM60(2)(4) T,"4.0"" conduit x2","NO 4.0"" conduit SKU EXISTS in the material master"
+BM60(3)(2) T,"2.0"" conduit x3","NO 2.0"" conduit SKU EXISTS in the material master"
+BM60(3)(4) T,"4.0"" conduit x3","NO 4.0"" conduit SKU EXISTS in the material master"
+BM60(1)(2) TD,"2.0"" conduit x1","NO 2.0"" conduit SKU EXISTS in the material master"
+BM60(1)(4) TD,"4.0"" conduit x1","NO 4.0"" conduit SKU EXISTS in the material master"
+BM60(2)(2) TD,"2.0"" conduit x2","NO 2.0"" conduit SKU EXISTS in the material master"
+BM60(2)(4) TD,"4.0"" conduit x2","NO 4.0"" conduit SKU EXISTS in the material master"
+BM60(3)(2) TD,"2.0"" conduit x3","NO 2.0"" conduit SKU EXISTS in the material master"
+BM60(3)(4) TD,"4.0"" conduit x3","NO 4.0"" conduit SKU EXISTS in the material master"
+BM60(1)(0.75) P,"0.75"" conduit x1","NO 0.75"" conduit SKU EXISTS in the material master"
+BM60(1)(2) P,"2.0"" conduit x1","NO 2.0"" conduit SKU EXISTS in the material master"
+BM60(1)(4) P,"4.0"" conduit x1","NO 4.0"" conduit SKU EXISTS in the material master"
+BM60(2)(2) P,"2.0"" conduit x2","NO 2.0"" conduit SKU EXISTS in the material master"
+BM60-(7Way)P Micro Duct,Micro duct (7-way),No micro duct conduit SKU in the material master
+BM60-(2)MB,"2.0"" conduit x1","NO 2.0"" conduit SKU EXISTS in the material master"
+BM60-(4)MB,"4.0"" conduit x1","NO 4.0"" conduit SKU EXISTS in the material master"
+BM60-(7Way)DP Micro Duct,Micro duct (7-way),No micro duct conduit SKU in the material master
+BM60-(2)DP,"2.0"" conduit x1","NO 2.0"" conduit SKU EXISTS in the material master"
+BM60-(4)DP,"4.0"" conduit x1","NO 4.0"" conduit SKU EXISTS in the material master"
+BM60-(2) DPD Dual,"2.0"" conduit x1","NO 2.0"" conduit SKU EXISTS in the material master"
+BM60-(4) DPD Dual,"4.0"" conduit x1","NO 4.0"" conduit SKU EXISTS in the material master"
+BM60(2)DP SDR Rail Road,"2.0"" conduit x1","NO 2.0"" conduit SKU EXISTS in the material master"
+BM60-DROP,Conduit size not stated in the code,Cannot derive a multiplier - business must specify
+BM60(1)(0.75)Drop,"0.75"" conduit x1","NO 0.75"" conduit SKU EXISTS in the material master"

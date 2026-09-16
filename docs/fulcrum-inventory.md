@@ -7,11 +7,12 @@ no production object has been modified.
 
 | Name | ID | Purpose |
 |---|---|---|
-| Mainline Construction - Development | `61e3f7b6-f703-4f43-9602-51afb7b7843d` | Sprint 1 production transaction app |
+| Mainline Construction - Development | `06c36c8e-4a88-4cf3-a691-9a792f8374d2` | Sprints 1-6 production transaction app |
 | MC Contractor Master - Development | `d8a368b5-1e19-4f5f-8cf9-ff8fbdd03ab4` | Sprint 2 contractor master |
 | MC Project Master - Development | `5ce243d4-9ec1-4fbd-8659-7be9f632b55c` | Sprint 2 project master |
 | MC Contractor Rate - Development | `a5529dd0-54fa-4b8d-b595-d0218df0ee97` | Sprint 2 pricing source of truth |
 | MC Fiber Reel - Development | `728477da-5f36-48cb-b3ab-cbc8c38d077f` | Sprint 4/17 reel master |
+| MC Labor-Material Mapping - Development | `38e3d7fd-ca78-4016-8018-ec955446c13f` | Sprint 5 labor -> material multipliers |
 
 ## Choice lists (the account had none before this project)
 
@@ -55,5 +56,10 @@ no production object has been modified.
 - **A field's type cannot be changed after creation.** Converting a ChoiceField
   to a RecordLinkField requires a new key; the old field is dropped.
 - Deleting fields and adding new ones in the *same* `forms_update` can return an
-  opaque `could_not_update_form: Please try again later`. Verify state, then
-  retry - the second attempt succeeded.
+  opaque `could_not_update_form: Please try again later`.
+- **Large `forms_update` calls fail where the identical payload succeeds as a
+  `forms_create`.** Adding ~34 fields and two sections at once failed twice with
+  `could_not_update_form`, while the same element tree created cleanly in a
+  probe form and then as a fresh form. On a dev app with no records, delete and
+  recreate rather than fighting the update path. The form ID changes, so keep it
+  in one place (this file) rather than scattered through docs.
