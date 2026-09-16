@@ -11,6 +11,7 @@ no production object has been modified.
 | MC Contractor Master - Development | `d8a368b5-1e19-4f5f-8cf9-ff8fbdd03ab4` | Sprint 2 contractor master |
 | MC Project Master - Development | `5ce243d4-9ec1-4fbd-8659-7be9f632b55c` | Sprint 2 project master |
 | MC Contractor Rate - Development | `a5529dd0-54fa-4b8d-b595-d0218df0ee97` | Sprint 2 pricing source of truth |
+| MC Fiber Reel - Development | `728477da-5f36-48cb-b3ab-cbc8c38d077f` | Sprint 4/17 reel master |
 
 ## Choice lists (the account had none before this project)
 
@@ -51,3 +52,8 @@ no production object has been modified.
   `currency`. `string` is rejected.
 - The MCP server exposes **no record-creation tool**, so master data must be
   imported through the Fulcrum UI or the Records API.
+- **A field's type cannot be changed after creation.** Converting a ChoiceField
+  to a RecordLinkField requires a new key; the old field is dropped.
+- Deleting fields and adding new ones in the *same* `forms_update` can return an
+  opaque `could_not_update_form: Please try again later`. Verify state, then
+  retry - the second attempt succeeded.

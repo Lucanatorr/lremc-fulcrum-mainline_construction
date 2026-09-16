@@ -1,6 +1,6 @@
 # Sprint 2 — Master Data and Contractor Pricing
 
-**Status:** master-data backbone built. Production app rewiring is the next step.
+**Status:** COMPLETE. Masters built and the production app is wired to them.
 
 ## Apps created
 
@@ -72,32 +72,38 @@ All River City rates are loaded as **all-projects**, effective **2026-01-01**,
 open-ended. Only River City supplied a rate sheet; the other two contractors are
 placeholders with no pricing.
 
-## Next step — rewire the production app
+## Production app wiring — done
 
-`Mainline Construction - Development` still carries Sprint 1 ChoiceFields for
-Project and Contractor. To finish Sprint 2:
+`Mainline Construction - Development` now carries three RecordLinks:
 
-1. Replace `project` and `contractor` ChoiceFields with RecordLinks to the new
-   masters, with `record_defaults` filling the existing snapshot fields.
-2. Add a `rate_link` RecordLink to the Rate app, copying down `unit_rate` →
-   `contractor_rate`, `rate_id` → `rate_source_id`, `effective_date` →
-   `rate_effective_date`, plus `labor_description`.
-3. Add hidden snapshot fields for the rate's own contractor, project, labor code,
-   expiration and active flag, so validation can detect:
-   - **missing rate** — no rate linked
-   - **contractor mismatch** — rate belongs to a different contractor
-   - **project mismatch** — rate is project-specific for a different project
-   - **expired rate** — work date outside the rate's effective period
-   - **ambiguous rate** — more than one rate could apply
+| Link | Target | Copies down |
+|---|---|---|
+| `project_link` | Project Master | `project_id`, `project_name` |
+| `contractor_link` | Contractor Master | `contractor_id`, `contractor_name` |
+| `rate_link` | Contractor Rate | unit rate, rate id, effective date, expiration, rate's own contractor / project / labor code |
 
-   Comparing snapshots is what makes these detectable **offline**, since the
-   values travel with the record rather than needing a query.
+`Contractor Rate` on the transaction is now **read-only** — it can only arrive
+from a linked rate record, so a hand-typed price cannot break the audit trail.
 
-## Open architectural question
+### The five rate exceptions, all detected offline
 
-Whether `record_conditions` can filter selectable records against *the current
-record's* values (e.g. show only rates for the chosen contractor), or only
-static conditions. The production app uses only the static form. This determines
-how much of rate selection is automatic versus picked from a filtered list, and
-needs a runtime test in the app — the API accepting a definition does not prove
-its runtime behavior.
+`validateRate()` compares only values already copied onto the record, so no
+query and no connectivity is needed:
+
+| Exception | Detection |
+|---|---|
+| Missing rate | no `rate_source_id` |
+| Zero / blank rate | snapshot rate is 0 or empty |
+| Contractor mismatch | rate's contractor ID ≠ record's contractor ID |
+| Project mismatch | rate is project-specific for a different project (blank = all projects, always valid) |
+| Expired / not yet effective | work date outside the snapshot effective window, compared by calendar day |
+
+All are CRITICAL, and all are **warnings, not blocks** — a blocked save loses
+field work. 19/19 tests pass in `tests/rate-validation.test.js`.
+
+### Ambiguous rate — a documented gap
+
+Sprint 23.12 wants two simultaneously-valid rates flagged. That requires
+scanning other rate records, which is **online-only**. The offline design makes
+it structurally undetectable at entry time. Mitigation: detect it in the master
+(a server-side exception report over the Rate app), not on the device.
