@@ -1,0 +1,25 @@
+[
+  {"type":"TextField","key":"x001","label":"Transaction ID","data_name":"transaction_id","description":"System-assigned once, never regenerated.","disabled":true,"visible_conditions_behavior":"clear"},
+  {"type":"DateTimeField","key":"x002","label":"Transaction Date","data_name":"transaction_date","required":true,"visible_conditions_behavior":"clear"},
+  {"type":"ChoiceField","key":"x003","label":"Transaction Type","data_name":"transaction_type","description":"Only INSTALLED counts as actual consumption for variance against calculated usage.","required":true,"choices":[{"label":"Issued - to crew or project","value":"Issued"},{"label":"Installed - consumed in the ground or air","value":"Installed"},{"label":"Returned - back to stock, undamaged","value":"Returned"},{"label":"Damaged","value":"Damaged"},{"label":"Lost","value":"Lost"},{"label":"Transferred - between projects or crews","value":"Transferred"},{"label":"Adjusted - reconciliation correction","value":"Adjusted"}],"visible_conditions_behavior":"clear"},
+  {"type":"Section","key":"x100","label":"CONTEXT","data_name":"context","display":"inline","visible_conditions_behavior":"clear","elements":[
+    {"type":"RecordLinkField","key":"x006","label":"Project","data_name":"project_link","required":true,"visible_conditions_behavior":"clear","form_id":"5ce243d4-9ec1-4fbd-8659-7be9f632b55c","record_defaults":[{"destination_field_key":"x007","source_field_key":"p001"}],"allow_existing_records":true},
+    {"type":"TextField","key":"x007","label":"Project ID (snapshot)","data_name":"project_id_snap","disabled":true,"visible_conditions_behavior":"clear"},
+    {"type":"RecordLinkField","key":"x008","label":"Contractor","data_name":"contractor_link","visible_conditions_behavior":"clear","form_id":"d8a368b5-1e19-4f5f-8cf9-ff8fbdd03ab4","record_defaults":[{"destination_field_key":"x009","source_field_key":"c001"}],"allow_existing_records":true},
+    {"type":"TextField","key":"x009","label":"Contractor ID (snapshot)","data_name":"contractor_id_snap","disabled":true,"visible_conditions_behavior":"clear"},
+    {"type":"RecordLinkField","key":"x004","label":"Production Record","data_name":"production_link","description":"Links this material movement to the production that caused it. This is what makes material usage auditable back to a labor code.","visible_conditions_behavior":"clear","form_id":"06c36c8e-4a88-4cf3-a691-9a792f8374d2","record_defaults":[{"destination_field_key":"x005","source_field_key":"m001"},{"destination_field_key":"x011","source_field_key":"m021"}],"allow_existing_records":true},
+    {"type":"TextField","key":"x005","label":"Production ID (snapshot)","data_name":"production_id_snap","disabled":true,"visible_conditions_behavior":"clear"},
+    {"type":"ChoiceField","key":"x011","label":"Associated Labor Code (snapshot)","data_name":"associated_labor_code_snap","disabled":true,"visible_conditions_behavior":"clear","choice_list_id":"ddccba3b-c5b6-4a38-8892-805e916afacd"},
+    {"type":"TextField","key":"x016","label":"Crew","data_name":"crew","visible_conditions_behavior":"clear"},
+    {"type":"TextField","key":"x017","label":"Location","data_name":"location","visible_conditions_behavior":"clear"}
+  ]},
+  {"type":"Section","key":"x101","label":"MATERIAL","data_name":"material","display":"inline","visible_conditions_behavior":"clear","elements":[
+    {"type":"RecordLinkField","key":"x010","label":"Material","data_name":"material_link","description":"Code, description and unit are copied down, so a later master rename cannot rewrite this ledger entry.","required":true,"visible_conditions_behavior":"clear","form_id":"658143d1-edbd-430b-81bb-1b0bb1092729","record_defaults":[{"destination_field_key":"x012","source_field_key":"t001"},{"destination_field_key":"x013","source_field_key":"t002"},{"destination_field_key":"x014","source_field_key":"t004"}],"allow_existing_records":true},
+    {"type":"TextField","key":"x012","label":"Material Code (snapshot)","data_name":"material_code_snap","disabled":true,"visible_conditions_behavior":"clear"},
+    {"type":"TextField","key":"x013","label":"Material Description (snapshot)","data_name":"material_description_snap","disabled":true,"visible_conditions_behavior":"clear"},
+    {"type":"ChoiceField","key":"x014","label":"Unit (snapshot)","data_name":"material_unit_snap","disabled":true,"visible_conditions_behavior":"clear","choice_list_id":"8713e0c3-3b5e-40a5-9886-3e5b979b7461"},
+    {"type":"TextField","key":"x015","label":"Quantity","data_name":"quantity","description":"Negative quantities are permitted ONLY on an Adjusted transaction (Sprint 23.59).","required":true,"numeric":true,"visible_conditions_behavior":"clear","format":"decimal"}
+  ]},
+  {"type":"PhotoField","key":"x019","label":"Photos","data_name":"photos","visible_conditions_behavior":"clear","annotations_enabled":true,"timestamp_enabled":true},
+  {"type":"TextField","key":"x018","label":"Notes","data_name":"notes","visible_conditions_behavior":"clear"}
+]

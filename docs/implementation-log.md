@@ -6,6 +6,54 @@ Newest entries first. Every Fulcrum object this project creates is listed in
 
 ---
 
+## 2026-09-16 — Sprints 7 & 8 complete
+
+Data Events **v4.0.0** deployed to `06c36c8e-4a88-4cf3-a691-9a792f8374d2`
+(via `forms_update` this time — the form ID was preserved deliberately, because
+the new Material Transaction app links to it). 132 elements, eleven sections.
+
+### Ruling: `(n)` is the pull count — and v3.0.0 was wrong because of it
+`BM60(1)(1.25) P` is a **1-pull** plow, `BM60(2)(1.25) P` is **2-pull**. A
+3-pull package is therefore **one bundled conduit assembly**, consumed at
+**1 FT per production FT**.
+
+v3.0.0 published `quantity × count` as *"Calculated Conduit Footage"*, which
+would have ordered **3× the conduit** on every multi-pull run. Corrected in
+v4.0.0: that field is now **"Total Duct Footage (informational)"** (still a real
+engineering number, just not a purchasing number) and a new
+**Conduit Material Quantity** field carries the 1:1 figure.
+
+Conduit sizes in scope: **1.25", 2", 4" only**. Micro duct, 0.75" and
+`BM60-DROP` derive nothing and raise INFO rather than inventing a SKU.
+
+### Sprint 7 — Splicing
+SPLICING section, conditional on Work Category. The priced band is parsed from
+the pay-unit code (`HO-1 (25-48)` → 25-48; `HO-1 (145 or above)` → 145+, no
+upper bound). **A band that does not contain the fiber count is CRITICAL**, not
+a warning: `HO-1 (1-24)` is $32/splice against $15 for `HO-1 (145 or above)`, so
+the wrong band more than doubles the money on identical physical work.
+
+### Sprint 8 — Materials
+Two new apps: **MC Material Master** (`658143d1-…`) and **MC Material
+Transaction** (`ee204906-…`). The ledger stores no totals — every balance is
+summed from atomic transactions, the same rule production follows. Linking a
+production record gives Project → Production → Labor Code → Material, so an
+auditor can see *why* a quantity is believed consumed.
+
+Two save-blocking rules, the only `INVALID()` calls in the build: zero quantity
+is not a transaction, and a negative quantity is valid only on an `Adjusted`
+row (Sprint 23.59) so a reversal cannot quietly erase consumption.
+
+Mapping regenerated: **36 rows — 14 APPROVED, 22 NEEDS REVIEW**. Every
+multiplier is now `1`; the only thing missing is 2"/4" part numbers.
+
+Also exported the deployed Data Events scripts into `fulcrum/data-events/`.
+They were previously living only inside Fulcrum, unversioned.
+
+**112 tests pass across five suites.** See `docs/sprint-7-8-build.md`.
+
+---
+
 ## 2026-09-16 — Sprints 2-6 complete
 
 Production app REBUILT and its **form ID changed** to
@@ -64,8 +112,8 @@ Data Event script**. See the security note in that document.
 | 3 | `BHF-10` appears twice at $55 with two different descriptions (drop vault / flower pot) | Sprint 0 | Open — financially neutral |
 | 4 | Splice classification set uses `HO1 (1-24)`; rate sheet uses `HO-1 (1-24)`. Hyphen mismatch breaks the join | Sprint 0 | Open |
 | 5 | `HO1-12R` (ribbon splice) exists in the classification set but has **no rate** | Sprint 0 | Open |
-| 6 | **Bundled conduit ambiguity.** `BM60(3)(1.25)` = 1 FT of the 3-PULL SKU, or 3 FT of the 1-PULL SKU? A **3x** difference in material consumption. Blocks all 14 proposed conduit mappings | Sprint 5 | **Open — blocks material automation** |
-| 7 | **Material master stocks only 1.25" conduit.** 29 of 43 conduit pay units (2", 4", micro, 0.75") have no SKU | Sprint 5 | **Open** |
+| 6 | ~~Bundled conduit ambiguity — 1 FT of the 3-PULL SKU, or 3 FT of the 1-PULL SKU?~~ | Sprint 5 | **CLOSED 2026-09-16** — `(n)` is the pull count, so consumption is 1:1. v3.0.0 corrected. |
+| 7 | **2" and 4" conduit part numbers are unknown.** 22 of 36 mappings carry a `TBD-CONDUIT-…` placeholder. Multiplier is settled; only the SKU identifiers are missing | Sprint 5 | **Open — blocks material automation for 2"/4"** |
 | 8 | Span footage is hand-entered. Auto-derivation needs a pole dataset with coordinates; `Poles and Inspections_demo_app` (10,000 records) may be a source | Sprint 6 | Open |
 
 ## Rulings on record
@@ -80,3 +128,7 @@ Data Event script**. See the security note in that document.
 | 2026-09-16 | Railroad bore split into one pay unit per conduit diameter. |
 | 2026-09-16 | Sequential overlap detection is a **server-side report**, not a device check, because a device check would silently vanish offline. Reel-range validation stays on the device. |
 | 2026-09-16 | Touching sequential ranges (`a.end = b.start`) are legitimate **adjacency**, not an overlap. Reels are consumed continuously. |
+| 2026-09-16 | `(n)` in `BM60(n)(size)` is the **pull count**. A multi-pull package is one bundled assembly consumed **1:1** per production foot. |
+| 2026-09-16 | Conduit sizes in scope: **1.25", 2", 4"** only. Micro duct, 0.75" and `BM60-DROP` derive no material. |
+| 2026-09-16 | A splice band that does not contain the fiber count is **CRITICAL**, because it is a mispricing, not a data-quality nit. |
+| 2026-09-16 | Material balances are **never stored**. Every quantity is summed from atomic ledger transactions. |

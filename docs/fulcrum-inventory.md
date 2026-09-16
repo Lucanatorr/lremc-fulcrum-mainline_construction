@@ -7,12 +7,14 @@ no production object has been modified.
 
 | Name | ID | Purpose |
 |---|---|---|
-| Mainline Construction - Development | `06c36c8e-4a88-4cf3-a691-9a792f8374d2` | Sprints 1-6 production transaction app |
+| Mainline Construction - Development | `06c36c8e-4a88-4cf3-a691-9a792f8374d2` | Sprints 1-8 production transaction app |
 | MC Contractor Master - Development | `d8a368b5-1e19-4f5f-8cf9-ff8fbdd03ab4` | Sprint 2 contractor master |
 | MC Project Master - Development | `5ce243d4-9ec1-4fbd-8659-7be9f632b55c` | Sprint 2 project master |
 | MC Contractor Rate - Development | `a5529dd0-54fa-4b8d-b595-d0218df0ee97` | Sprint 2 pricing source of truth |
 | MC Fiber Reel - Development | `728477da-5f36-48cb-b3ab-cbc8c38d077f` | Sprint 4/17 reel master |
 | MC Labor-Material Mapping - Development | `38e3d7fd-ca78-4016-8018-ec955446c13f` | Sprint 5 labor -> material multipliers |
+| MC Material Master - Development | `658143d1-edbd-430b-81bb-1b0bb1092729` | Sprint 8 stock item master |
+| MC Material Transaction - Development | `ee204906-adb3-431b-a1d9-d7427a4c842c` | Sprint 8 atomic material ledger |
 
 ## Choice lists (the account had none before this project)
 
@@ -28,7 +30,7 @@ no production object has been modified.
 
 | Name | ID | Used for |
 |---|---|---|
-| Picklist Material Items | `d72ff30a-2368-464c-ab3d-eb02c2f10e8b` | Actual material used |
+| Picklist Material Items | `d72ff30a-2368-464c-ab3d-eb02c2f10e8b` | Actual material used (field picker; MC Material Master is the structured master behind it) |
 | Bore Set | `ffe5b39c-fd31-44b0-aab8-ebc982c78e7e` | not yet wired |
 | MST Unit | `6c35a095-a8ed-4f94-8271-2cf2b9628ceb` | not yet wired |
 | Splicing Type | `ec82ac67-62e8-4c47-94cd-8291f38ad7fd` | not yet wired — see open item 4 |
@@ -38,6 +40,17 @@ no production object has been modified.
 | Name | ID |
 |---|---|
 | Mainline Construction (PRODUCTION, 142 records) | `148545bf-b869-454e-a2b9-44a9860f23de` |
+
+## Where each object's definition lives in this repo
+
+| Object | Schema | Data Events |
+|---|---|---|
+| Mainline Construction - Development | `fulcrum/schemas/mainline-construction-dev.elements.json` | `fulcrum/data-events/mainline-construction-dev.js` (v4.0.0) |
+| MC Material Master - Development | `fulcrum/schemas/mc-material-master-dev.elements.json` | none |
+| MC Material Transaction - Development | `fulcrum/schemas/mc-material-transaction-dev.elements.json` | `fulcrum/data-events/mc-material-transaction-dev.js` (v1.0.0) |
+
+The exported scripts are the deployed text, not a paraphrase. Edit here, then
+push with `forms_update`.
 
 ## Fulcrum API gotchas found the hard way
 
