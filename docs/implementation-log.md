@@ -6,6 +6,82 @@ Newest entries first. Every Fulcrum object this project creates is listed in
 
 ---
 
+## 2026-09-17 — Sprints 10, 11 & 12 complete: reporting, financials, QA and approval
+
+Ten new reports, Data Events **v6.0.0**, and `reports/_conventions.md`.
+**418 tests pass across nine suites.** See `docs/sprint-10-12-build.md`.
+
+### Four reporting rules, written down once
+Each is a way a report can look authoritative and be wrong, so they are stated
+in one place and asserted by `tests/reporting.test.js` against all thirteen SQL
+files.
+1. **Approved production is the only official production.** Pending gets its own
+   column and is never folded in.
+2. **Quantities cannot be summed across units.** Feet, each, splices and hours
+   are not addable. Quantity aggregates only within one labor code or unit;
+   anything crossing pay units aggregates value. The daily report's total rows
+   suppress quantity entirely.
+3. **HR and EVENT are not physical production.** Real value, no work in the
+   ground.
+4. **The week is defined once, on the record.** Reports read the derived
+   `work_week`; no report recomputes one from `work_date`.
+
+### Sprint 10 — production reporting
+Daily (with `GROUPING SETS` so detail and totals cannot disagree), weekly,
+monthly with project-to-date, and a trend report.
+
+Two deliberate choices: the previous-week comparison uses a **self-join on the
+ISO week label, not `LAG`**, because a gap week has no row and `LAG` would
+report a change that never happened; and rolling windows use
+`RANGE ... INTERVAL '6' DAY` rather than `ROWS`, so a crew that worked three
+days does not get a fortnight-wide "7-day" figure.
+
+**Average daily production divides by working days, Mon-Fri.** Dividing a
+five-day week by seven understates a crew's rate by 29%.
+
+### Sprint 11 — financial reporting
+Financial % complete (approved value / current contract value) and physical %
+complete (earned value at BUDGET rates) are both reported, and so is the spread
+between them — **that spread is the rate variance**, which a single blended
+percentage hides. Physical % is value-weighted, and per-line earned value is
+capped at the authorized quantity so one over-run cannot mask untouched lines.
+
+Contractor financials key every figure on the snapshotted contractor ID and
+rate, then **check that this held**: `wrong_contractor_rate_records` counts
+records priced from another contractor's rate on a shared project, which is the
+exact failure the snapshotting exists to prevent.
+
+The rate audit finds thirteen conditions. Two are only findable server-side:
+**AMBIGUOUS RATE** (competing active rates in the master — the price was a coin
+toss) and **DRIFTED FROM SOURCE**. Drift is WARNING not CRITICAL on purpose: the
+likeliest cause is a legitimate reprice after the fact, in which case the
+snapshot is right. The report states both causes rather than accusing anyone.
+
+**Billed value is NULL** — no billing app exists. The column is present so the
+report's shape does not change when one does.
+
+### Sprint 12 — the approval gate
+v6.0.0 refuses to approve a record carrying a CRITICAL exception, a failed QA
+review, or an unrecorded QA outcome. **Warnings never block anything**, per the
+brief. A CRITICAL is different in kind: an unpriced record cannot count toward
+earned value, billing or remaining scope without corrupting all three.
+
+**A test found a real hole.** The gate tested `qa_status === 'Not Reviewed'`,
+which looked complete because the field defaults to that — but a record written
+by an import or the API can arrive blank, and a blank sailed through.
+`TEST-GATE-024` caught it; blank is now treated as unreviewed.
+
+Correction cycle: sending a record back **clears its approval stamp** (that
+stamp is what every downstream report reads) and resets the completion flag.
+Once approved or rejected, quantity, labor code and rate link go read-only.
+
+Four QA flags need other records, so they are reports: duplicate production
+(five scored signals, graded rather than asserted — over-flagging teaches
+reviewers to ignore the report), fiber overlap (Sprint 4), over-plan production,
+and material variance (INSTALLED only, waste factor deliberately excluded).
+
+---
+
 ## 2026-09-17 — Sprint 9 complete: project scope, budget and change orders
 
 Two apps created (`forms_create` works even while `forms_update` is down), two
@@ -243,6 +319,9 @@ Data Event script**. See the security note in that document.
 | 12 | **Per-pole items mapped against per-foot production.** `AFO.SL` sign markers and nut squares, and the HST stubs under `AFO.RTD`. The driver is pole / stub count, not footage | Sprint 8 rev | Open |
 | 13 | **Competing structure SKUs.** `BHF-30T` names three different vaults across two projects; `BHF-10`, `BHF-17T`, `BHF-48T` similar. One structure per unit, so a standard must be picked or the unit split by size | Sprint 8 rev | Open |
 | 14 | **No 4-pull or 5-pull 1.25" SKU exists** for the new `BM60(4)(1.25)DP` / `BM60(5)(1.25)DP` units. Needs a new part number or a stated combination of existing ones | Sprint 8 rev | Open |
+| 18 | **No billing app exists**, so `billed_value` and `remaining_to_bill` are NULL in the project financial report | Sprint 11 | Open |
+| 19 | **Material variance covers conduit only** until the Labor-Material Mapping master is loaded, which waits on the 2" part numbers | Sprint 12 | Open |
+| 20 | **Duplicate-detection window (5 minutes) and material variance bands (±10% tolerance, ±25% critical) are proposals**, not rulings. Most likely to need tuning against real data | Sprint 12 | Open — confirm |
 | 16 | **Budget rates are assumed to equal contract rates.** The scope line prices its budget from the contractor rate master. If LREMC budgets at an internal rate, that is a separate master | Sprint 9 | Open |
 | 17 | **Change order line rates are typed, not snapshotted.** A RecordLink inside a repeatable was not attempted, so nothing checks a typed line rate against the rate sheet | Sprint 9 | Open |
 | 15 | **`forms_update` outage.** v5.0.0 app payload ready but undeployable; every form update returns `could_not_update_form`. Retry when Fulcrum recovers | Sprint 8 rev | **Open — blocks deploy** |
@@ -274,3 +353,10 @@ Data Event script**. See the security note in that document.
 | 2026-09-17 | The scope **baseline is locked** by `SETREADONLY` once a line leaves DRAFT. Scope changes go through a change order; a negative baseline is rejected. |
 | 2026-09-17 | Change order lines are **signed deltas**, never revised absolute quantities, and only an **APPROVED** order moves the authorized scope. |
 | 2026-09-17 | **Remaining quantity is never clamped at zero** and percent complete returns NULL rather than dividing by zero. |
+| 2026-09-17 | **Quantities are never summed across units of measure.** Cross-pay-unit aggregation reports value; quantity stays within one labor code or unit. |
+| 2026-09-17 | **HR and EVENT are not physical production.** They carry value but no work in the ground. |
+| 2026-09-17 | Reports **read** the record's derived `work_week` / `work_month`. No report recomputes a period from `work_date`. |
+| 2026-09-17 | **Average daily production divides by working days (Mon-Fri)**, counting only days with production. |
+| 2026-09-17 | Financial and physical percent complete are **both** reported; the spread between them is the rate variance. |
+| 2026-09-17 | **Only a CRITICAL exception, a failed QA review or an unrecorded QA outcome blocks approval.** Warnings and info flags never block. |
+| 2026-09-17 | Sending a record back for correction or rejection **clears its approval stamp**. |

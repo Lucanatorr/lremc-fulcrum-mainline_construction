@@ -47,7 +47,7 @@ no production object has been modified.
 
 | Object | Schema | Data Events |
 |---|---|---|
-| Mainline Construction - Development | `fulcrum/schemas/mainline-construction-dev.elements.json` | `fulcrum/data-events/mainline-construction-dev.js` (v5.0.0, **pending deploy**) |
+| Mainline Construction - Development | `fulcrum/schemas/mainline-construction-dev.elements.json` | `fulcrum/data-events/mainline-construction-dev.js` (v6.0.0, **pending deploy**) |
 | MC Material Master - Development | `fulcrum/schemas/mc-material-master-dev.elements.json` | none |
 | MC Material Transaction - Development | `fulcrum/schemas/mc-material-transaction-dev.elements.json` | `fulcrum/data-events/mc-material-transaction-dev.js` (v1.0.0) |
 | MC Project Scope Line - Development | `fulcrum/schemas/mc-project-scope-line-dev.elements.json` | `fulcrum/data-events/mc-project-scope-line-dev.js` (v1.0.0) |
@@ -83,8 +83,14 @@ dangling link with no way to fix it.
 
 Pending deployment when the endpoint recovers:
 `fulcrum/schemas/mainline-construction-dev.elements.json` and
-`fulcrum/data-events/mainline-construction-dev.js` (v5.0.0), plus the
-`MC Material Master` `pack_size` field.
+`fulcrum/data-events/mainline-construction-dev.js` (**v6.0.0** — the size-
+dependent conduit quantity from Sprint 8, plus the Sprint 12 approval gate and
+correction fields `m137`-`m141`), plus the `MC Material Master` `pack_size`
+field. Re-probed 2026-09-17 21:50Z: still failing.
+
+**The reports are unaffected.** Every Sprint 10-12 deliverable is SQL run
+through the Query API against whatever is deployed, so the outage delays the
+app-side approval gate only.
 
 ## Query API conventions (confirmed 2026-09-17 from real table definitions)
 

@@ -1711,7 +1711,8 @@
     "disabled": false,
     "hidden": false,
     "choice_list_id": "9674b6ec-4e8e-4243-b9a0-f2ffeaadf771",
-    "default_value": "Not Reviewed"
+    "default_value": "Not Reviewed",
+    "description": "QA/QC outcome. An approval requires a recorded outcome that is not Fail and not Not Reviewed - an approval is a statement that somebody looked."
    },
    {
     "type": "PhotoField",
@@ -1732,6 +1733,115 @@
     "required": false,
     "disabled": false,
     "hidden": false
+   },
+   {
+    "type": "ChoiceField",
+    "key": "m137",
+    "label": "QA Reviewer Outcome Detail",
+    "data_name": "correction_detail",
+    "description": "What must be corrected, or the condition attached to a conditional pass. Required when the record is sent back - 'correction required' with no detail sends a crew back to site to guess.",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "choices": [
+     {
+      "label": "Quantity disputed",
+      "value": "Quantity disputed"
+     },
+     {
+      "label": "Sequentials missing or wrong",
+      "value": "Sequentials"
+     },
+     {
+      "label": "Wrong labor code",
+      "value": "Labor code"
+     },
+     {
+      "label": "Rate or pricing",
+      "value": "Rate"
+     },
+     {
+      "label": "Photos missing or unusable",
+      "value": "Photos"
+     },
+     {
+      "label": "Location or structure IDs",
+      "value": "Location"
+     },
+     {
+      "label": "Depth or cover below minimum",
+      "value": "Depth"
+     },
+     {
+      "label": "Restoration incomplete",
+      "value": "Restoration"
+     },
+     {
+      "label": "Splice loss or test result",
+      "value": "Splice test"
+     },
+     {
+      "label": "Material reported does not match",
+      "value": "Material"
+     },
+     {
+      "label": "Duplicate of another record",
+      "value": "Duplicate"
+     },
+     {
+      "label": "Other - see QA notes",
+      "value": "Other"
+     }
+    ]
+   },
+   {
+    "type": "YesNoField",
+    "key": "m138",
+    "label": "Correction Completed",
+    "data_name": "correction_completed",
+    "description": "Set by the crew once the correction is done. Cleared automatically whenever the record is sent back again.",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "neutral_enabled": false,
+    "positive": {
+     "label": "Yes",
+     "value": "yes"
+    },
+    "negative": {
+     "label": "No",
+     "value": "no"
+    }
+   },
+   {
+    "type": "DateTimeField",
+    "key": "m139",
+    "label": "Correction Completed Date",
+    "data_name": "correction_completed_date",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
+    "type": "TextField",
+    "key": "m140",
+    "label": "Correction Completed By",
+    "data_name": "correction_completed_by",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
+    "type": "PhotoField",
+    "key": "m141",
+    "label": "Attachments",
+    "data_name": "attachments",
+    "description": "Scans and documents supporting the review: permits, locate tickets, markups. Field photographs belong in Photos above.",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "annotations_enabled": true,
+    "timestamp_enabled": true
    },
    {
     "type": "TextField",

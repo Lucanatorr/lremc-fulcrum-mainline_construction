@@ -22,8 +22,13 @@ function load(scriptName) {
   const record = {};
   const writes = [];
   const invalids = [];
+  const alerts = [];
   const handlers = {};
+  const fields = {};
   let status = 'DRAFT';
+  let statusFilter = null;
+
+  const fieldState = (dataName) => (fields[dataName] = fields[dataName] || {});
 
   const names = new Set(src.match(/\$[A-Za-z_][A-Za-z0-9_]*/g) || []);
   for (const name of names) {
@@ -44,6 +49,22 @@ function load(scriptName) {
     writes.push([dataName, value]);
   };
   globalThis.INVALID = (message) => { invalids.push(message); };
+  // Field-state calls. Recorded rather than ignored, so a test can assert that
+  // a script locked or required a field and not merely that it meant to.
+  globalThis.SETREADONLY = (dataName, value) => { fieldState(dataName).readonly = !!value; };
+  globalThis.SETREQUIRED = (dataName, value) => { fieldState(dataName).required = !!value; };
+  globalThis.SETHIDDEN = (dataName, value) => { fieldState(dataName).hidden = !!value; };
+  globalThis.SETDESCRIPTION = (dataName, value) => { fieldState(dataName).description = value; };
+  globalThis.SETLABEL = (dataName, value) => { fieldState(dataName).label = value; };
+  globalThis.SETCHOICES = (dataName, value) => { fieldState(dataName).choices = value; };
+  globalThis.SETCHOICEFILTER = (dataName, value) => { fieldState(dataName).choiceFilter = value; };
+  globalThis.SETSTATUSFILTER = (value) => { statusFilter = value; };
+  globalThis.SETMINLENGTH = (dataName, value) => { fieldState(dataName).minLength = value; };
+  globalThis.SETMAXLENGTH = (dataName, value) => { fieldState(dataName).maxLength = value; };
+  globalThis.ALERT = (title, message) => { alerts.push([title, message]); };
+  globalThis.CONFIRM = (title, message, cb) => { alerts.push([title, message]); };
+  globalThis.PROGRESS = () => {};
+  globalThis.VALUE = (dataName) => (dataName in record ? record[dataName] : null);
   globalThis.RECORDID = () => record.__record_id || '';
   globalThis.USERFULLNAME = () => record.__user || 'Test User';
   globalThis.USEREMAIL = () => record.__email || 'test@example.com';
@@ -60,6 +81,11 @@ function load(scriptName) {
     record,
     writes,
     invalids,
+    alerts,
+    // Field state a script applied: {readonly, required, hidden, description, ...}
+    fields,
+    field: (name) => fields[name] || {},
+    statusFilter: () => statusFilter,
     fn: (name) => globalThis[name],
     // Reads a field the way the script does: an unset field is null, not
     // undefined, so "derived nothing" and "derived null" assert alike.
@@ -73,6 +99,10 @@ function load(scriptName) {
       Object.assign(record, values);
       writes.length = 0;
       invalids.length = 0;
+      alerts.length = 0;
+      for (const k of Object.keys(fields)) delete fields[k];
+      statusFilter = null;
+      status = 'DRAFT';
       return this;
     },
     setStatus(next) { status = next; return this; },

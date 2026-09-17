@@ -245,6 +245,40 @@ ON('new-record', function (event) {
   SETVALUE('inspector_email', USEREMAIL());
 });
 
+// ==================== QA/QC and approval workflow (Sprint 12) ====================
+
+var PENDING_STATUSES  = ['DRAFT', 'SUBMITTED', 'UNDER REVIEW', 'CORRECTION REQUIRED'];
+var REVIEWED_STATUSES = ['APPROVED', 'REJECTED'];
+
+function applyWorkflowState() {
+  var s = STATUS();
+  // A reviewer must say what needs fixing. "Correction required" with no detail
+  // sends a crew back to site to guess.
+  SETREQUIRED('correction_detail', s === 'CORRECTION REQUIRED');
+  SETREQUIRED('rejection_reason', s === 'REJECTED');
+  // Once reviewed, the production figures are what downstream money is computed
+  // from, so they stop being editable in place. A correction cycle reopens them.
+  var locked = REVIEWED_STATUSES.indexOf(s) !== -1;
+  SETREADONLY('quantity', locked);
+  SETREADONLY('labor_code', locked);
+  SETREADONLY('rate_link', locked);
+}
+
+ON('load-record', applyWorkflowState);
+ON('edit-record', applyWorkflowState);
+
+ON('change', 'correction_completed', function (event) {
+  if (choiceValue($correction_completed) === 'yes') {
+    if (isBlank($correction_completed_date)) {
+      SETVALUE('correction_completed_date', new Date().toISOString());
+      SETVALUE('correction_completed_by', USERFULLNAME());
+    }
+  } else {
+    SETVALUE('correction_completed_date', null);
+    SETVALUE('correction_completed_by', null);
+  }
+});
+
 ON('change-status', function (event) {
   var s = STATUS();
   var now = new Date().toISOString();
@@ -257,7 +291,20 @@ ON('change-status', function (event) {
   } else if (s === 'APPROVED') {
     SETVALUE('approved_by', USERFULLNAME());
     SETVALUE('approved_date', now);
+  } else if (s === 'REJECTED' || s === 'CORRECTION REQUIRED') {
+    // An approval stamp is what every downstream report reads to decide this
+    // production counts. A record sent back must not keep one.
+    SETVALUE('approved_by', null);
+    SETVALUE('approved_date', null);
+    SETVALUE('reviewed_by', USERFULLNAME());
+    SETVALUE('reviewed_date', now);
+    if (s === 'CORRECTION REQUIRED') {
+      SETVALUE('correction_completed', null);
+      SETVALUE('correction_completed_date', null);
+      SETVALUE('correction_completed_by', null);
+    }
   }
+  applyWorkflowState();
 });
 
 // ==================== rate validation (Sprint 2) ====================
@@ -457,6 +504,27 @@ function buildExceptions() {
     flag('WARNING', 'No photos attached');
   }
 
+  // Sprint 12 automated QA flags that a device CAN evaluate. Duplicate
+  // production, fiber overlap, over-plan production and material variance all
+  // need other records, so they live in reports - see docs/sprint-10-12-build.md.
+  if (isBlank(choiceValue($labor_code))) {
+    flag('CRITICAL', 'No labor code - this production cannot be priced or reported');
+  }
+  if (cat === 'Fiber Placement' && ss === null && es === null) {
+    flag('WARNING', 'Fiber placement with no sequentials recorded - the cable ' +
+                    'cannot be traced back to a reel');
+  }
+  var status = STATUS();
+  if (status === 'CORRECTION REQUIRED' && isBlank($correction_detail)) {
+    flag('CRITICAL', 'Correction required but nothing states what to correct');
+  }
+  if (choiceValue($correction_completed) === 'yes' && status === 'CORRECTION REQUIRED') {
+    flag('INFO', 'Correction marked complete - resubmit this record for review');
+  }
+  if (choiceValue($qa_status) === 'Conditional Pass' && isBlank($correction_detail)) {
+    flag('WARNING', 'Conditional pass with no condition stated');
+  }
+
   setIfChanged('exception_flags', $exception_flags, ex.length ? ex.join(' | ') : null);
   setIfChanged('exception_severity', choiceValue($exception_severity), ex.length ? sev : null);
 }
@@ -472,6 +540,35 @@ function assignProductionId() {
   SETVALUE('production_id', 'PRD-' + d.getFullYear() + '-' + suffix);
 }
 
+// The gate. buildExceptions() has just run, so exception_severity reflects this
+// save. Only CRITICAL blocks; WARNING and INFO never do.
+function enforceApprovalGate() {
+  if (STATUS() !== 'APPROVED') return;
+
+  if (choiceValue($exception_severity) === 'CRITICAL') {
+    INVALID('This record carries a CRITICAL exception and cannot be approved: ' +
+            (isBlank($exception_flags) ? '' : $exception_flags) +
+            ' Approved production is what earned value, billing and remaining ' +
+            'scope are computed from. Fix the exception, or send the record ' +
+            'back with CORRECTION REQUIRED.');
+    return;
+  }
+  if (choiceValue($qa_status) === 'Fail') {
+    INVALID('QA status is Fail. Approving failed work would put it into earned ' +
+            'value and billing. Use CORRECTION REQUIRED, or record the QA ' +
+            'result that actually applies.');
+    return;
+  }
+  // Blank counts as unreviewed. The field defaults to 'Not Reviewed' in the
+  // app, but a record written by an import or the API can arrive with nothing
+  // in it, and that is the case this gate exists for.
+  var qa = choiceValue($qa_status);
+  if (isBlank(qa) || qa === 'Not Reviewed') {
+    INVALID('QA status is still Not Reviewed. Record a QA outcome before ' +
+            'approving - an approval is a statement that someone looked.');
+  }
+}
+
 ON('validate-record', function (event) {
   assignProductionId();
   deriveReportingPeriod();
@@ -481,4 +578,5 @@ ON('validate-record', function (event) {
   deriveSegmentId();
   deriveSpanId();
   buildExceptions();
+  enforceApprovalGate();
 });
