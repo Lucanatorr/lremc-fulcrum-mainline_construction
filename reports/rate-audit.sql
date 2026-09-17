@@ -150,15 +150,15 @@ SELECT
   quantity,
   contractor_rate                              AS snapshotted_rate,
   rate_master_current_rate,
-  ROUND(extended_value, 2)                     AS production_value,
+  ROUND(CAST(extended_value AS numeric), 2)                     AS production_value,
   -- What the value would be at the rate master's current price. The gap is the
   -- exposure on that one record.
   CASE WHEN rate_master_current_rate IS NULL THEN NULL
-       ELSE ROUND(COALESCE(quantity,0) * rate_master_current_rate, 2) END
+       ELSE ROUND(CAST(COALESCE(quantity,0) * rate_master_current_rate AS numeric), 2) END
                                                AS value_at_current_rate,
   CASE WHEN rate_master_current_rate IS NULL THEN NULL
-       ELSE ROUND(COALESCE(extended_value,0)
-                  - COALESCE(quantity,0) * rate_master_current_rate, 2) END
+       ELSE ROUND(CAST(COALESCE(extended_value,0)
+                  - COALESCE(quantity,0) * rate_master_current_rate AS numeric), 2) END
                                                AS value_difference,
   rate_source_id,
   rate_effective_date,

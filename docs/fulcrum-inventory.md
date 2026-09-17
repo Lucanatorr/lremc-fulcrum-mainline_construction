@@ -17,6 +17,8 @@ no production object has been modified.
 | MC Material Transaction - Development | `ee204906-adb3-431b-a1d9-d7427a4c842c` | Sprint 8 atomic material ledger |
 | MC Project Scope Line - Development | `aa1d8c1e-d0a9-4fd1-8d57-ca90b4555b0b` | Sprint 9 scope baseline, one per project + labor code |
 | MC Change Order - Development | `458ae172-b7b4-43b5-8917-d7a792c9e81a` | Sprint 9 scope changes, repeatable line per labor code |
+| MC Structure - Development | `397b52cf-a4f0-4871-b8ea-1fdb592fe2ab` | Sprint 14 network structure master, nine types |
+| MC Segment - Development | `7da87588-940a-4b9e-915d-5ec25d5c0ebc` | Sprint 14 FROM -> TO segment master, direction-normalized ID |
 
 ## Choice lists (the account had none before this project)
 
@@ -47,11 +49,13 @@ no production object has been modified.
 
 | Object | Schema | Data Events |
 |---|---|---|
-| Mainline Construction - Development | `fulcrum/schemas/mainline-construction-dev.elements.json` | `fulcrum/data-events/mainline-construction-dev.js` (v6.0.0, **pending deploy**) |
+| Mainline Construction - Development | `fulcrum/schemas/mainline-construction-dev.elements.json` | `fulcrum/data-events/mainline-construction-dev.js` (v7.0.0, **pending deploy**) |
 | MC Material Master - Development | `fulcrum/schemas/mc-material-master-dev.elements.json` | none |
 | MC Material Transaction - Development | `fulcrum/schemas/mc-material-transaction-dev.elements.json` | `fulcrum/data-events/mc-material-transaction-dev.js` (v1.0.0) |
 | MC Project Scope Line - Development | `fulcrum/schemas/mc-project-scope-line-dev.elements.json` | `fulcrum/data-events/mc-project-scope-line-dev.js` (v1.0.0) |
 | MC Change Order - Development | `fulcrum/schemas/mc-change-order-dev.elements.json` | `fulcrum/data-events/mc-change-order-dev.js` (v1.0.0) |
+| MC Structure - Development | `fulcrum/schemas/mc-structure-dev.elements.json` | `fulcrum/data-events/mc-structure-dev.js` (v1.0.0) |
+| MC Segment - Development | `fulcrum/schemas/mc-segment-dev.elements.json` | `fulcrum/data-events/mc-segment-dev.js` (v1.0.0) |
 
 The exported scripts are the deployed text, not a paraphrase. Edit here, then
 push with `forms_update`.
@@ -81,12 +85,19 @@ outage. So new apps can be built; only changes to existing ones are blocked.
 repointing it requires the same broken endpoint — a recreate would leave a
 dangling link with no way to fix it.
 
-Pending deployment when the endpoint recovers:
-`fulcrum/schemas/mainline-construction-dev.elements.json` and
-`fulcrum/data-events/mainline-construction-dev.js` (**v6.0.0** — the size-
-dependent conduit quantity from Sprint 8, plus the Sprint 12 approval gate and
-correction fields `m137`-`m141`), plus the `MC Material Master` `pack_size`
-field. Re-probed 2026-09-17 21:50Z: still failing.
+Pending deployment when the endpoint recovers — the production app payload is
+now **146 elements**, which is a larger single deploy than anyone would choose
+and is the direct cost of the outage:
+
+| Sprint | Pending change |
+|---|---|
+| 8 | size-dependent conduit material quantity (`m117` expression) |
+| 12 | approval gate, correction fields `m137`-`m141` |
+| 13 | production fingerprints `m142`-`m144` |
+| 14 | structure links `m145`-`m150` |
+
+Plus the `MC Material Master` `pack_size` field (`t012`).
+Re-probed 2026-09-17 **22:19Z** on a twelve-element form: still failing.
 
 **The reports are unaffected.** Every Sprint 10-12 deliverable is SQL run
 through the Query API against whatever is deployed, so the outage delays the

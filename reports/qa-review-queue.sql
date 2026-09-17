@@ -98,7 +98,7 @@ queue AS (
     p.labor_code,
     p.unit,
     p.quantity,
-    ROUND(COALESCE(p.extended_value, 0), 2) AS production_value,
+    ROUND(CAST(COALESCE(p.extended_value, 0) AS numeric), 2) AS production_value,
     p.exception_severity,
     p.exception_flags,
     p.correction_detail,
@@ -114,8 +114,8 @@ queue AS (
       WHEN au.authorized_quantity IS NULL THEN NULL
       WHEN COALESCE(asf.approved_quantity, 0) + COALESCE(p.quantity, 0)
            > au.authorized_quantity
-      THEN ROUND(COALESCE(asf.approved_quantity, 0) + COALESCE(p.quantity, 0)
-                 - au.authorized_quantity, 2)
+      THEN ROUND(CAST(COALESCE(asf.approved_quantity, 0) + COALESCE(p.quantity, 0)
+                 - au.authorized_quantity AS numeric), 2)
       ELSE 0
     END AS would_exceed_plan_by
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2" p

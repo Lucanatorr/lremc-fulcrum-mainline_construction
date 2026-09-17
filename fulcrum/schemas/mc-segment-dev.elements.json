@@ -1,0 +1,384 @@
+[
+ {
+  "type": "TextField",
+  "key": "z001",
+  "label": "Segment ID",
+  "data_name": "segment_id",
+  "description": "DERIVED and direction-normalized from the two structure IDs, sorted. HH-001 -> HH-002 and HH-002 -> HH-001 both produce HH-001_HH-002, so one physical path has exactly one identity.",
+  "required": false,
+  "disabled": true,
+  "hidden": false
+ },
+ {
+  "type": "ChoiceField",
+  "key": "z010",
+  "label": "Segment Type",
+  "data_name": "segment_type",
+  "description": "What runs between the two structures. One physical path can carry several types, each as its own segment record - conduit and the fiber inside it are different things with different lengths and different pay units.",
+  "required": true,
+  "disabled": false,
+  "hidden": false,
+  "choices": [
+   {
+    "label": "Underground Conduit",
+    "value": "Underground Conduit"
+   },
+   {
+    "label": "Aerial Strand",
+    "value": "Aerial Strand"
+   },
+   {
+    "label": "Fiber",
+    "value": "Fiber"
+   },
+   {
+    "label": "Drop",
+    "value": "Drop"
+   },
+   {
+    "label": "Tracer Wire / Pull Rope",
+    "value": "Tracer"
+   },
+   {
+    "label": "Other Linear",
+    "value": "Other Linear"
+   }
+  ]
+ },
+ {
+  "type": "Section",
+  "key": "z100",
+  "label": "ENDPOINTS",
+  "data_name": "endpoints",
+  "required": false,
+  "disabled": false,
+  "hidden": false,
+  "display": "inline",
+  "elements": [
+   {
+    "type": "RecordLinkField",
+    "key": "z002",
+    "label": "From Structure",
+    "data_name": "from_structure_link",
+    "description": "ID and type are copied down, so this segment still resolves if the structure master changes.",
+    "required": true,
+    "disabled": false,
+    "hidden": false,
+    "form_id": "397b52cf-a4f0-4871-b8ea-1fdb592fe2ab",
+    "record_defaults": [
+     {
+      "destination_field_key": "z003",
+      "source_field_key": "y001"
+     },
+     {
+      "destination_field_key": "z004",
+      "source_field_key": "y003"
+     }
+    ],
+    "allow_existing_records": true
+   },
+   {
+    "type": "TextField",
+    "key": "z003",
+    "label": "From Structure ID (snapshot)",
+    "data_name": "from_structure_id",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
+    "type": "TextField",
+    "key": "z004",
+    "label": "From Structure Type (snapshot)",
+    "data_name": "from_structure_type",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
+    "type": "RecordLinkField",
+    "key": "z005",
+    "label": "To Structure",
+    "data_name": "to_structure_link",
+    "required": true,
+    "disabled": false,
+    "hidden": false,
+    "form_id": "397b52cf-a4f0-4871-b8ea-1fdb592fe2ab",
+    "record_defaults": [
+     {
+      "destination_field_key": "z006",
+      "source_field_key": "y001"
+     },
+     {
+      "destination_field_key": "z007",
+      "source_field_key": "y003"
+     }
+    ],
+    "allow_existing_records": true
+   },
+   {
+    "type": "TextField",
+    "key": "z006",
+    "label": "To Structure ID (snapshot)",
+    "data_name": "to_structure_id",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
+    "type": "TextField",
+    "key": "z007",
+    "label": "To Structure Type (snapshot)",
+    "data_name": "to_structure_type",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   }
+  ]
+ },
+ {
+  "type": "Section",
+  "key": "z101",
+  "label": "SEGMENT DETAIL",
+  "data_name": "segment_detail",
+  "required": false,
+  "disabled": false,
+  "hidden": false,
+  "display": "inline",
+  "elements": [
+   {
+    "type": "RecordLinkField",
+    "key": "z008",
+    "label": "Project",
+    "data_name": "project_link",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "form_id": "5ce243d4-9ec1-4fbd-8659-7be9f632b55c",
+    "record_defaults": [
+     {
+      "destination_field_key": "z009",
+      "source_field_key": "p001"
+     }
+    ],
+    "allow_existing_records": true
+   },
+   {
+    "type": "TextField",
+    "key": "z009",
+    "label": "Project ID (snapshot)",
+    "data_name": "project_id_snap",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
+    "type": "TextField",
+    "key": "z011",
+    "label": "Route",
+    "data_name": "route",
+    "required": false,
+    "disabled": false,
+    "hidden": false
+   },
+   {
+    "type": "TextField",
+    "key": "z012",
+    "label": "Phase / WBS",
+    "data_name": "phase_wbs",
+    "required": false,
+    "disabled": false,
+    "hidden": false
+   },
+   {
+    "type": "ChoiceField",
+    "key": "z016",
+    "label": "Construction Method",
+    "data_name": "construction_method",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "choice_list_id": "5828393b-b4dc-4545-8db0-921e352c5b8c"
+   },
+   {
+    "type": "TextField",
+    "key": "z013",
+    "label": "Design Length (ft)",
+    "data_name": "design_length",
+    "description": "From the design drawing. Kept separate from the as-built length so the two stay independently auditable.",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "min": 0,
+    "numeric": true,
+    "format": "decimal"
+   },
+   {
+    "type": "TextField",
+    "key": "z014",
+    "label": "As-Built Length (ft)",
+    "data_name": "as_built_length",
+    "description": "What was actually placed. This is NOT the production quantity - production is recorded per transaction against a pay unit, and one segment can take several transactions.",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "min": 0,
+    "numeric": true,
+    "format": "decimal"
+   },
+   {
+    "type": "CalculatedField",
+    "key": "z015",
+    "label": "Length Variance (ft)",
+    "data_name": "length_variance",
+    "description": "As-built minus design. Positive means the run was longer than drawn, which is where change-order conversations start.",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "expression": "IF(OR(ISBLANK($design_length), ISBLANK($as_built_length)), '', ROUND(NUM($as_built_length) - NUM($design_length), 2))",
+    "display": {
+     "currency": null,
+     "style": "number"
+    }
+   },
+   {
+    "type": "TextField",
+    "key": "z021",
+    "label": "Fiber Count",
+    "data_name": "fiber_count",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "min": 1,
+    "numeric": true,
+    "visible_conditions_type": "any",
+    "visible_conditions_behavior": "clear",
+    "visible_conditions": [
+     {
+      "field_key": "z010",
+      "operator": "equal_to",
+      "value": "Fiber"
+     },
+     {
+      "field_key": "z010",
+      "operator": "equal_to",
+      "value": "Drop"
+     }
+    ],
+    "format": "integer"
+   },
+   {
+    "type": "TextField",
+    "key": "z022",
+    "label": "Conduit Diameter (in)",
+    "data_name": "conduit_diameter",
+    "description": "In scope per ruling: 1.25, 2 and 4.",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "visible_conditions_type": "all",
+    "visible_conditions_behavior": "clear",
+    "visible_conditions": [
+     {
+      "field_key": "z010",
+      "operator": "equal_to",
+      "value": "Underground Conduit"
+     }
+    ]
+   },
+   {
+    "type": "TextField",
+    "key": "z023",
+    "label": "Pull Count",
+    "data_name": "pull_count",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "min": 1,
+    "numeric": true,
+    "visible_conditions_type": "all",
+    "visible_conditions_behavior": "clear",
+    "visible_conditions": [
+     {
+      "field_key": "z010",
+      "operator": "equal_to",
+      "value": "Underground Conduit"
+     }
+    ],
+    "format": "integer"
+   }
+  ]
+ },
+ {
+  "type": "Section",
+  "key": "z102",
+  "label": "STATUS",
+  "data_name": "status_section",
+  "required": false,
+  "disabled": false,
+  "hidden": false,
+  "display": "inline",
+  "elements": [
+   {
+    "type": "YesNoField",
+    "key": "z018",
+    "label": "Active",
+    "data_name": "active",
+    "description": "Deactivate rather than delete: production records reference this segment.",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "neutral_enabled": false,
+    "positive": {
+     "label": "Yes",
+     "value": "yes"
+    },
+    "negative": {
+     "label": "No",
+     "value": "no"
+    }
+   },
+   {
+    "type": "TextField",
+    "key": "z017",
+    "label": "Notes",
+    "data_name": "notes",
+    "required": false,
+    "disabled": false,
+    "hidden": false
+   },
+   {
+    "type": "TextField",
+    "key": "z019",
+    "label": "Exceptions (auto)",
+    "data_name": "exception_flags",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
+    "type": "ChoiceField",
+    "key": "z020",
+    "label": "Exception Severity",
+    "data_name": "exception_severity",
+    "required": false,
+    "disabled": true,
+    "hidden": false,
+    "choices": [
+     {
+      "label": "INFO",
+      "value": "INFO"
+     },
+     {
+      "label": "WARNING",
+      "value": "WARNING"
+     },
+     {
+      "label": "CRITICAL",
+      "value": "CRITICAL"
+     }
+    ]
+   }
+  ]
+ }
+]

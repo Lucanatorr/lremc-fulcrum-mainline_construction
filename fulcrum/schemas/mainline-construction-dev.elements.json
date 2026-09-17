@@ -316,6 +316,86 @@
     "hidden": false
    },
    {
+    "type": "RecordLinkField",
+    "key": "m145",
+    "label": "From Structure",
+    "data_name": "from_structure_link",
+    "description": "Links the FROM structure in the structure master. Its ID and type are copied down, so the production record still resolves if the master changes. Leave blank and use the free-text From Location for a structure not yet in the master.",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "form_id": "397b52cf-a4f0-4871-b8ea-1fdb592fe2ab",
+    "record_defaults": [
+     {
+      "destination_field_key": "m147",
+      "source_field_key": "y001"
+     },
+     {
+      "destination_field_key": "m148",
+      "source_field_key": "y003"
+     }
+    ],
+    "allow_existing_records": true
+   },
+   {
+    "type": "RecordLinkField",
+    "key": "m146",
+    "label": "To Structure",
+    "data_name": "to_structure_link",
+    "description": "Links the TO structure. Same copy-down as From Structure.",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "form_id": "397b52cf-a4f0-4871-b8ea-1fdb592fe2ab",
+    "record_defaults": [
+     {
+      "destination_field_key": "m149",
+      "source_field_key": "y001"
+     },
+     {
+      "destination_field_key": "m150",
+      "source_field_key": "y003"
+     }
+    ],
+    "allow_existing_records": true
+   },
+   {
+    "type": "TextField",
+    "key": "m147",
+    "label": "From Structure ID (snapshot)",
+    "data_name": "from_structure_id_snap",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
+    "type": "TextField",
+    "key": "m148",
+    "label": "From Structure Type (snapshot)",
+    "data_name": "from_structure_type_snap",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
+    "type": "TextField",
+    "key": "m149",
+    "label": "To Structure ID (snapshot)",
+    "data_name": "to_structure_id_snap",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
+    "type": "TextField",
+    "key": "m150",
+    "label": "To Structure Type (snapshot)",
+    "data_name": "to_structure_type_snap",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
     "type": "CalculatedField",
     "key": "m028",
     "label": "GPS Latitude",
@@ -1875,6 +1955,38 @@
       "value": "CRITICAL"
      }
     ]
+   },
+   {
+    "type": "TextField",
+    "key": "m142",
+    "label": "Fingerprint - Strict (derived)",
+    "data_name": "fingerprint_strict",
+    "description": "Canonical signature of the same physical cable pull: project, contractor, date, pay unit, cable ID and the direction-normalized sequential range. Two records sharing this are near-certain duplicates - the same cable cannot be placed twice. Readable on purpose, so a reviewer can see which component differs.",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
+    "type": "TextField",
+    "key": "m143",
+    "label": "Fingerprint - Segment (derived)",
+    "data_name": "fingerprint_segment",
+    "description": "Canonical signature of the same work claimed twice between two structures, with no sequentials involved. Weaker evidence than the strict fingerprint, but it is the only duplicate signal available for boring, trenching and structure work.",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
+    "type": "TextField",
+    "key": "m144",
+    "label": "Fingerprint Strength (derived)",
+    "data_name": "fingerprint_strength",
+    "description": "How many identifying values this record actually carries. Below 4 the record cannot be reliably duplicate-checked, and reports ignore its fingerprints rather than reporting a false match.",
+    "required": false,
+    "disabled": true,
+    "hidden": false,
+    "numeric": true,
+    "format": "integer"
    }
   ],
   "display": "inline"

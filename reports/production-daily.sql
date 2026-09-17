@@ -85,13 +85,13 @@ SELECT
   CASE WHEN GROUPING(production_id) = 0
        THEN MAX(contractor_rate) END         AS rate,
 
-  ROUND(SUM(extended_value), 2)              AS production_value,
-  ROUND(SUM(CASE WHEN record_status = 'APPROVED'
-                 THEN extended_value ELSE 0 END), 2)  AS approved_value,
-  ROUND(SUM(CASE WHEN record_status IN ('SUBMITTED', 'UNDER REVIEW', 'DRAFT', 'CORRECTION REQUIRED')
-                 THEN extended_value ELSE 0 END), 2)  AS pending_value,
-  ROUND(SUM(CASE WHEN record_status = 'REJECTED'
-                 THEN extended_value ELSE 0 END), 2)  AS rejected_value,
+  ROUND(CAST(SUM(extended_value) AS numeric), 2)              AS production_value,
+  ROUND(CAST(SUM(CASE WHEN record_status = 'APPROVED'
+                 THEN extended_value ELSE 0 END) AS numeric), 2)  AS approved_value,
+  ROUND(CAST(SUM(CASE WHEN record_status IN ('SUBMITTED', 'UNDER REVIEW', 'DRAFT', 'CORRECTION REQUIRED')
+                 THEN extended_value ELSE 0 END) AS numeric), 2)  AS pending_value,
+  ROUND(CAST(SUM(CASE WHEN record_status = 'REJECTED'
+                 THEN extended_value ELSE 0 END) AS numeric), 2)  AS rejected_value,
 
   COUNT(*)                                   AS transactions,
   SUM(is_physical)                           AS physical_transactions,

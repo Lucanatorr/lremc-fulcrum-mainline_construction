@@ -1,0 +1,542 @@
+[
+ {
+  "type": "TextField",
+  "key": "y001",
+  "label": "Structure ID",
+  "data_name": "structure_id",
+  "description": "Permanent key, as painted or tagged in the field. Everything else about a structure can change; this cannot.",
+  "required": true,
+  "disabled": false,
+  "hidden": false
+ },
+ {
+  "type": "ChoiceField",
+  "key": "y003",
+  "label": "Structure Type",
+  "data_name": "structure_type",
+  "description": "Drives which specification fields appear below.",
+  "required": true,
+  "disabled": false,
+  "hidden": false,
+  "choices": [
+   {
+    "label": "Pole",
+    "value": "Pole"
+   },
+   {
+    "label": "Handhole",
+    "value": "Handhole"
+   },
+   {
+    "label": "Vault",
+    "value": "Vault"
+   },
+   {
+    "label": "Cabinet",
+    "value": "Cabinet"
+   },
+   {
+    "label": "Pedestal",
+    "value": "Pedestal"
+   },
+   {
+    "label": "Hub",
+    "value": "Hub"
+   },
+   {
+    "label": "Building",
+    "value": "Building"
+   },
+   {
+    "label": "Slack Storage",
+    "value": "Slack Storage"
+   },
+   {
+    "label": "Splice Closure",
+    "value": "Splice Closure"
+   }
+  ]
+ },
+ {
+  "type": "Section",
+  "key": "y100",
+  "label": "IDENTITY",
+  "data_name": "identity",
+  "required": false,
+  "disabled": false,
+  "hidden": false,
+  "display": "inline",
+  "elements": [
+   {
+    "type": "RecordLinkField",
+    "key": "y004",
+    "label": "Project",
+    "data_name": "project_link",
+    "description": "The project that placed or adopted this structure. A structure can outlive the project, which is why the ID is snapshotted.",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "form_id": "5ce243d4-9ec1-4fbd-8659-7be9f632b55c",
+    "record_defaults": [
+     {
+      "destination_field_key": "y005",
+      "source_field_key": "p001"
+     }
+    ],
+    "allow_existing_records": true
+   },
+   {
+    "type": "TextField",
+    "key": "y005",
+    "label": "Project ID (snapshot)",
+    "data_name": "project_id_snap",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
+    "type": "TextField",
+    "key": "y006",
+    "label": "Route",
+    "data_name": "route",
+    "required": false,
+    "disabled": false,
+    "hidden": false
+   },
+   {
+    "type": "TextField",
+    "key": "y007",
+    "label": "Phase / WBS",
+    "data_name": "phase_wbs",
+    "required": false,
+    "disabled": false,
+    "hidden": false
+   },
+   {
+    "type": "TextField",
+    "key": "y008",
+    "label": "Address / Location Description",
+    "data_name": "location_description",
+    "description": "How a crew finds it. The record's own geometry carries the coordinates.",
+    "required": false,
+    "disabled": false,
+    "hidden": false
+   },
+   {
+    "type": "ChoiceField",
+    "key": "y009",
+    "label": "Ownership",
+    "data_name": "ownership",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "choices": [
+     {
+      "label": "LREMC",
+      "value": "LREMC"
+     },
+     {
+      "label": "Duke Energy",
+      "value": "Duke"
+     },
+     {
+      "label": "Telco",
+      "value": "Telco"
+     },
+     {
+      "label": "Joint Use",
+      "value": "Joint Use"
+     },
+     {
+      "label": "Private",
+      "value": "Private"
+     },
+     {
+      "label": "Other",
+      "value": "Other"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "type": "Section",
+  "key": "y101",
+  "label": "POLE SPECIFICATION",
+  "data_name": "pole_specification",
+  "required": false,
+  "disabled": false,
+  "hidden": false,
+  "display": "inline",
+  "visible_conditions_type": "all",
+  "visible_conditions_behavior": "clear",
+  "visible_conditions": [
+   {
+    "field_key": "y003",
+    "operator": "equal_to",
+    "value": "Pole"
+   }
+  ],
+  "elements": [
+   {
+    "type": "TextField",
+    "key": "y010",
+    "label": "Pole Height (ft)",
+    "data_name": "pole_height",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "min": 0,
+    "numeric": true,
+    "format": "integer"
+   },
+   {
+    "type": "TextField",
+    "key": "y011",
+    "label": "Pole Class",
+    "data_name": "pole_class",
+    "required": false,
+    "disabled": false,
+    "hidden": false
+   },
+   {
+    "type": "ChoiceField",
+    "key": "y012",
+    "label": "Pole Material",
+    "data_name": "pole_material",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "choices": [
+     {
+      "label": "Wood",
+      "value": "Wood"
+     },
+     {
+      "label": "Steel",
+      "value": "Steel"
+     },
+     {
+      "label": "Concrete",
+      "value": "Concrete"
+     },
+     {
+      "label": "Composite",
+      "value": "Composite"
+     }
+    ]
+   },
+   {
+    "type": "YesNoField",
+    "key": "y013",
+    "label": "Make-Ready Required",
+    "data_name": "make_ready_required",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "neutral_enabled": false,
+    "positive": {
+     "label": "Yes",
+     "value": "yes"
+    },
+    "negative": {
+     "label": "No",
+     "value": "no"
+    }
+   }
+  ]
+ },
+ {
+  "type": "Section",
+  "key": "y102",
+  "label": "ENCLOSURE SPECIFICATION",
+  "data_name": "enclosure_specification",
+  "required": false,
+  "disabled": false,
+  "hidden": false,
+  "display": "inline",
+  "visible_conditions_type": "any",
+  "visible_conditions_behavior": "clear",
+  "visible_conditions": [
+   {
+    "field_key": "y003",
+    "operator": "equal_to",
+    "value": "Handhole"
+   },
+   {
+    "field_key": "y003",
+    "operator": "equal_to",
+    "value": "Vault"
+   },
+   {
+    "field_key": "y003",
+    "operator": "equal_to",
+    "value": "Cabinet"
+   },
+   {
+    "field_key": "y003",
+    "operator": "equal_to",
+    "value": "Pedestal"
+   },
+   {
+    "field_key": "y003",
+    "operator": "equal_to",
+    "value": "Hub"
+   }
+  ],
+  "elements": [
+   {
+    "type": "TextField",
+    "key": "y014",
+    "label": "Size / Model",
+    "data_name": "size_model",
+    "description": "As ordered, e.g. 24x36x36 T-22, or 12X14X41 pedestal.",
+    "required": false,
+    "disabled": false,
+    "hidden": false
+   },
+   {
+    "type": "ChoiceField",
+    "key": "y015",
+    "label": "Traffic Rating",
+    "data_name": "traffic_rating",
+    "description": "A structure in a roadway needs the rating the authority requires - getting this wrong means digging it up again.",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "choices": [
+     {
+      "label": "Non-traffic / Pedestrian",
+      "value": "Pedestrian"
+     },
+     {
+      "label": "Tier 8",
+      "value": "T-8"
+     },
+     {
+      "label": "Tier 15",
+      "value": "T-15"
+     },
+     {
+      "label": "Tier 22",
+      "value": "T-22"
+     },
+     {
+      "label": "H-20",
+      "value": "H-20"
+     },
+     {
+      "label": "Unknown",
+      "value": "Unknown"
+     }
+    ]
+   },
+   {
+    "type": "TextField",
+    "key": "y016",
+    "label": "Material Code",
+    "data_name": "material_code",
+    "description": "The stock item this structure was built from, from MC Material Master.",
+    "required": false,
+    "disabled": false,
+    "hidden": false
+   }
+  ]
+ },
+ {
+  "type": "Section",
+  "key": "y103",
+  "label": "SPLICE / SLACK SPECIFICATION",
+  "data_name": "splice_specification",
+  "required": false,
+  "disabled": false,
+  "hidden": false,
+  "display": "inline",
+  "visible_conditions_type": "any",
+  "visible_conditions_behavior": "clear",
+  "visible_conditions": [
+   {
+    "field_key": "y003",
+    "operator": "equal_to",
+    "value": "Splice Closure"
+   },
+   {
+    "field_key": "y003",
+    "operator": "equal_to",
+    "value": "Slack Storage"
+   }
+  ],
+  "elements": [
+   {
+    "type": "ChoiceField",
+    "key": "y017",
+    "label": "Closure Type",
+    "data_name": "closure_type",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "choices": [
+     {
+      "label": "COYOTE 6.5",
+      "value": "COYOTE 6.5"
+     },
+     {
+      "label": "COYOTE 9.5",
+      "value": "COYOTE 9.5"
+     },
+     {
+      "label": "COYOTE ONE",
+      "value": "COYOTE ONE"
+     },
+     {
+      "label": "Cabinet / FDH",
+      "value": "Cabinet"
+     },
+     {
+      "label": "MST / HST",
+      "value": "MST-HST"
+     },
+     {
+      "label": "Other",
+      "value": "Other"
+     }
+    ]
+   },
+   {
+    "type": "TextField",
+    "key": "y018",
+    "label": "Fiber Count at Structure",
+    "data_name": "fiber_count",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "min": 1,
+    "numeric": true,
+    "format": "integer"
+   },
+   {
+    "type": "TextField",
+    "key": "y019",
+    "label": "Slack Stored (ft)",
+    "data_name": "slack_stored",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "min": 0,
+    "numeric": true,
+    "format": "decimal"
+   },
+   {
+    "type": "TextField",
+    "key": "y020",
+    "label": "Housed In Structure ID",
+    "data_name": "housed_in_structure_id",
+    "description": "A splice closure or slack coil usually sits INSIDE another structure. Naming that here keeps the closure findable without pretending it is a separate hole in the ground.",
+    "required": false,
+    "disabled": false,
+    "hidden": false
+   }
+  ]
+ },
+ {
+  "type": "Section",
+  "key": "y104",
+  "label": "STATUS",
+  "data_name": "status_section",
+  "required": false,
+  "disabled": false,
+  "hidden": false,
+  "display": "inline",
+  "elements": [
+   {
+    "type": "DateTimeField",
+    "key": "y021",
+    "label": "Installed Date",
+    "data_name": "installed_date",
+    "required": false,
+    "disabled": false,
+    "hidden": false
+   },
+   {
+    "type": "DateTimeField",
+    "key": "y022",
+    "label": "Removed Date",
+    "data_name": "removed_date",
+    "required": false,
+    "disabled": false,
+    "hidden": false
+   },
+   {
+    "type": "YesNoField",
+    "key": "y023",
+    "label": "Active",
+    "data_name": "active",
+    "description": "Deactivate rather than delete. A removed structure must keep resolving for the historical segments and production that reference it.",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "neutral_enabled": false,
+    "positive": {
+     "label": "Yes",
+     "value": "yes"
+    },
+    "negative": {
+     "label": "No",
+     "value": "no"
+    }
+   },
+   {
+    "type": "PhotoField",
+    "key": "y024",
+    "label": "Photos",
+    "data_name": "photos",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "annotations_enabled": true,
+    "timestamp_enabled": true
+   },
+   {
+    "type": "TextField",
+    "key": "y025",
+    "label": "Notes",
+    "data_name": "notes",
+    "required": false,
+    "disabled": false,
+    "hidden": false
+   },
+   {
+    "type": "TextField",
+    "key": "y026",
+    "label": "Exceptions (auto)",
+    "data_name": "exception_flags",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
+    "type": "ChoiceField",
+    "key": "y027",
+    "label": "Exception Severity",
+    "data_name": "exception_severity",
+    "required": false,
+    "disabled": true,
+    "hidden": false,
+    "choices": [
+     {
+      "label": "INFO",
+      "value": "INFO"
+     },
+     {
+      "label": "WARNING",
+      "value": "WARNING"
+     },
+     {
+      "label": "CRITICAL",
+      "value": "CRITICAL"
+     }
+    ]
+   }
+  ]
+ }
+]

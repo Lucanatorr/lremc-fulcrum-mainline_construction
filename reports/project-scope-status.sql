@@ -154,7 +154,7 @@ SELECT
 
   CASE
     WHEN authorized_quantity = 0 THEN NULL          -- never divide by zero
-    ELSE ROUND(completed_quantity / authorized_quantity * 100, 2)
+    ELSE ROUND(CAST(completed_quantity / authorized_quantity * 100 AS numeric), 2)
   END                                               AS percent_complete,
 
   CASE
@@ -164,15 +164,15 @@ SELECT
   END                                               AS over_plan_qty,
 
   budget_rate,
-  ROUND(original_planned_quantity * COALESCE(budget_rate, 0), 2) AS original_budget_value,
-  ROUND(authorized_quantity * COALESCE(budget_rate, 0), 2)       AS authorized_value,
-  ROUND(completed_value, 2)                                      AS completed_value,
-  ROUND(authorized_quantity * COALESCE(budget_rate, 0) - completed_value, 2)
+  ROUND(CAST(original_planned_quantity * COALESCE(budget_rate, 0) AS numeric), 2) AS original_budget_value,
+  ROUND(CAST(authorized_quantity * COALESCE(budget_rate, 0) AS numeric), 2)       AS authorized_value,
+  ROUND(CAST(completed_value AS numeric), 2)                                      AS completed_value,
+  ROUND(CAST(authorized_quantity * COALESCE(budget_rate, 0) - completed_value AS numeric), 2)
                                                                  AS remaining_value,
 
   -- Approved and pending are never mixed (test 23.19).
   pending_production_quantity                       AS pending_qty,
-  ROUND(pending_production_value, 2)                AS pending_value,
+  ROUND(CAST(pending_production_value AS numeric), 2)                AS pending_value,
   pending_quantity_change                           AS pending_co_qty_change,
   pending_change_orders,
 

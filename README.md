@@ -10,7 +10,7 @@ tracking from initial construction through closeout.
 |---|---|
 | `docs/` | Implementation log, discovery findings, per-sprint build notes, object inventory |
 | `scripts/` | Rate-sheet normalization |
-| `tests/` | Data Event logic tests, 418 of them, run against the authoritative script |
+| `tests/` | Data Event logic tests, 569 of them, run against the authoritative script |
 | `fulcrum/` | Deployed schemas and Data Event sources |
 | `data/` | Extracted + normalized master data, and import-ready CSVs |
 | `reports/` | Production, financial, scope and QA reports (SQL) — see `reports/_conventions.md` |
@@ -18,13 +18,15 @@ tracking from initial construction through closeout.
 ## Start here
 
 1. `docs/implementation-log.md` — what happened, what was decided, what is open
-2. `docs/sprint-0-discovery.md` — environment inventory **and a live security finding**
-3. `docs/fulcrum-inventory.md` — every Fulcrum object created, and where its
+2. `docs/sprint-10-12-gaps.md` — **what is not finished**, and why. Read this
+   before assuming any report works: none has ever been executed
+3. `docs/sprint-0-discovery.md` — environment inventory **and a live security finding**
+4. `docs/fulcrum-inventory.md` — every Fulcrum object created, and where its
    schema and Data Events source live in this repo
 
 ## Run the tests
 
-418 tests, no dependencies, plain `node`. Data Event tests load the shipped
+569 tests, no dependencies, plain `node`. Data Event tests load the shipped
 script directly via `tests/harness.js`, and report tests check each SQL file
 against `reports/_conventions.md`, so neither can drift:
 

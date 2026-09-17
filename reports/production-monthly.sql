@@ -70,9 +70,9 @@ SELECT
   labor_description,
   unit,
   approved_quantity,
-  ROUND(approved_value, 2)  AS approved_value,
+  ROUND(CAST(approved_value AS numeric), 2)  AS approved_value,
   pending_quantity,
-  ROUND(pending_value, 2)   AS pending_value,
+  ROUND(CAST(pending_value AS numeric), 2)   AS pending_value,
   transactions,
   days_worked,
 
@@ -84,18 +84,18 @@ SELECT
     ORDER BY work_month
     ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
   )                         AS ptd_approved_quantity,
-  ROUND(SUM(approved_value) OVER (
+  ROUND(CAST(SUM(approved_value) OVER (
     PARTITION BY project_id, contractor_id, labor_code
     ORDER BY work_month
     ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-  ), 2)                     AS ptd_approved_value,
+  ) AS numeric), 2)                     AS ptd_approved_value,
 
   -- Project-to-date VALUE across all pay units. Quantity is deliberately absent
   -- from this one: it would add feet to each (convention 2).
-  ROUND(SUM(approved_value) OVER (
+  ROUND(CAST(SUM(approved_value) OVER (
     PARTITION BY project_id, contractor_id
     ORDER BY work_month
     ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-  ), 2)                     AS ptd_project_approved_value
+  ) AS numeric), 2)                     AS ptd_project_approved_value
 FROM monthly
 ORDER BY project_id, contractor_id, labor_code, work_month;

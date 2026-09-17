@@ -6,6 +6,78 @@ Newest entries first. Every Fulcrum object this project creates is listed in
 
 ---
 
+## 2026-09-17 — Sprints 13, 14 & 15 complete, and two defects fixed in 10-12
+
+Two apps, four reports, Data Events **v7.0.0**. **569 tests across eleven
+suites.** See `docs/sprint-13-15-build.md` and `docs/sprint-10-12-gaps.md`.
+
+### Audited 10-12 first, and found two queries that would not run
+- **58 `ROUND(x, 2)` calls across 12 reports.** Postgres has
+  `round(double precision)` and `round(numeric, integer)` but NOT
+  `round(double precision, integer)`, and every Fulcrum numeric column is a
+  double. All wrapped in `CAST(... AS numeric)`; `TEST-ROUND-*` guards it.
+- **A timestamp cast to `bigint`** in the duplicate report. Postgres rejects
+  that; now `EXTRACT(EPOCH FROM ...)`, guarded by `TEST-TS-*`.
+
+`docs/sprint-10-12-gaps.md` records everything in those sprints that is NOT
+finished. The headline: **no report has ever returned a row**, because there
+are zero records in every dev app and the MCP server has no record-creation
+tool. Two syntax classes found in one review means more are likely, and the
+document lists every construct still unverified against the live engine.
+
+### Sprint 13 — the fingerprint is the mechanism
+Comparing records needs other records, which a device cannot reach offline. But
+COMPUTING a canonical signature needs only the record in hand, so the device
+does that part every time. Duplicate detection then collapses from a weighted
+self-join into `GROUP BY fingerprint HAVING COUNT(*) > 1`, and the value is
+visible on the record so a reviewer sees WHY two records matched.
+
+Two fingerprints, because one string cannot do both jobs: **strict** (cable and
+sequential range — a collision is close to proof) and **segment** (the only
+signal available for boring and trenching, which have no sequentials). Both
+direction-normalized, so a crew pulling the other way cannot defeat the check.
+
+Three details each of which would have broken it: a blank component renders as
+`~` so two records missing DIFFERENT fields do not collide; the work date is
+used as a day not a timestamp; and a `|` inside a value cannot fake a
+delimiter. `fingerprint_strength` stops a sparse record matching everything —
+below 4 it is reported as TOO SPARSE TO CHECK rather than as a duplicate.
+
+**Production ID:** the brief's example is sequential (`PRD-2026-000123`). I did
+not use sequential numbering: it is not offline-safe, since two crews out of
+service both take 124 and neither can see the counter. The suffix is Fulcrum's
+own record ID. The pre-first-save fallback now folds in the user's email, since
+a bare timestamp let two devices collide in the same millisecond.
+
+### Sprint 14 — direction normalization is the whole design
+`MC Structure` (`397b52cf-…`) and `MC Segment` (`7da87588-…`).
+
+The segment ID sorts its two structure IDs before joining them, so one physical
+path has exactly one identity whichever way a crew drove. Without that, every
+report keyed on segment would double-count a reversed run. The SAME function
+derives `segment_id` on the production app, and `TEST-SEGID-040` runs both
+implementations over the same inputs so they cannot diverge.
+
+Structure IDs lock once the structure exists in the field and are normalized on
+save — `hh-1 ` and `HH-1` becoming two structures is unreconcilable later. A
+segment from a structure to itself is rejected outright.
+
+### Sprint 15 — management reports
+Project summary, production dashboard and remaining-work.
+
+Planned footages come from the **project master** (design intent, set once);
+installed footages come from **work_category**, which IS the family. Deriving
+either from labor-code prefixes would mean inventing a mapping the contract does
+not state. Each physical figure is fenced to one unit of measure.
+
+The dashboard computes all four periods as columns in one pass with GROUPING
+SETS, so a project row and the contractor rows inside it reconcile by
+construction rather than by luck. The remaining-work report sorts over-runs
+first and then by largest remaining value — alphabetical order by pay unit would
+bury what the report exists to surface.
+
+---
+
 ## 2026-09-17 — Sprints 10, 11 & 12 complete: reporting, financials, QA and approval
 
 Ten new reports, Data Events **v6.0.0**, and `reports/_conventions.md`.
@@ -319,6 +391,11 @@ Data Event script**. See the security note in that document.
 | 12 | **Per-pole items mapped against per-foot production.** `AFO.SL` sign markers and nut squares, and the HST stubs under `AFO.RTD`. The driver is pole / stub count, not footage | Sprint 8 rev | Open |
 | 13 | **Competing structure SKUs.** `BHF-30T` names three different vaults across two projects; `BHF-10`, `BHF-17T`, `BHF-48T` similar. One structure per unit, so a standard must be picked or the unit split by size | Sprint 8 rev | Open |
 | 14 | **No 4-pull or 5-pull 1.25" SKU exists** for the new `BM60(4)(1.25)DP` / `BM60(5)(1.25)DP` units. Needs a new part number or a stated combination of existing ones | Sprint 8 rev | Open |
+| 21 | **No report has ever been executed.** Zero records exist; the MCP server has no record-creation tool, so the masters cannot be loaded from here. Every report is unproven and the SQL dialect is inferred, not confirmed. See `docs/sprint-10-12-gaps.md` | Sprint 10-12 | **Open — biggest blocker** |
+| 22 | **No dedicated project-to-date report.** PTD exists as running-total columns in the monthly and trend reports; the brief lists it as a period alongside daily/weekly/monthly | Sprint 10 | Open |
+| 23 | **Nothing is wired into Fulcrum's own UI.** All reporting is Query API SQL; Report Builder templates, webhooks, reference files and extensions are untouched | Sprint 10-15 | Open |
+| 24 | **"Unusually high quantity" is two global thresholds**, not per-pay-unit plausibility limits. Needs stated limits or a historical baseline, and there is no historical production | Sprint 12 | Open |
+| 25 | **No QA reviewer assignment.** The app records who reviewed a record but there is no way to assign one to a reviewer in advance | Sprint 12 | Open |
 | 18 | **No billing app exists**, so `billed_value` and `remaining_to_bill` are NULL in the project financial report | Sprint 11 | Open |
 | 19 | **Material variance covers conduit only** until the Labor-Material Mapping master is loaded, which waits on the 2" part numbers | Sprint 12 | Open |
 | 20 | **Duplicate-detection window (5 minutes) and material variance bands (±10% tolerance, ±25% critical) are proposals**, not rulings. Most likely to need tuning against real data | Sprint 12 | Open — confirm |
@@ -360,3 +437,8 @@ Data Event script**. See the security note in that document.
 | 2026-09-17 | Financial and physical percent complete are **both** reported; the spread between them is the rate variance. |
 | 2026-09-17 | **Only a CRITICAL exception, a failed QA review or an unrecorded QA outcome blocks approval.** Warnings and info flags never block. |
 | 2026-09-17 | Sending a record back for correction or rejection **clears its approval stamp**. |
+| 2026-09-17 | Production carries **two derived fingerprints**, both direction-normalized, so duplicate detection is a GROUP BY rather than a heuristic. An absent component is marked, never empty. |
+| 2026-09-17 | The **Production ID is not sequential**. Sequential numbering is not offline-safe; the suffix is Fulcrum's own record ID, set once. |
+| 2026-09-17 | A **segment ID sorts its endpoints** before joining them, so one physical path has one identity. A segment from a structure to itself is rejected. |
+| 2026-09-17 | A **structure ID locks** once the structure exists in the field, and is normalized on save. |
+| 2026-09-17 | Planned footages come from the **project master**; installed footages come from **work_category**. Neither is derived from labor-code prefixes. |

@@ -81,10 +81,10 @@ SELECT
   COALESCE(a.damaged_or_lost_quantity, 0)             AS damaged_or_lost_quantity,
   COALESCE(a.ledger_rows, 0)                          AS ledger_rows,
 
-  ROUND(COALESCE(a.installed_quantity, 0) - e.expected_quantity, 2) AS variance_quantity,
+  ROUND(CAST(COALESCE(a.installed_quantity, 0) - e.expected_quantity AS numeric), 2) AS variance_quantity,
   CASE WHEN e.expected_quantity = 0 THEN NULL      -- guarded
-       ELSE ROUND((COALESCE(a.installed_quantity, 0) - e.expected_quantity)
-                  / e.expected_quantity * 100, 2) END AS variance_pct,
+       ELSE ROUND(CAST((COALESCE(a.installed_quantity, 0) - e.expected_quantity)
+                  / e.expected_quantity * 100 AS numeric), 2) END AS variance_pct,
 
   CASE
     WHEN COALESCE(a.ledger_rows, 0) = 0

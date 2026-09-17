@@ -514,6 +514,15 @@ function buildExceptions() {
     flag('WARNING', 'Fiber placement with no sequentials recorded - the cable ' +
                     'cannot be traced back to a reel');
   }
+  // A record too sparse to fingerprint cannot be duplicate-checked at all,
+  // which is worth saying out loud rather than leaving it silently unchecked.
+  var fpStrength = toNum($fingerprint_strength);
+  if (fpStrength !== null && fpStrength < 4) {
+    flag('WARNING', 'Only ' + fpStrength + ' identifying values recorded, so this ' +
+                    'record cannot be reliably duplicate-checked. Add the cable ID ' +
+                    'and sequentials, or the from/to structures');
+  }
+
   var status = STATUS();
   if (status === 'CORRECTION REQUIRED' && isBlank($correction_detail)) {
     flag('CRITICAL', 'Correction required but nothing states what to correct');
@@ -529,14 +538,103 @@ function buildExceptions() {
   setIfChanged('exception_severity', choiceValue($exception_severity), ex.length ? sev : null);
 }
 
+// ==================== production fingerprints (Sprint 13) ====================
+
+// A blank component must be distinguishable, not empty. Two records each
+// missing a DIFFERENT field would otherwise produce the same string and look
+// like duplicates of each other.
+var FP_ABSENT = '~';
+var FP_SEP = '|';
+
+function fpPart(v) {
+  if (isBlank(v)) return FP_ABSENT;
+  return String(v).trim().toUpperCase().replace(/\s+/g, ' ').replace(/\|/g, '/');
+}
+
+function fpNum(v) {
+  var n = toNum(v);
+  return n === null ? FP_ABSENT : String(n);
+}
+
+function buildFingerprints() {
+  var project    = fpPart($project_id_snapshot);
+  var contractor = fpPart($contractor_id_snapshot);
+  var code       = fpPart(choiceValue($labor_code));
+
+  // Date only. A work date carrying a time would split two records of the same
+  // day's work into different fingerprints.
+  var d = parseDate($work_date);
+  var day = d
+    ? (d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()))
+    : FP_ABSENT;
+
+  var cable = fpPart($cable_id);
+  var lo = FP_ABSENT, hi = FP_ABSENT;
+  var ss = toNum($starting_sequential);
+  var es = toNum($ending_sequential);
+  if (ss !== null && es !== null) {
+    // Direction-normalized: a crew pulling the other way records the same
+    // physical cable, and must not create a second identity for it.
+    lo = String(Math.min(ss, es));
+    hi = String(Math.max(ss, es));
+  }
+
+  // Already direction-normalized by normalizedPair, so HH-1 -> HH-2 and
+  // HH-2 -> HH-1 are one segment (Sprint 14).
+  var segment = fpPart(normalizedPair($from_location, $to_location));
+
+  var strict = ['S', project, contractor, day, code, cable, lo, hi].join(FP_SEP);
+  var seg    = ['G', project, contractor, day, code, segment].join(FP_SEP);
+
+  // Strength is how many IDENTIFYING components are actually present. A record
+  // with only a project and a date matches half the job; without this a report
+  // would treat that as a duplicate finding.
+  var strictParts = [project, contractor, day, code, cable, lo];
+  var segParts    = [project, contractor, day, code, segment];
+  var strictStrength = 0, segStrength = 0;
+  for (var i = 0; i < strictParts.length; i++) {
+    if (strictParts[i] !== FP_ABSENT) strictStrength++;
+  }
+  for (var j = 0; j < segParts.length; j++) {
+    if (segParts[j] !== FP_ABSENT) segStrength++;
+  }
+
+  setIfChanged('fingerprint_strict', $fingerprint_strict, strict);
+  setIfChanged('fingerprint_segment', $fingerprint_segment, seg);
+  setIfChanged('fingerprint_strength', $fingerprint_strength,
+               Math.max(strictStrength, segStrength));
+}
+
+// ==================== persistent production ID (Sprint 13) ====================
+// Set ONCE and never regenerated. The production app this replaces used
+// Math.random() on every save, so the same record reported a different ID each
+// time it was edited - which makes it useless as a reference in any document.
+//
+// The brief's example is PRD-2026-000123, a sequential number. Sequential
+// numbering is NOT offline-safe: two crews out of service both take 124 and
+// collide on sync, and no device can see the counter to avoid it. So the
+// suffix comes from Fulcrum's own record ID, which is globally unique, assigned
+// by the platform and stable for the life of the record.
+
 function assignProductionId() {
   if (!isBlank($production_id)) return;
   var d = parseDate($work_date) || new Date();
   var rid = '';
   try { rid = RECORDID() || ''; } catch (e) { rid = ''; }
-  var suffix = rid
-    ? String(rid).replace(/[^A-Za-z0-9]/g, '').slice(-8).toUpperCase()
-    : String(Date.now()).slice(-8);
+  var suffix;
+  if (rid) {
+    suffix = String(rid).replace(/[^A-Za-z0-9]/g, '').slice(-8).toUpperCase();
+  } else {
+    // RECORDID can be unavailable before a record's first save. A bare
+    // timestamp would let two devices saving in the same millisecond collide,
+    // so the user's email is folded in to keep the fallback unique per device.
+    var who = '';
+    try { who = USEREMAIL() || ''; } catch (e) { who = ''; }
+    var whoTag = who
+      ? String(who).replace(/[^A-Za-z0-9]/g, '').slice(0, 3).toUpperCase()
+      : 'XXX';
+    suffix = whoTag + String(Date.now()).slice(-8);
+  }
   SETVALUE('production_id', 'PRD-' + d.getFullYear() + '-' + suffix);
 }
 
@@ -577,6 +675,7 @@ ON('validate-record', function (event) {
   deriveSpliceBand();
   deriveSegmentId();
   deriveSpanId();
+  buildFingerprints();          // after segment_id, which it reads
   buildExceptions();
   enforceApprovalGate();
 });

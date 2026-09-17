@@ -87,11 +87,11 @@ SELECT
        ELSE approved_quantity - prev.approved_quantity END
                                             AS quantity_change,
   CASE WHEN prev.approved_quantity IS NULL OR prev.approved_quantity = 0 THEN NULL
-       ELSE ROUND((approved_quantity - prev.approved_quantity)
-                  / prev.approved_quantity * 100, 2) END
+       ELSE ROUND(CAST((approved_quantity - prev.approved_quantity)
+                  / prev.approved_quantity * 100 AS numeric), 2) END
                                             AS quantity_change_pct,
   CASE WHEN prev.approved_value IS NULL THEN NULL
-       ELSE ROUND(approved_value - prev.approved_value, 2) END
+       ELSE ROUND(CAST(approved_value - prev.approved_value AS numeric), 2) END
                                             AS value_change,
   CASE
     WHEN prev.approved_quantity IS NULL                       THEN 'NO PRIOR WEEK'

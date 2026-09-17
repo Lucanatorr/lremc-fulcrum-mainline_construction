@@ -39,7 +39,7 @@ SELECT
   p.unit,
   p.transactions,
   p.quantity,
-  ROUND(p.value, 2) AS value,
+  ROUND(CAST(p.value AS numeric), 2) AS value,
   p.first_work_date,
   p.last_work_date,
   'NO SCOPE LINE' AS exception_type,

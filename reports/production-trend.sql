@@ -125,20 +125,20 @@ SELECT
   w.work_week,
   w.work_month,
 
-  ROUND(w.approved_value, 2)             AS daily_value,
+  ROUND(CAST(w.approved_value AS numeric), 2)             AS daily_value,
   w.approved_footage                     AS daily_footage,
   w.approved_transactions                AS daily_transactions,
 
-  ROUND(w.rolling_7d_value, 2)           AS rolling_7d_value,
+  ROUND(CAST(w.rolling_7d_value AS numeric), 2)           AS rolling_7d_value,
   w.rolling_7d_footage,
-  ROUND(w.rolling_30d_value, 2)          AS rolling_30d_value,
+  ROUND(CAST(w.rolling_30d_value AS numeric), 2)          AS rolling_30d_value,
 
-  ROUND(w.week_value, 2)                 AS week_to_date_value,
+  ROUND(CAST(w.week_value AS numeric), 2)                 AS week_to_date_value,
   w.week_footage                         AS week_footage,
-  ROUND(w.month_value, 2)                AS month_value,
+  ROUND(CAST(w.month_value AS numeric), 2)                AS month_value,
   w.month_footage,
 
-  ROUND(w.ptd_value, 2)                  AS project_to_date_value,
+  ROUND(CAST(w.ptd_value AS numeric), 2)                  AS project_to_date_value,
   w.ptd_footage                          AS project_to_date_footage,
 
   c.working_days_with_production,
@@ -146,14 +146,14 @@ SELECT
   -- Guarded: a month whose only production fell on a weekend would otherwise
   -- divide by zero.
   CASE WHEN c.working_days_with_production = 0 THEN NULL
-       ELSE ROUND(w.month_value / c.working_days_with_production, 2) END
+       ELSE ROUND(CAST(w.month_value / c.working_days_with_production AS numeric), 2) END
                                          AS avg_daily_value_this_month,
   CASE WHEN c.working_days_with_production = 0 THEN NULL
-       ELSE ROUND(w.month_footage / c.working_days_with_production, 2) END
+       ELSE ROUND(CAST(w.month_footage / c.working_days_with_production AS numeric), 2) END
                                          AS avg_daily_footage_this_month,
 
-  ROUND(w.time_and_materials_value, 2)   AS time_and_materials_value,
-  ROUND(w.physical_value, 2)             AS physical_value
+  ROUND(CAST(w.time_and_materials_value AS numeric), 2)   AS time_and_materials_value,
+  ROUND(CAST(w.physical_value AS numeric), 2)             AS physical_value
 FROM windowed w
 JOIN working_day_counts c
   ON  c.project_id    = w.project_id

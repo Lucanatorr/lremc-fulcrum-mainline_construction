@@ -149,50 +149,48 @@ SELECT
   b.project_id,
   b.project_name,
 
-  ROUND(b.original_contract_value, 2)                       AS original_contract_value,
-  ROUND(COALESCE(c.approved_change_value, 0), 2)            AS approved_change_orders_value,
+  ROUND(CAST(b.original_contract_value AS numeric), 2)                       AS original_contract_value,
+  ROUND(CAST(COALESCE(c.approved_change_value, 0) AS numeric), 2)            AS approved_change_orders_value,
   COALESCE(c.approved_change_orders, 0)                     AS approved_change_orders,
-  ROUND(b.original_contract_value + COALESCE(c.approved_change_value, 0), 2)
+  ROUND(CAST(b.original_contract_value + COALESCE(c.approved_change_value, 0) AS numeric), 2)
                                                             AS current_contract_value,
   -- Pending changes shown but never added in (Sprint 9 rule).
-  ROUND(COALESCE(c.pending_change_value, 0), 2)             AS pending_change_orders_value,
+  ROUND(CAST(COALESCE(c.pending_change_value, 0) AS numeric), 2)             AS pending_change_orders_value,
   COALESCE(c.pending_change_orders, 0)                      AS pending_change_orders,
 
-  ROUND(COALESCE(pr.production_value_to_date, 0), 2)        AS production_value_to_date,
-  ROUND(COALESCE(pr.approved_production_value, 0), 2)       AS approved_production_value,
-  ROUND(COALESCE(pr.pending_production_value, 0), 2)        AS pending_production_value,
-  ROUND(COALESCE(pr.rejected_production_value, 0), 2)       AS rejected_production_value,
+  ROUND(CAST(COALESCE(pr.production_value_to_date, 0) AS numeric), 2)        AS production_value_to_date,
+  ROUND(CAST(COALESCE(pr.approved_production_value, 0) AS numeric), 2)       AS approved_production_value,
+  ROUND(CAST(COALESCE(pr.pending_production_value, 0) AS numeric), 2)        AS pending_production_value,
+  ROUND(CAST(COALESCE(pr.rejected_production_value, 0) AS numeric), 2)       AS rejected_production_value,
 
   CAST(NULL AS decimal(18,2))                               AS billed_value,
   CAST(NULL AS decimal(18,2))                               AS remaining_to_bill,
 
-  ROUND(b.original_contract_value + COALESCE(c.approved_change_value, 0)
-        - COALESCE(pr.approved_production_value, 0), 2)      AS remaining_contract_value,
+  ROUND(CAST(b.original_contract_value + COALESCE(c.approved_change_value, 0)
+        - COALESCE(pr.approved_production_value, 0) AS numeric), 2)      AS remaining_contract_value,
 
   -- Both percentages guard division by zero and are NULL rather than 0 when
   -- there is nothing to divide by: 0% and "not measurable" are different.
   CASE WHEN (b.original_contract_value + COALESCE(c.approved_change_value, 0)) = 0
        THEN NULL
-       ELSE ROUND(COALESCE(pr.approved_production_value, 0)
+       ELSE ROUND(CAST(COALESCE(pr.approved_production_value, 0)
                   / (b.original_contract_value + COALESCE(c.approved_change_value, 0))
-                  * 100, 2) END                              AS financial_percent_complete,
+                  * 100 AS numeric), 2) END                              AS financial_percent_complete,
 
   CASE WHEN COALESCE(ph.authorized_budget_value, 0) = 0 THEN NULL
-       ELSE ROUND(ph.earned_budget_value / ph.authorized_budget_value * 100, 2) END
+       ELSE ROUND(CAST(ph.earned_budget_value / ph.authorized_budget_value * 100 AS numeric), 2) END
                                                              AS physical_percent_complete,
 
   -- The spread is the rate variance, which is the point of keeping both.
   CASE WHEN COALESCE(ph.authorized_budget_value, 0) = 0
          OR (b.original_contract_value + COALESCE(c.approved_change_value, 0)) = 0
        THEN NULL
-       ELSE ROUND(
-              COALESCE(pr.approved_production_value, 0)
+       ELSE ROUND(CAST(COALESCE(pr.approved_production_value, 0)
               / (b.original_contract_value + COALESCE(c.approved_change_value, 0)) * 100
-              - ph.earned_budget_value / ph.authorized_budget_value * 100
-            , 2) END                                         AS financial_minus_physical_pts,
+              - ph.earned_budget_value / ph.authorized_budget_value * 100 AS numeric), 2) END                                         AS financial_minus_physical_pts,
 
-  ROUND(COALESCE(ph.earned_budget_value, 0), 2)              AS earned_value_at_budget_rates,
-  ROUND(COALESCE(ph.over_plan_budget_value, 0), 2)           AS over_plan_value_at_budget_rates,
+  ROUND(CAST(COALESCE(ph.earned_budget_value, 0) AS numeric), 2)              AS earned_value_at_budget_rates,
+  ROUND(CAST(COALESCE(ph.over_plan_budget_value, 0) AS numeric), 2)           AS over_plan_value_at_budget_rates,
   COALESCE(ph.lines_over_plan, 0)                            AS scope_lines_over_plan,
 
   b.scope_lines,

@@ -31,13 +31,17 @@ check('TEST-RPT-000', 'every expected report exists', files, [
   'duplicate-production.sql',
   'material-variance.sql',
   'production-daily.sql',
+  'production-dashboard.sql',
   'production-monthly.sql',
   'production-trend.sql',
   'production-weekly.sql',
   'project-financial.sql',
   'project-scope-status.sql',
+  'project-summary.sql',
   'qa-review-queue.sql',
   'rate-audit.sql',
+  'remaining-work.sql',
+  'segment-integrity.sql',
   'sequential-overlap.sql',
   'unplanned-production.sql',
 ]);
@@ -158,6 +162,27 @@ check('TEST-DIV-011', 'financial percent complete is guarded',
 check('TEST-DIV-012', 'material variance percent is guarded',
       /WHEN e\.expected_quantity = 0 THEN NULL/.test(sql['material-variance.sql']), true);
 
+// ------------------------------- ROUND(double, int) does not exist in Postgres
+// The Query API runs Postgres, where round() takes either one double or a
+// numeric plus a scale. Every Fulcrum numeric column comes back as double, so
+// an uncast ROUND(x, 2) is not a rounding bug - the query does not run at all.
+for (const f of files) {
+  const body = stripComments(sql[f]);
+  const uncast = [];
+  const re = /\bROUND\s*\(\s*(?!CAST\b)/gi;
+  let m;
+  while ((m = re.exec(body))) {
+    // Only 2-argument calls are affected; look ahead for a scale argument.
+    if (/,\s*\d\s*\)/.test(body.slice(m.index, m.index + 400))) uncast.push(m.index);
+  }
+  check(`TEST-ROUND-${f}`, `${f} casts to numeric before rounding`, uncast, []);
+}
+// A timestamp cannot be cast to bigint either.
+for (const f of files) {
+  check(`TEST-TS-${f}`, `${f} does not cast a timestamp to bigint`,
+        /CAST\([^)]*_(created|updated)_at[^)]*AS\s+bigint\)/i.test(sql[f]), false);
+}
+
 // --------------------------------------------- filters are declared up front
 for (const [id, f] of [
   ['TEST-PARAM-001', 'production-daily.sql'],
@@ -216,7 +241,7 @@ check('TEST-FIN-006', 'pending change orders are shown but never added in',
 check('TEST-FIN-007', 'billed value is present and explicitly unavailable',
       /billed_value/.test(fin) && /no billing app exists yet/.test(fin), true);
 check('TEST-FIN-008', 'remaining contract value uses APPROVED production',
-      /- COALESCE\(pr\.approved_production_value, 0\), 2\)\s*AS remaining_contract_value/.test(fin), true);
+      /- COALESCE\(pr\.approved_production_value, 0\)[^;]*?AS remaining_contract_value/.test(fin), true);
 
 // ------------------------- Sprint 11: contractors are kept apart on a project
 const con = sql['contractor-financial.sql'];
@@ -231,10 +256,23 @@ check('TEST-CON-004', 'all four value states are reported',
         .every((c) => con.includes(c)), true);
 
 // -------------------------------------- Sprint 12: the cross-record QA flags
-check('TEST-QA-001', 'duplicate detection grades candidates rather than asserting',
-      /duplicate_likelihood/.test(sql['duplicate-production.sql']), true);
-check('TEST-QA-002', 'identical sequentials are near certain',
-      /same_sequentials = 1\s*\n?\s*THEN 'NEAR CERTAIN'/.test(sql['duplicate-production.sql']), true);
+// Sprint 13 replaced the scored-only approach with derived fingerprints. The
+// heuristic survives for records with no fingerprint, so both must be present.
+const dup = sql['duplicate-production.sql'];
+check('TEST-QA-001', 'the strict fingerprint is matched by GROUP BY, not heuristics',
+      /GROUP BY fingerprint_strict\s*\n?\s*HAVING COUNT\(\*\) > 1/.test(dup), true);
+check('TEST-QA-001b', 'the segment fingerprint is matched too',
+      /GROUP BY fingerprint_segment\s*\n?\s*HAVING COUNT\(\*\) > 1/.test(dup), true);
+check('TEST-QA-002', 'a strict fingerprint collision is CRITICAL',
+      /'STRICT FINGERPRINT MATCH'\s*\n?\s*AS finding,\s*\n?\s*'CRITICAL'/.test(dup), true);
+check('TEST-QA-002b', 'sparse records are excluded from fingerprint matching',
+      /fingerprint_strength, 0\) >= 5/.test(dup), true);
+check('TEST-QA-002c', 'and reported separately rather than silently unchecked',
+      /'TOO SPARSE TO CHECK'/.test(dup), true);
+check('TEST-QA-002d', 'the heuristic survives for records with no fingerprint',
+      /HEURISTIC MATCH - NO FINGERPRINT/.test(dup) && /agreement_score/.test(dup), true);
+check('TEST-QA-002e', 'the likely overstatement is quantified',
+      /value_at_risk/.test(dup), true);
 check('TEST-QA-003', 'duplicate pairs are never self-matched',
       /a\._record_id\s*<\s*b\._record_id/.test(sql['duplicate-production.sql']), true);
 check('TEST-QA-004', 'rejected records are excluded from duplicate pairing',
@@ -254,6 +292,96 @@ check('TEST-QA-010', 'the queue only lists pending records',
         .test(sql['qa-review-queue.sql']), true);
 check('TEST-QA-011', 'overlap counting treats adjacency as legitimate',
       /> 0\s*\n?\s*GROUP BY a\._record_id/.test(sql['qa-review-queue.sql']), true);
+
+// --------------------------------------- Sprint 14: structure and segment
+const seg = sql['segment-integrity.sql'];
+check('TEST-SEG-001', 'duplicate structure IDs are CRITICAL',
+      /'DUPLICATE STRUCTURE ID'\s*\n?\s*AS finding,\s*\n?\s*'CRITICAL'/.test(seg), true);
+check('TEST-SEG-002', 'duplicate segments are found by the normalized ID',
+      /GROUP BY segment_id, segment_type\s*\n?\s*HAVING COUNT\(\*\) > 1/.test(seg), true);
+check('TEST-SEG-003', 'different types on one path are not a duplicate',
+      /segment_type/.test(seg), true);
+check('TEST-SEG-004', 'orphaned segment endpoints are found',
+      /SEGMENT ENDPOINT NOT IN MASTER/.test(seg), true);
+check('TEST-SEG-005', 'production on an undefined segment is surfaced',
+      /PRODUCTION ON UNDEFINED SEGMENT/.test(seg), true);
+check('TEST-SEG-006', 'abandoned segments are excluded from duplicate checks',
+      /_status <> 'ABANDONED'/.test(seg), true);
+
+// ------------------------------------------- Sprint 15: management reports
+const summary = sql['project-summary.sql'];
+for (const [id, col] of [
+  ['TEST-SUM-001', 'project_status'],
+  ['TEST-SUM-002', 'required_completion_date'],
+  ['TEST-SUM-003', 'original_contract_value'],
+  ['TEST-SUM-004', 'approved_change_orders_value'],
+  ['TEST-SUM-005', 'current_contract_value'],
+  ['TEST-SUM-006', 'approved_production_value'],
+  ['TEST-SUM-007', 'remaining_contract_value'],
+  ['TEST-SUM-008', 'physical_percent_complete'],
+  ['TEST-SUM-009', 'financial_percent_complete'],
+  ['TEST-SUM-010', 'planned_fiber_footage'],
+  ['TEST-SUM-011', 'installed_fiber_footage'],
+  ['TEST-SUM-012', 'remaining_fiber_footage'],
+  ['TEST-SUM-013', 'planned_underground_footage'],
+  ['TEST-SUM-014', 'completed_underground_footage'],
+  ['TEST-SUM-015', 'remaining_underground_footage'],
+  ['TEST-SUM-016', 'splices_complete'],
+  ['TEST-SUM-017', 'open_qa_issues'],
+  ['TEST-SUM-018', 'pending_production_value'],
+]) {
+  check(id, `the project summary reports ${col}`, summary.includes(col), true);
+}
+check('TEST-SUM-020', 'planned footages come from the project master',
+      /m\.planned_fiber_footage/.test(summary), true);
+check('TEST-SUM-021', 'installed footages come from work category, not code prefixes',
+      /work_category = 'Fiber Placement'/.test(summary), true);
+check('TEST-SUM-022', 'each physical figure is fenced to one unit of measure',
+      /work_category = 'Fiber Placement'\s*\n?\s*AND p\.unit = 'FT'/.test(summary), true);
+check('TEST-SUM-023', 'splices are counted in SPLICE units',
+      /unit = 'SPLICE'/.test(summary), true);
+check('TEST-SUM-024', 'open QA issues include approved records still carrying criticals',
+      /critical_exceptions/.test(summary), true);
+
+const dash = sql['production-dashboard.sql'];
+for (const [id, col] of [
+  ['TEST-DASH-001', 'today_approved_value'],
+  ['TEST-DASH-002', 'week_approved_value'],
+  ['TEST-DASH-003', 'month_approved_value'],
+  ['TEST-DASH-004', 'ptd_approved_value'],
+]) {
+  check(id, `the dashboard reports ${col}`, dash.includes(col), true);
+}
+check('TEST-DASH-010', 'all four breakdown levels come from one GROUPING SETS pass',
+      /GROUP BY GROUPING SETS/.test(dash)
+        && /\(project_id, contractor_id, work_category, labor_code\)/.test(dash), true);
+check('TEST-DASH-011', 'quantity appears only at single-labor-code level',
+      /CASE WHEN GROUPING\(labor_code\) = 0\s*\n?\s*THEN SUM\(CASE WHEN is_today/.test(dash), true);
+check('TEST-DASH-012', 'the dashboard can be run as at a past date',
+      /p_as_at/.test(dash), true);
+
+const rem = sql['remaining-work.sql'];
+for (const [id, col] of [
+  ['TEST-REM-001', 'planned_quantity'],
+  ['TEST-REM-002', 'approved_completed_quantity'],
+  ['TEST-REM-003', 'pending_quantity'],
+  ['TEST-REM-004', 'remaining_quantity'],
+  ['TEST-REM-005', 'percent_complete'],
+  ['TEST-REM-006', 'budget_rate'],
+  ['TEST-REM-007', 'remaining_value'],
+  ['TEST-REM-008', 'scope_status'],
+]) {
+  check(id, `the remaining-work report reports ${col}`, rem.includes(col), true);
+}
+check('TEST-REM-010', 'all four scope states are derivable',
+      ["'NOT STARTED'", "'IN PROGRESS'", "'COMPLETE'", "'OVER PLAN'"]
+        .every((v) => rem.includes(v)), true);
+check('TEST-REM-011', 'remaining quantity is a plain subtraction, unclamped',
+      /r\.planned_quantity - r\.approved_quantity AS remaining_quantity/.test(rem), true);
+check('TEST-REM-012', 'over-runs sort to the top',
+      /WHEN 'OVER PLAN'\s*THEN 1/.test(rem), true);
+check('TEST-REM-013', 'the baseline is shown next to the authorized figure',
+      /original_planned_quantity/.test(rem), true);
 
 // ----------------------------------------------------- weekly comparison
 const wk = sql['production-weekly.sql'];

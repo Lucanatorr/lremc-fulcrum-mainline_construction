@@ -62,20 +62,20 @@ SELECT
   -- Value splits by approval state. The brief asks for production, approved,
   -- pending and rejected value as four distinct figures, so none of them is a
   -- subset anyone has to infer.
-  ROUND(SUM(COALESCE(extended_value, 0)), 2)   AS production_value,
-  ROUND(SUM(CASE WHEN record_status = 'APPROVED'
-                 THEN COALESCE(extended_value,0) ELSE 0 END), 2) AS approved_value,
-  ROUND(SUM(CASE WHEN record_status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED')
-                 THEN COALESCE(extended_value,0) ELSE 0 END), 2) AS pending_value,
-  ROUND(SUM(CASE WHEN record_status = 'REJECTED'
-                 THEN COALESCE(extended_value,0) ELSE 0 END), 2) AS rejected_value,
+  ROUND(CAST(SUM(COALESCE(extended_value, 0)) AS numeric), 2)   AS production_value,
+  ROUND(CAST(SUM(CASE WHEN record_status = 'APPROVED'
+                 THEN COALESCE(extended_value,0) ELSE 0 END) AS numeric), 2) AS approved_value,
+  ROUND(CAST(SUM(CASE WHEN record_status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED')
+                 THEN COALESCE(extended_value,0) ELSE 0 END) AS numeric), 2) AS pending_value,
+  ROUND(CAST(SUM(CASE WHEN record_status = 'REJECTED'
+                 THEN COALESCE(extended_value,0) ELSE 0 END) AS numeric), 2) AS rejected_value,
 
   -- Physical vs time-and-materials, because a contractor billing mostly hours
   -- is a different conversation from one billing mostly footage.
-  ROUND(SUM(CASE WHEN record_status = 'APPROVED' AND unit NOT IN ('HR','EVENT')
-                 THEN COALESCE(extended_value,0) ELSE 0 END), 2) AS approved_physical_value,
-  ROUND(SUM(CASE WHEN record_status = 'APPROVED' AND unit IN ('HR','EVENT')
-                 THEN COALESCE(extended_value,0) ELSE 0 END), 2) AS approved_tm_value,
+  ROUND(CAST(SUM(CASE WHEN record_status = 'APPROVED' AND unit NOT IN ('HR','EVENT')
+                 THEN COALESCE(extended_value,0) ELSE 0 END) AS numeric), 2) AS approved_physical_value,
+  ROUND(CAST(SUM(CASE WHEN record_status = 'APPROVED' AND unit IN ('HR','EVENT')
+                 THEN COALESCE(extended_value,0) ELSE 0 END) AS numeric), 2) AS approved_tm_value,
 
   -- Footage is the one quantity that can be summed across pay units here,
   -- because every FT unit shares a unit of measure (convention 2).
@@ -94,9 +94,9 @@ SELECT
   -- rather than by count: one rejected 5,000 FT record matters more than ten
   -- rejected handholes.
   CASE WHEN SUM(COALESCE(extended_value,0)) = 0 THEN NULL
-       ELSE ROUND(SUM(CASE WHEN record_status = 'REJECTED'
+       ELSE ROUND(CAST(SUM(CASE WHEN record_status = 'REJECTED'
                            THEN COALESCE(extended_value,0) ELSE 0 END)
-                  / SUM(COALESCE(extended_value,0)) * 100, 2) END
+                  / SUM(COALESCE(extended_value,0)) * 100 AS numeric), 2) END
                                                AS rejected_value_pct,
 
   -- Cross-contamination check: the rate this record was priced at belongs to a
@@ -105,9 +105,9 @@ SELECT
   COUNT(CASE WHEN rate_contractor_id_snap IS NOT NULL
                   AND rate_contractor_id_snap <> contractor_id THEN 1 END)
                                                AS wrong_contractor_rate_records,
-  ROUND(SUM(CASE WHEN rate_contractor_id_snap IS NOT NULL
+  ROUND(CAST(SUM(CASE WHEN rate_contractor_id_snap IS NOT NULL
                       AND rate_contractor_id_snap <> contractor_id
-                 THEN COALESCE(extended_value,0) ELSE 0 END), 2)
+                 THEN COALESCE(extended_value,0) ELSE 0 END) AS numeric), 2)
                                                AS wrong_contractor_rate_value,
   COUNT(CASE WHEN rate_source_id IS NULL THEN 1 END) AS unpriced_records
 FROM base
