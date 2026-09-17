@@ -6,9 +6,61 @@ Newest entries first. Every Fulcrum object this project creates is listed in
 
 ---
 
+## 2026-09-17 — Sprint 9 complete: project scope, budget and change orders
+
+Two apps created (`forms_create` works even while `forms_update` is down), two
+reports written, one existing report fixed. See `docs/sprint-9-build.md`.
+**252 tests pass across seven suites.**
+
+| Object | ID |
+|---|---|
+| MC Project Scope Line - Development | `aa1d8c1e-d0a9-4fd1-8d57-ca90b4555b0b` |
+| MC Change Order - Development | `458ae172-b7b4-43b5-8917-d7a792c9e81a` |
+
+### The baseline is a record; the arithmetic is a report
+Completed, Remaining, Percent Complete and Current Authorized Scope are all
+aggregates over every production record for a project and pay unit. A device
+cannot compute them (Data Events reach other records only through the
+online-only `REQUEST`), and storing them would put a stale number in front of a
+field user the moment the next record synced. The brief says remaining work
+must not be manually maintained and the quantities stay authoritative, so the
+scope line holds only the baseline and `reports/project-scope-status.sql` does
+the rest — the same call made for sequential overlap in Sprint 4.
+
+### Baseline immutability is enforced, not documented
+`SETREADONLY` locks Original Planned Quantity and the budget rate once the line
+leaves DRAFT, and `SETDESCRIPTION` rewrites the help text to say why and what to
+do instead. Baseline Set Date and By are stamped on the transition. A negative
+planned quantity is blocked outright, with the message naming the change order
+as the way to reduce scope.
+
+### Change orders are signed deltas with a real approval gate
+Lines are `+2000` / `-500`, never a revised absolute quantity — a delta replays
+against the baseline, an absolute figure destroys the history. Change Order
+Value is `REPEATABLESUM` over the lines, never typed. Approval stamps
+Date Approved and Approved By and freezes the lines; rejection **clears** that
+stamp, because the stamp is what the report reads. Only APPROVED moves the
+authorized scope, enforced in one place: the SQL join to the parent status.
+
+### Two reports, plus one bug found in an old one
+`project-scope-status.sql` computes the lot, keeping approved and pending apart,
+never clamping remaining, and returning NULL rather than dividing by zero.
+`unplanned-production.sql` is not in the brief: production against a pay unit
+with no scope line is invisible in a scope report driven from scope lines, so it
+needed its own anti-join. It is the scope-side counterpart of last sprint's
+billing gaps.
+
+Reading the Query API's real table definitions showed **tables are named by form
+ID, not form name, and the status column is `_status`**.
+`reports/sequential-overlap.sql` had both wrong and **would not have run** — it
+had been written and reviewed but never executed. Corrected, and the new tests
+assert the text of each report against the rules it must encode.
+
+---
+
 ## 2026-09-17 — Sprint 8 revision: directional bore, size-dependent material, real SKUs
 
-See `docs/sprint-8-revision-build.md`. **213 tests pass across six suites.**
+See `docs/sprint-8-revision-build.md`. **180 tests pass across six suites** (184 after the rate-band correction below).
 
 ### Ruling: 2" and 4" are always one pull — and v4.0.0 was wrong
 There is no bundled 2" or 4" product; the catalogue stocks one 4" item, a single
@@ -191,6 +243,8 @@ Data Event script**. See the security note in that document.
 | 12 | **Per-pole items mapped against per-foot production.** `AFO.SL` sign markers and nut squares, and the HST stubs under `AFO.RTD`. The driver is pole / stub count, not footage | Sprint 8 rev | Open |
 | 13 | **Competing structure SKUs.** `BHF-30T` names three different vaults across two projects; `BHF-10`, `BHF-17T`, `BHF-48T` similar. One structure per unit, so a standard must be picked or the unit split by size | Sprint 8 rev | Open |
 | 14 | **No 4-pull or 5-pull 1.25" SKU exists** for the new `BM60(4)(1.25)DP` / `BM60(5)(1.25)DP` units. Needs a new part number or a stated combination of existing ones | Sprint 8 rev | Open |
+| 16 | **Budget rates are assumed to equal contract rates.** The scope line prices its budget from the contractor rate master. If LREMC budgets at an internal rate, that is a separate master | Sprint 9 | Open |
+| 17 | **Change order line rates are typed, not snapshotted.** A RecordLink inside a repeatable was not attempted, so nothing checks a typed line rate against the rate sheet | Sprint 9 | Open |
 | 15 | **`forms_update` outage.** v5.0.0 app payload ready but undeployable; every form update returns `could_not_update_form`. Retry when Fulcrum recovers | Sprint 8 rev | **Open — blocks deploy** |
 | 8 | Span footage is hand-entered. Auto-derivation needs a pole dataset with coordinates; `Poles and Inspections_demo_app` (10,000 records) may be a source | Sprint 6 | Open |
 
@@ -216,3 +270,7 @@ Data Event script**. See the security note in that document.
 | 2026-09-17 | **Pack size and waste factor are separate columns**, never folded into the multiplier. Installed quantity stays a measurement; purchasing grosses it up. |
 | 2026-09-17 | **Fiber cable SKU comes from the reel**, not from the pay unit. Two projects placed the same unit with different cable. |
 | 2026-09-17 | Tests load the **deployed** Data Events source via `tests/harness.js`. No suite may re-type the code it tests. |
+| 2026-09-17 | **Scope totals are never stored.** The scope line holds the baseline; completed, remaining, percent complete and authorized scope are computed in `reports/project-scope-status.sql`. |
+| 2026-09-17 | The scope **baseline is locked** by `SETREADONLY` once a line leaves DRAFT. Scope changes go through a change order; a negative baseline is rejected. |
+| 2026-09-17 | Change order lines are **signed deltas**, never revised absolute quantities, and only an **APPROVED** order moves the authorized scope. |
+| 2026-09-17 | **Remaining quantity is never clamped at zero** and percent complete returns NULL rather than dividing by zero. |

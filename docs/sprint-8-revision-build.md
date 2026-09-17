@@ -224,8 +224,8 @@ to push when the endpoint recovers.
 
 ## Tests
 
-**213 passing across six suites.** The new
-`tests/conduit-dp-material.test.js` (67) covers DP parsing 1-5, the
+**180 passing across six suites** at this commit, 184 once the rate-band
+tests landed. The new `tests/conduit-dp-material.test.js` (67, then 71) covers DP parsing 1-5, the
 size-dependent multiplier for all three diameters, out-of-scope sizes, the
 retired-code CRITICAL flag, and the five expanded DP rates read from the
 generated CSV.

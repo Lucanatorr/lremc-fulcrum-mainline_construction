@@ -12,6 +12,10 @@
 --
 -- Run via the Fulcrum Query API.
 --
+-- CORRECTED 2026-09-17: the Query API names tables by FORM ID, not by form
+-- name, and the record status column is _status, not status. This query
+-- previously used both wrong and would not have run.
+--
 -- CLASSIFICATION (Sprint 23.4)
 --   EXACT DUPLICATE  identical normalized range          -> CRITICAL
 --   CONTAINED        one range wholly inside the other   -> CRITICAL
@@ -34,11 +38,11 @@ WITH norm AS (
     work_date,
     LEAST(starting_sequential, ending_sequential)    AS seq_lo,
     GREATEST(starting_sequential, ending_sequential) AS seq_hi
-  FROM "Mainline Construction - Development"
+  FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2"   -- Mainline Construction - Development
   WHERE starting_sequential IS NOT NULL
     AND ending_sequential   IS NOT NULL
     AND reel_id             IS NOT NULL
-    AND status <> 'VOID'
+    AND _status <> 'VOID'
 )
 SELECT
   a.production_id AS production_a,

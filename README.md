@@ -10,7 +10,7 @@ tracking from initial construction through closeout.
 |---|---|
 | `docs/` | Implementation log, discovery findings, per-sprint build notes, object inventory |
 | `scripts/` | Rate-sheet normalization |
-| `tests/` | Data Event logic tests, 213 of them, run against the deployed script |
+| `tests/` | Data Event logic tests, 252 of them, run against the deployed script |
 | `fulcrum/` | Deployed schemas and Data Event sources |
 | `data/` | Extracted + normalized master data, and import-ready CSVs |
 | `reports/` | Server-side exception reports (SQL) |
@@ -24,7 +24,7 @@ tracking from initial construction through closeout.
 
 ## Run the tests
 
-213 tests, no dependencies, plain `node`. They load the deployed Data Events
+252 tests, no dependencies, plain `node`. They load the deployed Data Events
 source directly via `tests/harness.js`, so they cannot drift from it:
 
 ```

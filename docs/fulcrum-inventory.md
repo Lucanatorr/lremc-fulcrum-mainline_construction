@@ -15,6 +15,8 @@ no production object has been modified.
 | MC Labor-Material Mapping - Development | `38e3d7fd-ca78-4016-8018-ec955446c13f` | Sprint 5 labor -> material multipliers |
 | MC Material Master - Development | `658143d1-edbd-430b-81bb-1b0bb1092729` | Sprint 8 stock item master |
 | MC Material Transaction - Development | `ee204906-adb3-431b-a1d9-d7427a4c842c` | Sprint 8 atomic material ledger |
+| MC Project Scope Line - Development | `aa1d8c1e-d0a9-4fd1-8d57-ca90b4555b0b` | Sprint 9 scope baseline, one per project + labor code |
+| MC Change Order - Development | `458ae172-b7b4-43b5-8917-d7a792c9e81a` | Sprint 9 scope changes, repeatable line per labor code |
 
 ## Choice lists (the account had none before this project)
 
@@ -48,6 +50,8 @@ no production object has been modified.
 | Mainline Construction - Development | `fulcrum/schemas/mainline-construction-dev.elements.json` | `fulcrum/data-events/mainline-construction-dev.js` (v5.0.0, **pending deploy**) |
 | MC Material Master - Development | `fulcrum/schemas/mc-material-master-dev.elements.json` | none |
 | MC Material Transaction - Development | `fulcrum/schemas/mc-material-transaction-dev.elements.json` | `fulcrum/data-events/mc-material-transaction-dev.js` (v1.0.0) |
+| MC Project Scope Line - Development | `fulcrum/schemas/mc-project-scope-line-dev.elements.json` | `fulcrum/data-events/mc-project-scope-line-dev.js` (v1.0.0) |
+| MC Change Order - Development | `fulcrum/schemas/mc-change-order-dev.elements.json` | `fulcrum/data-events/mc-change-order-dev.js` (v1.0.0) |
 
 The exported scripts are the deployed text, not a paraphrase. Edit here, then
 push with `forms_update`.
@@ -69,6 +73,9 @@ payload shape. A script-only update is not a way round it: `elements` is
 mandatory (`422 elements: must not be empty`) even though the tool documents it
 as optional.
 
+`forms_create` is UNAFFECTED — both Sprint 9 apps were created during the
+outage. So new apps can be built; only changes to existing ones are blocked.
+
 **Do not recreate the form as a workaround while this persists.**
 `MC Material Transaction` holds a RecordLink to the production form's ID, and
 repointing it requires the same broken endpoint — a recreate would leave a
@@ -78,6 +85,21 @@ Pending deployment when the endpoint recovers:
 `fulcrum/schemas/mainline-construction-dev.elements.json` and
 `fulcrum/data-events/mainline-construction-dev.js` (v5.0.0), plus the
 `MC Material Master` `pack_size` field.
+
+## Query API conventions (confirmed 2026-09-17 from real table definitions)
+
+- **Tables are named by FORM ID, not by form name.** `FROM "06c36c8e-..."`, not
+  `FROM "Mainline Construction - Development"`. Put the ID-to-name mapping in a
+  header comment so the SQL stays readable.
+- **The record status column is `_status`, not `status`.** Its values are the
+  status field's `value` strings.
+- A repeatable is its own table, `"<form_id>/<repeatable_data_name>"`, joined to
+  the parent on `_parent_id`. It carries **no status of its own** — filtering a
+  repeatable by the parent's status requires the join.
+- Photo fields expose `<data_name>_captions`, not the media. A signature exposes
+  a hash plus `<data_name>_timestamp`, useful only for "was one captured".
+- `reports/sequential-overlap.sql` had both the table-name and the `status`
+  mistake and would not have run. Corrected in Sprint 9.
 
 ## Fulcrum API gotchas found the hard way
 
