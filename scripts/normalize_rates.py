@@ -59,6 +59,74 @@ RAILROAD_SPLIT = {
 }
 
 
+# Directional bore (DP) restructure - RULING 2026-09-17.
+#
+# The source sheet priced directional bore as a base unit plus an adder:
+#   BM60-(1.25)DP          $10.00/FT  one pipe
+#   BM60-(1.25)DPD Dual    $ 2.00/FT  "a second or more ... pulling multiple
+#                                      pipes back at one time"
+# Billing a 3-pull bore therefore meant three separate transactions ($10 + $2
+# + $2) and nothing in the record stated the pull count. Ruling: expand into one
+# unit per pull count, named like the plow units, so the pull count is a FACT of
+# the selected pay unit.
+#
+# Pricing is unchanged in total: rate(n) = base + adder * (n - 1). A 2-pull bore
+# still bills $12/FT, it is just one transaction instead of two.
+DP_PULL_EXPANSION = {
+    "BM60-(1.25)DP": {
+        "adder_code": "BM60-(1.25)DPD Dual",
+        "max_pulls": 5,
+        "code": "BM60({n})(1.25)DP",
+        "desc": (
+            'Labor to install {word} ({n}) 1.25" conduit bore or road crossing '
+            "via the hydraulic bore rig method, pulling all pipes back at one "
+            "time. Unit consists of digging entry and exit pits, tamping and "
+            "backfilling."
+        ),
+    },
+}
+
+NUMBER_WORDS = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five"}
+
+
+def expand_dp_units(master, exceptions):
+    """Replace each base/adder DP pair with one pay unit per pull count."""
+    by_code = {e["code"]: e for e in master}
+
+    for base_code, spec in DP_PULL_EXPANSION.items():
+        base = by_code.get(base_code)
+        adder = by_code.get(spec["adder_code"])
+        if base is None or adder is None:
+            exceptions.append(
+                (base_code, "", "DP expansion skipped: base or adder row missing")
+            )
+            continue
+
+        base_rate = float(base["rate"])
+        adder_rate = float(adder["rate"])
+        expanded = []
+        for n in range(1, spec["max_pulls"] + 1):
+            rate = base_rate + adder_rate * (n - 1)
+            expanded.append({
+                "code": spec["code"].format(n=n),
+                "description": spec["desc"].format(n=n, word=NUMBER_WORDS[n]),
+                "unit": base["unit"],
+                "rate": f"{rate:g}",
+            })
+
+        # Splice the new units in where the base unit was, and drop the pair.
+        at = master.index(base)
+        master[at:at + 1] = expanded
+        master.remove(adder)
+        exceptions.append(
+            (base_code, base["rate"],
+             f"EXPANDED into {spec['max_pulls']} pull-count units; "
+             f"{spec['adder_code']} @ {adder['rate']} folded in as the per-pipe adder")
+        )
+
+    return master, exceptions
+
+
 def clean(s: str) -> str:
     """Strip OCR damage without altering meaning."""
     s = s.replace("�", " ").replace("\n", " ").replace("\r", " ")
@@ -124,6 +192,7 @@ def normalize():
 
 def main():
     master, exceptions = normalize()
+    master, exceptions = expand_dp_units(master, exceptions)
 
     (ROOT / "data" / "labor-master.json").write_text(json.dumps(master, indent=1))
 
@@ -132,6 +201,39 @@ def main():
         for e in master
     ]
     (ROOT / "data" / "labor-choices.json").write_text(json.dumps(choices, indent=1))
+
+    # Import-ready rate records. One per pay unit, contractor-wide (no project
+    # override), effective 2026-01-01. Rates are snapshotted onto production
+    # transactions at selection time and never recalculated from here.
+    rate_cols = [
+        "rate_id", "contractor_id_snap", "contractor_name_snap",
+        "project_id_snap", "project_name_snap", "labor_code", "labor_description",
+        "unit", "unit_rate", "effective_date", "expiration_date", "active",
+        "supersedes_rate_id", "status", "notes",
+    ]
+    with (ROOT / "data" / "import" / "contractor-rates-river-city.csv").open(
+        "w", newline=""
+    ) as fh:
+        w = csv.DictWriter(fh, fieldnames=rate_cols)
+        w.writeheader()
+        for i, e in enumerate(master, start=1):
+            w.writerow({
+                "rate_id": f"RATE-{i:06d}",
+                "contractor_id_snap": "CON-0001",
+                "contractor_name_snap": "River City Communications",
+                "project_id_snap": "",
+                "project_name_snap": "",
+                "labor_code": e["code"],
+                "labor_description": e["description"],
+                "unit": e["unit"],
+                "unit_rate": e["rate"],
+                "effective_date": "2026-01-01",
+                "expiration_date": "",
+                "active": "yes",
+                "supersedes_rate_id": "",
+                "status": "ACTIVE",
+                "notes": "Loaded from River_City_Rates.xlsx",
+            })
 
     with (ROOT / "data" / "labor-exceptions.csv").open("w", newline="") as fh:
         w = csv.writer(fh)

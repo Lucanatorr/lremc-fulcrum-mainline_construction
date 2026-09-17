@@ -10,7 +10,7 @@ tracking from initial construction through closeout.
 |---|---|
 | `docs/` | Implementation log, discovery findings, per-sprint build notes, object inventory |
 | `scripts/` | Rate-sheet normalization |
-| `tests/` | Data Event logic tests, 112 of them |
+| `tests/` | Data Event logic tests, 213 of them, run against the deployed script |
 | `fulcrum/` | Deployed schemas and Data Event sources |
 | `data/` | Extracted + normalized master data, and import-ready CSVs |
 | `reports/` | Server-side exception reports (SQL) |
@@ -24,17 +24,22 @@ tracking from initial construction through closeout.
 
 ## Run the tests
 
-112 tests, no dependencies, plain `node`:
+213 tests, no dependencies, plain `node`. They load the deployed Data Events
+source directly via `tests/harness.js`, so they cannot drift from it:
 
 ```
 for f in tests/*.test.js; do node "$f"; done
 ```
 
-## Regenerate the labor master
+## Regenerate the masters
 
 ```
-python3 scripts/normalize_rates.py
+python3 scripts/normalize_rates.py          # 146 pay units + the rate CSV
+python3 scripts/build_material_mapping.py   # material master + labor->material
 ```
+
+Both are idempotent and are the only way these files should change — never edit
+the generated CSVs by hand.
 
 ## Conventions
 

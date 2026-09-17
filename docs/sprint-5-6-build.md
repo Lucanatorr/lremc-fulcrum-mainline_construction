@@ -99,7 +99,7 @@ Those codes can be priced and their conduit footage calculated, but material
 consumption cannot be derived until the SKUs exist.
 
 Proposed mappings: `data/import/labor-material-mapping-proposed.csv`.
-Gaps: `data/labor-material-needs-review.csv`.
+Gaps: superseded 2026-09-17 by `data/material-mapping-conflicts.csv` and `data/labor-billing-gaps.csv`.
 
 ## Sequential overlap — a server-side report, by decision
 

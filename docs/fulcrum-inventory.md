@@ -20,7 +20,7 @@ no production object has been modified.
 
 | Name | ID | Entries |
 |---|---|---:|
-| MC Labor Code | `ddccba3b-c5b6-4a38-8892-805e916afacd` | 143 |
+| MC Labor Code | `ddccba3b-c5b6-4a38-8892-805e916afacd` | 146 |
 | MC Work Category | `06cf7fc6-d939-488e-bf53-4f027b603887` | 11 |
 | MC Construction Method | `5828393b-b4dc-4545-8db0-921e352c5b8c` | 14 |
 | MC Unit of Measure | `8713e0c3-3b5e-40a5-9886-3e5b979b7461` | 6 |
@@ -45,12 +45,39 @@ no production object has been modified.
 
 | Object | Schema | Data Events |
 |---|---|---|
-| Mainline Construction - Development | `fulcrum/schemas/mainline-construction-dev.elements.json` | `fulcrum/data-events/mainline-construction-dev.js` (v4.0.0) |
+| Mainline Construction - Development | `fulcrum/schemas/mainline-construction-dev.elements.json` | `fulcrum/data-events/mainline-construction-dev.js` (v5.0.0, **pending deploy**) |
 | MC Material Master - Development | `fulcrum/schemas/mc-material-master-dev.elements.json` | none |
 | MC Material Transaction - Development | `fulcrum/schemas/mc-material-transaction-dev.elements.json` | `fulcrum/data-events/mc-material-transaction-dev.js` (v1.0.0) |
 
 The exported scripts are the deployed text, not a paraphrase. Edit here, then
 push with `forms_update`.
+
+## OUTAGE 2026-09-17 — `forms_update` is rejecting every form
+
+`forms_update` returns `422 could_not_update_form: Please try again later` for
+**every** form on this account. Established by four attempts:
+
+| Attempt | Payload | Result |
+|---|---|---|
+| Production app, added one field + changed an expression | 132 elements | `could_not_update_form` |
+| Production app, same tree with the stored element shapes | 132 elements | `422` on missing booleans — the GET shape is **not round-trippable** |
+| Production app, tree shape unchanged, one expression differs | 132 elements | `could_not_update_form` |
+| **MC Material Master**, 12 flat elements | tiny | `could_not_update_form` |
+
+`choice_lists_update` succeeds throughout, so this is neither permissions nor
+payload shape. A script-only update is not a way round it: `elements` is
+mandatory (`422 elements: must not be empty`) even though the tool documents it
+as optional.
+
+**Do not recreate the form as a workaround while this persists.**
+`MC Material Transaction` holds a RecordLink to the production form's ID, and
+repointing it requires the same broken endpoint — a recreate would leave a
+dangling link with no way to fix it.
+
+Pending deployment when the endpoint recovers:
+`fulcrum/schemas/mainline-construction-dev.elements.json` and
+`fulcrum/data-events/mainline-construction-dev.js` (v5.0.0), plus the
+`MC Material Master` `pack_size` field.
 
 ## Fulcrum API gotchas found the hard way
 
@@ -69,7 +96,16 @@ push with `forms_update`.
 - **A field's type cannot be changed after creation.** Converting a ChoiceField
   to a RecordLinkField requires a new key; the old field is dropped.
 - Deleting fields and adding new ones in the *same* `forms_update` can return an
-  opaque `could_not_update_form: Please try again later`.
+  opaque `could_not_update_form: Please try again later`. As of 2026-09-17 that
+  error is returned for *every* update regardless of payload — see the outage
+  note above. Before concluding a payload is at fault, probe with a tiny form.
+- **A form GET's element shape cannot be sent straight back.** The API omits
+  `required` / `disabled` / `hidden` on read but demands them on write, and omits
+  `neutral_enabled` / `positive` / `negative` on `YesNoField` for the same reason.
+  Round-tripping a GET produces hundreds of validation errors.
+- **`elements` is mandatory on every `forms_update`.** The tool documents `script`
+  as independently updatable, but omitting `elements` returns
+  `422 elements: must not be empty`, so there is no cheap script-only deploy.
 - **Large `forms_update` calls fail where the identical payload succeeds as a
   `forms_create`.** Adding ~34 fields and two sections at once failed twice with
   `could_not_update_form`, while the same element tree created cleanly in a

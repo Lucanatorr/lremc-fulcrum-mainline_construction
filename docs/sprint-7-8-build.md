@@ -201,7 +201,7 @@ entirely; what remains is purely a data-entry task for whoever owns the material
 catalogue.
 
 7 further codes are out of scope per the ruling (micro duct, 0.75",
-`BM60-DROP`) and are listed in `data/labor-material-needs-review.csv`.
+`BM60-DROP`). Superseded 2026-09-17 — see `data/material-mapping-conflicts.csv`.
 
 ---
 

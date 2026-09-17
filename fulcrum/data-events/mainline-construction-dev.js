@@ -1,19 +1,35 @@
 /**
  * Mainline Construction - Development
- * Data Events - SPRINT 8 v4.0.0 (2026-09-16), supersedes v3.0.0.
+ * Data Events - v5.0.0 (2026-09-17), supersedes v4.0.0.
  *
  * CHANGE IN THIS VERSION
- *   + Splice band derivation and band-vs-fiber-count validation (Sprint 7).
- *   + Conduit material derivation under the PULL COUNT ruling (Sprint 8).
+ *   + Conduit material multiplier is now SIZE DEPENDENT (ruling below).
+ *   + Directional bore codes BM60(n)(1.25)DP parse like the plow units.
+ *   + Retired pay units raise a flag instead of silently deriving nothing.
  *
- * RULING 2026-09-16 - PULL COUNT, AND WHY v3 WAS WRONG
+ * RULING 2026-09-16 - (n) IS THE PULL COUNT
  *   In BM60(n)(size), (n) is the PULL COUNT: BM60(1)(1.25) P is a 1-pull plow,
- *   BM60(2)(1.25) P is 2-pull. A 3-pull package is therefore ONE bundled
- *   conduit assembly, consumed at 1 FT per production FT - NOT three feet of
- *   single conduit. v3.0.0 labelled quantity x count as "Calculated Conduit
- *   Footage", which would have ordered 3x the conduit. It is now
- *   "Total Duct Footage (informational)", and the material quantity is 1:1.
- *   Conduit sizes in scope per the same ruling: 1.25, 2 and 4 inch only.
+ *   BM60(2)(1.25) P is 2-pull.
+ *
+ * RULING 2026-09-17 - MATERIAL CONSUMPTION DEPENDS ON THE SIZE
+ *   1.25"  bundled multi-duct SKUs exist (1-, 2- and 3-PULL). An n-pull run is
+ *          ONE bundled assembly, consumed at 1 FT per production FT.
+ *   2", 4" always a single-duct pipe - there is no bundled product - so an
+ *          n-pull run consumes n FT of the single-pipe SKU per production FT.
+ *   So the multiplier is 1 for 1.25" and the pull count for 2" and 4". v4.0.0
+ *   applied 1:1 to every size, which under-ordered 2" and 4" multi-pull runs.
+ *   Conduit sizes in scope: 1.25, 2 and 4 inch only.
+ *
+ * RULING 2026-09-17 - DIRECTIONAL BORE RESTRUCTURED
+ *   BM60-(1.25)DP ($10) plus BM60-(1.25)DPD Dual ($2 per additional pipe) are
+ *   replaced by BM60(1)(1.25)DP .. BM60(5)(1.25)DP at 10/12/14/16/18. The pull
+ *   count is now a fact of the selected pay unit instead of being implied by
+ *   how many transactions someone remembered to raise. Total billing unchanged.
+ *
+ * WASTE FACTOR IS NOT APPLIED HERE. Conduit carries a 10% purchasing waste
+ * factor, but it lives in the Labor-Material Mapping master, not in this
+ * script: the installed quantity must stay a clean measurement of what went in
+ * the ground. Grossing up for waste is a purchasing step.
  *
  * NO HARD-CODED MASTER DATA. NO SECRETS. NO OUTBOUND CALLS.
  * WEEK DEFINITION: ISO-8601, Monday start, Mon-Fri working week.
@@ -121,6 +137,16 @@ function applyLaborMetadata() {
 
 var CONDUIT_SIZES_IN_SCOPE = ['1.25', '2', '4'];
 
+// Sizes that ship as a bundled multi-duct assembly. For these the material
+// quantity is 1:1 regardless of pull count. Every other in-scope size is a
+// single pipe, so n pulls means n times the footage.
+var BUNDLED_CONDUIT_SIZES = ['1.25'];
+
+// Pay units withdrawn by the 2026-09-17 directional bore restructure. A device
+// with a stale choice list can still hold them, and they carry no pull count,
+// so they are named rather than silently ignored.
+var RETIRED_LABOR_CODES = ['BM60-(1.25)DP', 'BM60-(1.25)DPD Dual'];
+
 function parseConduitPackage(code) {
   if (isBlank(code)) return null;
   var c = String(code).trim();
@@ -141,12 +167,20 @@ function parseConduitPackage(code) {
   size = String(parseFloat(size));                      // 2.0 -> "2"
   if (CONDUIT_SIZES_IN_SCOPE.indexOf(size) === -1) return null;
 
+  var bundled = BUNDLED_CONDUIT_SIZES.indexOf(size) !== -1;
+
   return {
     pulls: pulls,
     size: size,
+    bundled: bundled,
+    // FT of SKU per FT of production. One bundled assembly, or one pipe per
+    // pull where no bundled product exists.
+    materialMultiplier: bundled ? 1 : pulls,
     // Canonical code. The Labor-Material Mapping master resolves it to a stock
     // part number - deriving a part number here would hard-code master data.
-    materialCode: 'CONDUIT-' + size + '-' + pulls + 'PULL'
+    materialCode: bundled
+      ? ('CONDUIT-' + size + '-' + pulls + 'PULL')
+      : ('CONDUIT-' + size + '-1PULL')
   };
 }
 
@@ -155,6 +189,12 @@ function deriveConduitPackage() {
   setIfChanged('pull_count',            $pull_count,            pkg ? pkg.pulls : null);
   setIfChanged('conduit_diameter',      $conduit_diameter,      pkg ? pkg.size : null);
   setIfChanged('conduit_material_code', $conduit_material_code, pkg ? pkg.materialCode : null);
+  // The multiplier is NOT written to a field. Conduit Material Quantity is a
+  // CalculatedField that applies it from the derived diameter and pull count,
+  // because a Fulcrum forms_update that adds a field to this form fails with an
+  // opaque could_not_update_form - see docs/fulcrum-inventory.md. The rule is
+  // stated once here in BUNDLED_CONDUIT_SIZES and mirrored in that one
+  // expression; tests/conduit-dp-material.test.js asserts the two agree.
 }
 
 // ==================== splice band (Sprint 7) ====================
@@ -357,6 +397,13 @@ function buildExceptions() {
     var ft = Math.abs(es - ss);
     if (ft === 0)        flag('WARNING', 'Start and end sequential are identical - 0 FT');
     else if (ft > 50000) flag('WARNING', 'Sequential footage ' + ft + ' FT exceeds the 50,000 FT plausibility threshold');
+  }
+
+  var selected = choiceValue($labor_code);
+  if (RETIRED_LABOR_CODES.indexOf(selected) !== -1) {
+    flag('CRITICAL', 'Pay unit ' + selected + ' was retired on 2026-09-17. Use the ' +
+                     'pull-count unit BM60(n)(1.25)DP instead, so the record states ' +
+                     'how many pipes were pulled');
   }
 
   var cat = choiceValue($work_category);

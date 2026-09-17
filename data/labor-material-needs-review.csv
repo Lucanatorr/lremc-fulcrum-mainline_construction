@@ -1,8 +1,0 @@
-labor_code,package,reason
-BM60(MICRO),MICRO conduit,"RULING: only 1.25, 2 and 4 in scope"
-BM60(1)(0.75) T,0.75 conduit,"RULING: only 1.25, 2 and 4 in scope"
-BM60(1)(0.75) P,0.75 conduit,"RULING: only 1.25, 2 and 4 in scope"
-BM60-(7Way)P Micro Duct,MICRO conduit,"RULING: only 1.25, 2 and 4 in scope"
-BM60-(7Way)DP Micro Duct,MICRO conduit,"RULING: only 1.25, 2 and 4 in scope"
-BM60-DROP,size not stated in code,RULING: out of scope
-BM60(1)(0.75)Drop,0.75 conduit,"RULING: only 1.25, 2 and 4 in scope"

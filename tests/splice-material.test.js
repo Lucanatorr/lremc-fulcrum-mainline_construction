@@ -20,22 +20,14 @@ function bandFits(b,fiberCount){
   if(b.hi!==null&&fiberCount>b.hi) return false;
   return true;
 }
-// RULING 2026-09-16: (n) is the PULL COUNT. A 3-pull package is ONE bundled
-// assembly consumed at 1 FT per production FT. Sizes in scope: 1.25, 2, 4.
-const IN_SCOPE=['1.25','2','4'];
-function parseConduitPackage(code){
-  if(isBlank(code)) return null;
-  var c=String(code).trim();
-  if(c.indexOf('BM60')!==0||c.indexOf('BM60-R')===0) return null;
-  var m=/^BM60\((\d+)\)\((\d*\.?\d+)\)/.exec(c);
-  var pulls,size;
-  if(m){pulls=parseInt(m[1],10);size=m[2];}
-  else{ m=/^BM60-?\((\d*\.?\d+)\)/.exec(c); if(!m) return null; pulls=1; size=m[1]; }
-  size=String(parseFloat(size));
-  if(IN_SCOPE.indexOf(size)===-1) return null;          // out of scope per ruling
-  return {pulls:pulls, size:size, materialCode:'CONDUIT-'+size+'-'+pulls+'PULL'};
-}
-const conduitMaterialQty=(qty,code)=>{const p=parseConduitPackage(code);return p?Math.round(toNum(qty)*100)/100:'';};
+// Conduit parsing comes from the DEPLOYED script via the harness, so the
+// v5.0.0 size-dependent multiplier cannot drift away from these tests.
+const { load } = require('./harness.js');
+const parseConduitPackage = load('mainline-construction-dev.js').fn('parseConduitPackage');
+// Installed material: multiplier x production footage. 1:1 for bundled 1.25",
+// n:1 for single-pipe 2" and 4".
+const conduitMaterialQty=(qty,code)=>{const p=parseConduitPackage(code);
+  return p?Math.round(toNum(qty)*p.materialMultiplier*100)/100:'';};
 const totalDuctFt=(qty,code)=>{const p=parseConduitPackage(code);return p?Math.round(toNum(qty)*p.pulls*100)/100:'';};
 
 let pass=0,fail=0;
@@ -43,11 +35,12 @@ function eq(id,a,e){const ok=JSON.stringify(a)===JSON.stringify(e);ok?pass++:fai
   console.log((ok?'PASS':'FAIL')+'  '+id+'  got='+JSON.stringify(a)+(ok?'':'  want='+JSON.stringify(e)));}
 
 console.log('== SPRINT 8: PULL-COUNT RULING (bundled SKU, 1 FT per production FT) ==');
-eq('TEST-MAT-001 1-pull plow',  parseConduitPackage('BM60(1)(1.25) P'), {pulls:1,size:'1.25',materialCode:'CONDUIT-1.25-1PULL'});
-eq('TEST-MAT-002 2-pull plow',  parseConduitPackage('BM60(2)(1.25) P'), {pulls:2,size:'1.25',materialCode:'CONDUIT-1.25-2PULL'});
-eq('TEST-MAT-003 3-pull trench',parseConduitPackage('BM60(3)(1.25) T'), {pulls:3,size:'1.25',materialCode:'CONDUIT-1.25-3PULL'});
-eq('TEST-MAT-004 2 inch',       parseConduitPackage('BM60(2)(2) T'),    {pulls:2,size:'2',materialCode:'CONDUIT-2-2PULL'});
-eq('TEST-MAT-005 4 inch bore',  parseConduitPackage('BM60-(4)DP'),      {pulls:1,size:'4',materialCode:'CONDUIT-4-1PULL'});
+const matCode=(c)=>{const p=parseConduitPackage(c);return p?[p.pulls,p.size,p.materialMultiplier,p.materialCode]:null;};
+eq('TEST-MAT-001 1-pull plow',  matCode('BM60(1)(1.25) P'), [1,'1.25',1,'CONDUIT-1.25-1PULL']);
+eq('TEST-MAT-002 2-pull plow',  matCode('BM60(2)(1.25) P'), [2,'1.25',1,'CONDUIT-1.25-2PULL']);
+eq('TEST-MAT-003 3-pull trench',matCode('BM60(3)(1.25) T'), [3,'1.25',1,'CONDUIT-1.25-3PULL']);
+eq('TEST-MAT-004 2 inch is single-pipe, so 2 pulls multiply', matCode('BM60(2)(2) T'), [2,'2',2,'CONDUIT-2-1PULL']);
+eq('TEST-MAT-005 4 inch bore',  matCode('BM60-(4)DP'),      [1,'4',1,'CONDUIT-4-1PULL']);
 eq('TEST-MAT-006 0.75 out of scope', parseConduitPackage('BM60(1)(0.75) T'), null);
 eq('TEST-MAT-007 micro out of scope',parseConduitPackage('BM60-(7Way)P Micro Duct'), null);
 eq('TEST-MAT-008 rock adder',   parseConduitPackage('BM60-R'),          null);
@@ -55,7 +48,7 @@ eq('TEST-MAT-008 rock adder',   parseConduitPackage('BM60-R'),          null);
 console.log('-- material qty is 1:1 with production, NOT multiplied by pull count --');
 eq('TEST-MAT-010 500FT 3-pull -> 500 FT of SKU', conduitMaterialQty(500,'BM60(3)(1.25) T'), 500);
 eq('TEST-MAT-011 500FT 1-pull -> 500 FT of SKU', conduitMaterialQty(500,'BM60(1)(1.25) T'), 500);
-eq('TEST-MAT-012 300FT 2-pull -> 300 FT of SKU', conduitMaterialQty(300,'BM60(2)(2) T'),    300);
+eq('TEST-MAT-012 300FT of 2-pull 2in -> 600 FT of single pipe', conduitMaterialQty(300,'BM60(2)(2) T'), 600);
 console.log('-- total duct feet stays available as information --');
 eq('TEST-MAT-013 500FT 3-pull -> 1500 duct FT', totalDuctFt(500,'BM60(3)(1.25) T'), 1500);
 eq('TEST-MAT-014 500FT 1-pull -> 500 duct FT',  totalDuctFt(500,'BM60(1)(1.25) T'), 500);

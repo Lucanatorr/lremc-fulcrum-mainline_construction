@@ -1,0 +1,19 @@
+labor_code,material_code,description,observed,reason
+AFO.SL,26411077,"1/4"" EHS STRAND 5000FT REEL","A=0.9262, B=1",Projects disagree on the ratio
+AFO.SL,26704285,4X4 RIVERTECH SNAP SIGN MARKER,"A=0.002497, B=0.0031",Projects disagree on the ratio
+AFO.SL,42902163,"5/8"" Nut square","A=0.002171, B=0.0062",Projects disagree on the ratio
+BM81,55504222,"1""/4"" X 2.5"" LAG SCREW W/CUSHION","A=10, B=0.9091",Projects disagree on the ratio
+BM60(1)(2) P,,,"no 2"" single-pipe SKU in the catalogue","RULING settles the multiplier at 1 (one pipe per pull). Only the 2"" part number is missing."
+BM60(1)(2) T,,,"no 2"" single-pipe SKU in the catalogue","RULING settles the multiplier at 1 (one pipe per pull). Only the 2"" part number is missing."
+BM60(1)(2) TD,,,"no 2"" single-pipe SKU in the catalogue","RULING settles the multiplier at 1 (one pipe per pull). Only the 2"" part number is missing."
+BM60(2)(2) P,,,"no 2"" single-pipe SKU in the catalogue","RULING settles the multiplier at 2 (one pipe per pull). Only the 2"" part number is missing."
+BM60(2)(2) T,,,"no 2"" single-pipe SKU in the catalogue","RULING settles the multiplier at 2 (one pipe per pull). Only the 2"" part number is missing."
+BM60(2)(2) TD,,,"no 2"" single-pipe SKU in the catalogue","RULING settles the multiplier at 2 (one pipe per pull). Only the 2"" part number is missing."
+BM60(2)DP SDR Rail Road,,,"no 2"" single-pipe SKU in the catalogue","RULING settles the multiplier at 1 (one pipe per pull). Only the 2"" part number is missing."
+BM60(3)(2) T,,,"no 2"" single-pipe SKU in the catalogue","RULING settles the multiplier at 3 (one pipe per pull). Only the 2"" part number is missing."
+BM60(3)(2) TD,,,"no 2"" single-pipe SKU in the catalogue","RULING settles the multiplier at 3 (one pipe per pull). Only the 2"" part number is missing."
+BM60(4)(1.25)DP,,,"no bundled 4-PULL 1.25"" SKU exists","RULING confirms 1.25"" is bundled, but the catalogue stocks 1-, 2- and 3-PULL only. A 4-pull run needs either a new SKU or a stated combination of existing ones."
+BM60(5)(1.25)DP,,,"no bundled 5-PULL 1.25"" SKU exists","RULING confirms 1.25"" is bundled, but the catalogue stocks 1-, 2- and 3-PULL only. A 5-pull run needs either a new SKU or a stated combination of existing ones."
+BM60-(2) DPD Dual,,,"no 2"" single-pipe SKU in the catalogue","RULING settles the multiplier at 1 (one pipe per pull). Only the 2"" part number is missing."
+BM60-(2)DP,,,"no 2"" single-pipe SKU in the catalogue","RULING settles the multiplier at 1 (one pipe per pull). Only the 2"" part number is missing."
+BM60-(2)MB,,,"no 2"" single-pipe SKU in the catalogue","RULING settles the multiplier at 1 (one pipe per pull). Only the 2"" part number is missing."

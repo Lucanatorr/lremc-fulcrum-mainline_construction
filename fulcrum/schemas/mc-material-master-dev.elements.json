@@ -1,13 +1,170 @@
 [
-  {"type":"TextField","key":"t001","label":"Material Code","data_name":"material_code","description":"Permanent key. Use the manufacturer part number where one exists, e.g. 114-11-3-OGB-T.","required":true,"visible_conditions_behavior":"clear"},
-  {"type":"TextField","key":"t002","label":"Description","data_name":"description","required":true,"visible_conditions_behavior":"clear"},
-  {"type":"ChoiceField","key":"t003","label":"Category","data_name":"category","required":true,"choices":[{"label":"Conduit","value":"Conduit"},{"label":"Fiber Cable","value":"Fiber Cable"},{"label":"Vault / Handhole","value":"Vault-Handhole"},{"label":"Pedestal / Cabinet","value":"Pedestal-Cabinet"},{"label":"Splice Closure / Tray","value":"Splice"},{"label":"Splitter / MST / HST","value":"Splitter-MST"},{"label":"Aerial Hardware","value":"Aerial Hardware"},{"label":"Grounding / Bonding","value":"Grounding"},{"label":"Marker / Locate","value":"Marker"},{"label":"Drop","value":"Drop"},{"label":"Miscellaneous","value":"Miscellaneous"}],"visible_conditions_behavior":"clear"},
-  {"type":"ChoiceField","key":"t004","label":"Unit","data_name":"unit","required":true,"visible_conditions_behavior":"clear","choice_list_id":"8713e0c3-3b5e-40a5-9886-3e5b979b7461"},
-  {"type":"TextField","key":"t005","label":"Manufacturer","data_name":"manufacturer","visible_conditions_behavior":"clear"},
-  {"type":"TextField","key":"t006","label":"Manufacturer Part Number","data_name":"part_number","visible_conditions_behavior":"clear"},
-  {"type":"TextField","key":"t007","label":"Conduit Diameter (in)","data_name":"conduit_diameter","description":"Conduit only. In scope per ruling: 1.25, 2 and 4.","visible_conditions_type":"all","visible_conditions_behavior":"clear","visible_conditions":[{"field_key":"t003","operator":"equal_to","value":"Conduit"}]},
-  {"type":"TextField","key":"t008","label":"Pull Count","data_name":"pull_count","description":"Conduit only. A 3-PULL SKU is ONE bundled conduit assembly containing three ducts, consumed at 1 FT per production FT.","min":1,"numeric":true,"visible_conditions_type":"all","visible_conditions_behavior":"clear","visible_conditions":[{"field_key":"t003","operator":"equal_to","value":"Conduit"}],"format":"integer"},
-  {"type":"TextField","key":"t009","label":"Standard Cost","data_name":"standard_cost","description":"Optional. Material cost is tracked separately from contractor labor rates - never combine them.","min":0,"numeric":true,"visible_conditions_behavior":"clear","format":"decimal"},
-  {"type":"YesNoField","key":"t010","label":"Active","data_name":"active","required":true,"visible_conditions_behavior":"clear"},
-  {"type":"TextField","key":"t011","label":"Notes","data_name":"notes","visible_conditions_behavior":"clear"}
+ {
+  "type": "TextField",
+  "key": "t001",
+  "label": "Material Code",
+  "data_name": "material_code",
+  "description": "Permanent key. Use the manufacturer part number where one exists, e.g. 114-11-3-OGB-T.",
+  "required": true,
+  "visible_conditions_behavior": "clear"
+ },
+ {
+  "type": "TextField",
+  "key": "t002",
+  "label": "Description",
+  "data_name": "description",
+  "required": true,
+  "visible_conditions_behavior": "clear"
+ },
+ {
+  "type": "ChoiceField",
+  "key": "t003",
+  "label": "Category",
+  "data_name": "category",
+  "required": true,
+  "choices": [
+   {
+    "label": "Conduit",
+    "value": "Conduit"
+   },
+   {
+    "label": "Fiber Cable",
+    "value": "Fiber Cable"
+   },
+   {
+    "label": "Vault / Handhole",
+    "value": "Vault-Handhole"
+   },
+   {
+    "label": "Pedestal / Cabinet",
+    "value": "Pedestal-Cabinet"
+   },
+   {
+    "label": "Splice Closure / Tray",
+    "value": "Splice"
+   },
+   {
+    "label": "Splitter / MST / HST",
+    "value": "Splitter-MST"
+   },
+   {
+    "label": "Aerial Hardware",
+    "value": "Aerial Hardware"
+   },
+   {
+    "label": "Grounding / Bonding",
+    "value": "Grounding"
+   },
+   {
+    "label": "Marker / Locate",
+    "value": "Marker"
+   },
+   {
+    "label": "Drop",
+    "value": "Drop"
+   },
+   {
+    "label": "Miscellaneous",
+    "value": "Miscellaneous"
+   }
+  ],
+  "visible_conditions_behavior": "clear"
+ },
+ {
+  "type": "ChoiceField",
+  "key": "t004",
+  "label": "Unit",
+  "data_name": "unit",
+  "required": true,
+  "visible_conditions_behavior": "clear",
+  "choice_list_id": "8713e0c3-3b5e-40a5-9886-3e5b979b7461"
+ },
+ {
+  "type": "TextField",
+  "key": "t005",
+  "label": "Manufacturer",
+  "data_name": "manufacturer",
+  "visible_conditions_behavior": "clear"
+ },
+ {
+  "type": "TextField",
+  "key": "t006",
+  "label": "Manufacturer Part Number",
+  "data_name": "part_number",
+  "visible_conditions_behavior": "clear"
+ },
+ {
+  "type": "TextField",
+  "key": "t012",
+  "label": "Pack Size",
+  "data_name": "pack_size",
+  "description": "Pieces or feet per purchasable pack, where the SKU is a pack: a 100pc box of clamps, a 5000 FT strand reel, an 8000 FT conduit reel. Blank means the SKU is bought as a single unit. Consumption is recorded in the counted unit above; purchasing divides by this.",
+  "required": false,
+  "disabled": false,
+  "hidden": false,
+  "min": 1,
+  "numeric": true,
+  "format": "decimal"
+ },
+ {
+  "type": "TextField",
+  "key": "t007",
+  "label": "Conduit Diameter (in)",
+  "data_name": "conduit_diameter",
+  "description": "Conduit only. In scope per ruling: 1.25, 2 and 4.",
+  "visible_conditions_type": "all",
+  "visible_conditions_behavior": "clear",
+  "visible_conditions": [
+   {
+    "field_key": "t003",
+    "operator": "equal_to",
+    "value": "Conduit"
+   }
+  ]
+ },
+ {
+  "type": "TextField",
+  "key": "t008",
+  "label": "Pull Count",
+  "data_name": "pull_count",
+  "description": "Conduit only. A 3-PULL 1.25 inch SKU is ONE bundled assembly containing three ducts, consumed at 1 FT per production FT. 2 inch and 4 inch are always single pipes, so their pull count is 1 and a multi-pull run consumes a multiple of the footage.",
+  "min": 1,
+  "numeric": true,
+  "visible_conditions_type": "all",
+  "visible_conditions_behavior": "clear",
+  "visible_conditions": [
+   {
+    "field_key": "t003",
+    "operator": "equal_to",
+    "value": "Conduit"
+   }
+  ],
+  "format": "integer"
+ },
+ {
+  "type": "TextField",
+  "key": "t009",
+  "label": "Standard Cost",
+  "data_name": "standard_cost",
+  "description": "Optional. Material cost is tracked separately from contractor labor rates - never combine them.",
+  "min": 0,
+  "numeric": true,
+  "visible_conditions_behavior": "clear",
+  "format": "decimal"
+ },
+ {
+  "type": "YesNoField",
+  "key": "t010",
+  "label": "Active",
+  "data_name": "active",
+  "required": true,
+  "visible_conditions_behavior": "clear"
+ },
+ {
+  "type": "TextField",
+  "key": "t011",
+  "label": "Notes",
+  "data_name": "notes",
+  "visible_conditions_behavior": "clear"
+ }
 ]

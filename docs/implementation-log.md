@@ -6,6 +6,75 @@ Newest entries first. Every Fulcrum object this project creates is listed in
 
 ---
 
+## 2026-09-17 — Sprint 8 revision: directional bore, size-dependent material, real SKUs
+
+See `docs/sprint-8-revision-build.md`. **213 tests pass across six suites.**
+
+### Ruling: 2" and 4" are always one pull — and v4.0.0 was wrong
+There is no bundled 2" or 4" product; the catalogue stocks one 4" item, a single
+pipe. So the material multiplier is **1 for bundled 1.25" whatever the pull
+count, and the pull count for 2" and 4"**. v4.0.0 applied 1:1 to every size,
+which **under-ordered a 3-pull 4" trench by 67%** — 500 FT recorded where 1,500
+FT went in the ground. v3.0.0 had over-ordered 1.25" by 3x; both errors came
+from assuming one multiplier fits every size.
+
+### Ruling: directional bore is one pay unit per pull count
+`BM60-(1.25)DP` ($10, one pipe) plus `BM60-(1.25)DPD Dual` ($2, "a second or
+more") meant a 3-pull bore was three transactions and the record never stated
+the pull count. Expanded to `BM60(1)(1.25)DP` .. `BM60(5)(1.25)DP` at
+**$10 / $12 / $14 / $16 / $18** — `base + adder x (n-1)`, so total billing is
+unchanged. Both source codes retired; selecting one is flagged CRITICAL.
+
+Labor master 143 → **146 pay units**. 2" and 4" directional bore keep their
+base/adder pairs — the ruling named 1.25" — and are logged as open item 9.
+
+### Material matched from observed consumption
+Two projects' consumption records plus an inventory list, transcribed to
+`data/source/material-observations.py` and built by
+`scripts/build_material_mapping.py`: **135 items, 135 mappings, 58 APPROVED**.
+A ratio is only approved when both projects agree, or when a single-source ratio
+lands on a whole number, or when it follows from a ruling.
+
+Confirmed by both projects independently: `AFO.GAA` = 1 helix anchor + **30 FT**
+of strand + 1 washer + **2** guy grips; `BM2` = 1 rod + 1 clamp; `BM90` = 1 FT
+tracer tape per FT; every `HO-1` band = 1 heat shrink sleeve per splice.
+
+Three structural findings came out of the data:
+- **Fractional ratios reveal the wrong driver.** `AFO.SL` markers and nut squares
+  are per-POLE, not per-foot; HST stubs recorded against `AFO.RTD` footage belong
+  to the `BFO.HST.*` per-stub units. Flagged, not approved.
+- **Fiber cable SKU belongs to the reel.** `BFO.288.I` drew ACCUROLL on one
+  project and Prysmian on the other. 18 cable mappings are REEL-SOURCED.
+- **Pack size and waste factor are their own columns.** Ratios are in pieces and
+  feet; 18 SKUs are packs. Conduit carries the source data's 10% waste, applied
+  in purchasing only — the installed quantity stays a measurement.
+
+### The data exposed seven billing gaps
+Production recorded against labels with **no pay unit to bill them** —
+`data/labor-billing-gaps.csv`. Largest: **11,004 FT of `BFO.96.I`** plus 2,008 FT
+of `BFO.96.IE` (the sheet has 12/48/72/144/288, no 96) and **684 FT of a 4"
+railroad bore** (only 1.25" and 2" railroad units exist).
+
+### Test harness rewritten
+Each suite used to re-type the functions it tested. When v5.0.0 changed the
+multiplier, `splice-material.test.js` kept passing against its own stale copy
+while asserting a SKU the ruling says does not exist. `tests/harness.js` now
+loads the deployed script directly and stubs Fulcrum's runtime, so there is one
+copy of every rule. Two parity tests pin the places a rule unavoidably repeats.
+
+### BLOCKED: `forms_update` outage
+The v5.0.0 app payload is **not deployed**. `forms_update` returns
+`could_not_update_form` for every form on the account, including a 12-element
+one, while `choice_lists_update` succeeds. Recreating the form was rejected as a
+workaround because repointing `MC Material Transaction`'s RecordLink needs the
+same endpoint. See the outage note in `docs/fulcrum-inventory.md`.
+
+The choice list IS deployed, and the v4 script already parses the new DP codes,
+so 1.25" is correct live. The one live defect is 2"/4" multi-pull material
+quantity reading 1:1.
+
+---
+
 ## 2026-09-16 — Sprints 7 & 8 complete
 
 Data Events **v4.0.0** deployed to `06c36c8e-4a88-4cf3-a691-9a792f8374d2`
@@ -113,7 +182,14 @@ Data Event script**. See the security note in that document.
 | 4 | Splice classification set uses `HO1 (1-24)`; rate sheet uses `HO-1 (1-24)`. Hyphen mismatch breaks the join | Sprint 0 | Open |
 | 5 | `HO1-12R` (ribbon splice) exists in the classification set but has **no rate** | Sprint 0 | Open |
 | 6 | ~~Bundled conduit ambiguity — 1 FT of the 3-PULL SKU, or 3 FT of the 1-PULL SKU?~~ | Sprint 5 | **CLOSED 2026-09-16** — `(n)` is the pull count, so consumption is 1:1. v3.0.0 corrected. |
-| 7 | **2" and 4" conduit part numbers are unknown.** 22 of 36 mappings carry a `TBD-CONDUIT-…` placeholder. Multiplier is settled; only the SKU identifiers are missing | Sprint 5 | **Open — blocks material automation for 2"/4"** |
+| 7 | **2" and 4" conduit part numbers.** The 4" pipe is now known (`#RM-4-11-O-750`). 2" has no SKU in the catalogue at all, so 14 conduit mappings still cannot resolve. Multipliers are settled | Sprint 5 | **Open — 2" only** |
+| 9 | **2" and 4" directional bore still use the base/adder pattern** (`BM60-(2)DP` + `BM60-(2) DPD Dual`, `BM60-(4)DP` + `BM60-(4) DPD Dual`). Same problem the 1.25" ruling fixed. Expand them the same way? | Sprint 8 rev | Open |
+| 10 | **Directional bore rate composition.** `rate(n) = $10 + $2 x (n-1)` is read from the contract's "second or more" wording. Total billing is unchanged, but it is the one composed rate in the build | Sprint 8 rev | Open — confirm with the contract administrator |
+| 11 | **Seven billing gaps** — production recorded with no pay unit to bill it. Largest: 11,004 FT `BFO.96.I` + 2,008 FT `BFO.96.IE` (no 96-count unit exists) and 684 FT of 4" railroad bore. `data/labor-billing-gaps.csv` | Sprint 8 rev | **Open — revenue** |
+| 12 | **Per-pole items mapped against per-foot production.** `AFO.SL` sign markers and nut squares, and the HST stubs under `AFO.RTD`. The driver is pole / stub count, not footage | Sprint 8 rev | Open |
+| 13 | **Competing structure SKUs.** `BHF-30T` names three different vaults across two projects; `BHF-10`, `BHF-17T`, `BHF-48T` similar. One structure per unit, so a standard must be picked or the unit split by size | Sprint 8 rev | Open |
+| 14 | **No 4-pull or 5-pull 1.25" SKU exists** for the new `BM60(4)(1.25)DP` / `BM60(5)(1.25)DP` units. Needs a new part number or a stated combination of existing ones | Sprint 8 rev | Open |
+| 15 | **`forms_update` outage.** v5.0.0 app payload ready but undeployable; every form update returns `could_not_update_form`. Retry when Fulcrum recovers | Sprint 8 rev | **Open — blocks deploy** |
 | 8 | Span footage is hand-entered. Auto-derivation needs a pole dataset with coordinates; `Poles and Inspections_demo_app` (10,000 records) may be a source | Sprint 6 | Open |
 
 ## Rulings on record
@@ -132,3 +208,9 @@ Data Event script**. See the security note in that document.
 | 2026-09-16 | Conduit sizes in scope: **1.25", 2", 4"** only. Micro duct, 0.75" and `BM60-DROP` derive no material. |
 | 2026-09-16 | A splice band that does not contain the fiber count is **CRITICAL**, because it is a mispricing, not a data-quality nit. |
 | 2026-09-16 | Material balances are **never stored**. Every quantity is summed from atomic ledger transactions. |
+| 2026-09-17 | **2" and 4" conduit is always a single pipe.** Material multiplier = pull count for those sizes; 1 for bundled 1.25". |
+| 2026-09-17 | Directional bore 1.25" is **one pay unit per pull count**, `BM60(1..5)(1.25)DP` at $10/12/14/16/18. The base + Dual-adder pair is retired. |
+| 2026-09-17 | A consumption ratio is **APPROVED only** when both projects agree, a single-source ratio is a whole number, or it follows from a ruling. Fractional single-source ratios mean the wrong driver. |
+| 2026-09-17 | **Pack size and waste factor are separate columns**, never folded into the multiplier. Installed quantity stays a measurement; purchasing grosses it up. |
+| 2026-09-17 | **Fiber cable SKU comes from the reel**, not from the pay unit. Two projects placed the same unit with different cable. |
+| 2026-09-17 | Tests load the **deployed** Data Events source via `tests/harness.js`. No suite may re-type the code it tests. |

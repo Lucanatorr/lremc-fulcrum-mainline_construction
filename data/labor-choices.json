@@ -328,8 +328,24 @@
   "value": "BM60-(7Way)DP Micro Duct"
  },
  {
-  "label": "BM60-(1.25)DP (FT) Labor to install a 1.25\" conduit bore or r",
-  "value": "BM60-(1.25)DP"
+  "label": "BM60(1)(1.25)DP (FT) Labor to install one (1) 1.25\" conduit bor",
+  "value": "BM60(1)(1.25)DP"
+ },
+ {
+  "label": "BM60(2)(1.25)DP (FT) Labor to install two (2) 1.25\" conduit bor",
+  "value": "BM60(2)(1.25)DP"
+ },
+ {
+  "label": "BM60(3)(1.25)DP (FT) Labor to install three (3) 1.25\" conduit b",
+  "value": "BM60(3)(1.25)DP"
+ },
+ {
+  "label": "BM60(4)(1.25)DP (FT) Labor to install four (4) 1.25\" conduit bo",
+  "value": "BM60(4)(1.25)DP"
+ },
+ {
+  "label": "BM60(5)(1.25)DP (FT) Labor to install five (5) 1.25\" conduit bo",
+  "value": "BM60(5)(1.25)DP"
  },
  {
   "label": "BM60-(2)DP (FT) Labor to install a 2\" conduit bore or road",
@@ -338,10 +354,6 @@
  {
   "label": "BM60-(4)DP (FT) Labor to install a 4\" conduit bore or road",
   "value": "BM60-(4)DP"
- },
- {
-  "label": "BM60-(1.25)DPD Dual (FT) Labor to install a second or more 1.25\" co",
-  "value": "BM60-(1.25)DPD Dual"
  },
  {
   "label": "BM60-(2) DPD Dual (FT) Labor to install a second or more 2\" condu",
