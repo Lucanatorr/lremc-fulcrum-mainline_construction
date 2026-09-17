@@ -59,23 +59,28 @@ RAILROAD_SPLIT = {
 }
 
 
-# Directional bore (DP) restructure - RULING 2026-09-17.
+# Directional bore (DP) restructure - RULING 2026-09-17, rates corrected.
 #
 # The source sheet priced directional bore as a base unit plus an adder:
 #   BM60-(1.25)DP          $10.00/FT  one pipe
 #   BM60-(1.25)DPD Dual    $ 2.00/FT  "a second or more ... pulling multiple
 #                                      pipes back at one time"
-# Billing a 3-pull bore therefore meant three separate transactions ($10 + $2
-# + $2) and nothing in the record stated the pull count. Ruling: expand into one
-# unit per pull count, named like the plow units, so the pull count is a FACT of
-# the selected pay unit.
+# Billing a 3-pull bore therefore meant three separate transactions and nothing
+# in the record stated the pull count. Ruling: expand into one unit per pull
+# count, named like the plow units, so the pull count is a FACT of the selected
+# pay unit.
 #
-# Pricing is unchanged in total: rate(n) = base + adder * (n - 1). A 2-pull bore
-# still bills $12/FT, it is just one transaction instead of two.
+# The rates are BANDED, not additive - the adder does not compound per pipe:
+#   1 pipe        $10.00
+#   2 or 3 pipes  $12.00
+#   4 or 5 pipes  $14.00
+# Stated by the contract owner 2026-09-17. They are listed here explicitly
+# rather than computed, because a banded schedule is master data: any formula
+# would be a guess about pipes 6 and up that nobody has priced.
 DP_PULL_EXPANSION = {
     "BM60-(1.25)DP": {
         "adder_code": "BM60-(1.25)DPD Dual",
-        "max_pulls": 5,
+        "rates": {1: "10", 2: "12", 3: "12", 4: "14", 5: "14"},
         "code": "BM60({n})(1.25)DP",
         "desc": (
             'Labor to install {word} ({n}) 1.25" conduit bore or road crossing '
@@ -102,26 +107,24 @@ def expand_dp_units(master, exceptions):
             )
             continue
 
-        base_rate = float(base["rate"])
-        adder_rate = float(adder["rate"])
         expanded = []
-        for n in range(1, spec["max_pulls"] + 1):
-            rate = base_rate + adder_rate * (n - 1)
+        for n, rate in sorted(spec["rates"].items()):
             expanded.append({
                 "code": spec["code"].format(n=n),
                 "description": spec["desc"].format(n=n, word=NUMBER_WORDS[n]),
                 "unit": base["unit"],
-                "rate": f"{rate:g}",
+                "rate": rate,
             })
 
         # Splice the new units in where the base unit was, and drop the pair.
         at = master.index(base)
         master[at:at + 1] = expanded
         master.remove(adder)
+        bands = ", ".join(f"{n}={r}" for n, r in sorted(spec["rates"].items()))
         exceptions.append(
             (base_code, base["rate"],
-             f"EXPANDED into {spec['max_pulls']} pull-count units; "
-             f"{spec['adder_code']} @ {adder['rate']} folded in as the per-pipe adder")
+             f"EXPANDED into {len(spec['rates'])} pull-count units at banded rates "
+             f"({bands}); {spec['adder_code']} @ {adder['rate']} superseded")
         )
 
     return master, exceptions

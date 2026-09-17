@@ -42,19 +42,24 @@ So a 3-pull bore meant **three transactions** ($10 + $2 + $2) and nothing in the
 record stated the pull count. Ruling: expand into one unit per pull count, named
 like the plow units.
 
-| New pay unit | Rate | Derivation |
+| New pay unit | Rate | Band |
 |---|---:|---|
-| `BM60(1)(1.25)DP` | **$10.00** | base |
-| `BM60(2)(1.25)DP` | **$12.00** | base + 1 adder |
-| `BM60(3)(1.25)DP` | **$14.00** | base + 2 adders |
-| `BM60(4)(1.25)DP` | **$16.00** | base + 3 adders |
-| `BM60(5)(1.25)DP` | **$18.00** | base + 4 adders |
+| `BM60(1)(1.25)DP` | **$10.00** | one pipe |
+| `BM60(2)(1.25)DP` | **$12.00** | 2-3 pipes |
+| `BM60(3)(1.25)DP` | **$12.00** | 2-3 pipes |
+| `BM60(4)(1.25)DP` | **$14.00** | 4-5 pipes |
+| `BM60(5)(1.25)DP` | **$14.00** | 4-5 pipes |
 
-`rate(n) = base + adder x (n - 1)`. **Total billing is unchanged** — a 2-pull
-bore still bills $12/FT, as one transaction instead of two. This follows from
-the contract's own "second or more" wording, and it is the one place in this
-revision where a rate had to be *composed* rather than read, so it is flagged
-for the contract administrator to confirm.
+**The schedule is banded, not additive** — stated by the contract owner
+2026-09-17. Pipes 2 and 3 cost the same, and so do 4 and 5; the $2 Dual adder
+does not compound per pipe. An additive reading would have priced a 5-pull bore
+at $18 instead of $14, a **29% overbill**.
+
+The bands are listed literally in `scripts/normalize_rates.py` rather than
+computed. A banded schedule is master data: any formula fitted to five points
+would also be a claim about pipes 6 and up, which nobody has priced.
+`TEST-DPRATE-013` asserts the table is *not* additive, so it cannot be
+"simplified" back into a formula.
 
 The two source codes are **retired**. The Data Event flags either of them as
 **CRITICAL** if a device with a stale choice list still offers one, naming the

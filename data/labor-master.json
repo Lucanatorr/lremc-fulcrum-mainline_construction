@@ -507,19 +507,19 @@
   "code": "BM60(3)(1.25)DP",
   "description": "Labor to install three (3) 1.25\" conduit bore or road crossing via the hydraulic bore rig method, pulling all pipes back at one time. Unit consists of digging entry and exit pits, tamping and backfilling.",
   "unit": "FT",
-  "rate": "14"
+  "rate": "12"
  },
  {
   "code": "BM60(4)(1.25)DP",
   "description": "Labor to install four (4) 1.25\" conduit bore or road crossing via the hydraulic bore rig method, pulling all pipes back at one time. Unit consists of digging entry and exit pits, tamping and backfilling.",
   "unit": "FT",
-  "rate": "16"
+  "rate": "14"
  },
  {
   "code": "BM60(5)(1.25)DP",
   "description": "Labor to install five (5) 1.25\" conduit bore or road crossing via the hydraulic bore rig method, pulling all pipes back at one time. Unit consists of digging entry and exit pits, tamping and backfilling.",
   "unit": "FT",
-  "rate": "18"
+  "rate": "14"
  },
  {
   "code": "BM60-(2)DP",

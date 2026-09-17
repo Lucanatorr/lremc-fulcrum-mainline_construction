@@ -122,7 +122,9 @@ check('TEST-RETIRED-004', 'the replacement unit is not flagged',
       /retired/.test(h.get('exception_flags') || ''), false);
 
 // ----------------------------------------------- rate sheet expansion is sane
-// Pricing must be unchanged in total: base $10 plus $2 for each extra pipe.
+// The DP schedule is BANDED, stated by the contract owner: pipes 2 and 3 cost
+// the same, and so do 4 and 5. An additive base+adder formula would price a
+// 5-pull bore at $18 instead of $14, so the bands are asserted literally.
 const { execFileSync } = require('child_process');
 // Parsed by csv rather than by regex: the descriptions contain commas and
 // escaped quotes, and a regex split silently mis-columns them.
@@ -132,10 +134,11 @@ rows = csv.DictReader(open("data/import/contractor-rates-river-city.csv"))
 print(json.dumps({r["labor_code"]: r["unit_rate"] for r in rows}))
 `], { cwd: path.join(__dirname, '..'), encoding: 'utf8' }));
 const rateFor = (code) => (code in RATES ? RATES[code] : null);
+// Banded, not additive: 1 pipe $10, 2-3 pipes $12, 4-5 pipes $14.
 for (const [id, n, expected] of [
   ['TEST-DPRATE-001', 1, '10'], ['TEST-DPRATE-002', 2, '12'],
-  ['TEST-DPRATE-003', 3, '14'], ['TEST-DPRATE-004', 4, '16'],
-  ['TEST-DPRATE-005', 5, '18'],
+  ['TEST-DPRATE-003', 3, '12'], ['TEST-DPRATE-004', 4, '14'],
+  ['TEST-DPRATE-005', 5, '14'],
 ]) {
   check(id, `BM60(${n})(1.25)DP = $${expected}`, rateFor(`BM60(${n})(1.25)DP`), expected);
 }
@@ -146,6 +149,18 @@ check('TEST-DPRATE-007', 'retired Dual adder is gone from the rate sheet',
 // The 2" and 4" bores keep their own base/adder pair: the ruling named 1.25".
 check('TEST-DPRATE-008', '2in DP base survives untouched', rateFor('BM60-(2)DP'), '10');
 check('TEST-DPRATE-009', '4in DP base survives untouched', rateFor('BM60-(4)DP'), '14.5');
+// Guard the band shape itself: equal pairs, strictly rising between bands.
+check('TEST-DPRATE-010', '2-pull and 3-pull share a rate',
+      rateFor('BM60(2)(1.25)DP') === rateFor('BM60(3)(1.25)DP'), true);
+check('TEST-DPRATE-011', '4-pull and 5-pull share a rate',
+      rateFor('BM60(4)(1.25)DP') === rateFor('BM60(5)(1.25)DP'), true);
+check('TEST-DPRATE-012', 'the bands rise',
+      Number(rateFor('BM60(1)(1.25)DP')) < Number(rateFor('BM60(2)(1.25)DP')) &&
+      Number(rateFor('BM60(3)(1.25)DP')) < Number(rateFor('BM60(4)(1.25)DP')), true);
+// A 3-pull bore is NOT base + 2 adders. Pin the difference so nobody
+// "simplifies" the table back into a formula.
+check('TEST-DPRATE-013', 'the schedule is not additive',
+      Number(rateFor('BM60(3)(1.25)DP')) !== 10 + 2 * 2, true);
 
 // ------------------- the deployed expression agrees with the script's rule
 // Conduit Material Quantity applies the multiplier inside a CalculatedField,

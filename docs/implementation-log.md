@@ -21,9 +21,11 @@ from assuming one multiplier fits every size.
 ### Ruling: directional bore is one pay unit per pull count
 `BM60-(1.25)DP` ($10, one pipe) plus `BM60-(1.25)DPD Dual` ($2, "a second or
 more") meant a 3-pull bore was three transactions and the record never stated
-the pull count. Expanded to `BM60(1)(1.25)DP` .. `BM60(5)(1.25)DP` at
-**$10 / $12 / $14 / $16 / $18** — `base + adder x (n-1)`, so total billing is
-unchanged. Both source codes retired; selecting one is flagged CRITICAL.
+the pull count. Expanded to `BM60(1)(1.25)DP` .. `BM60(5)(1.25)DP`. Rates are **banded, not
+additive** (contract owner, 2026-09-17): **$10** for one pipe, **$12** for 2-3,
+**$14** for 4-5. An additive base-plus-adder reading would have priced a 5-pull
+bore at $18 against $14 — a 29% overbill. Both source codes retired; selecting
+one is flagged CRITICAL.
 
 Labor master 143 → **146 pay units**. 2" and 4" directional bore keep their
 base/adder pairs — the ruling named 1.25" — and are logged as open item 9.
@@ -184,7 +186,7 @@ Data Event script**. See the security note in that document.
 | 6 | ~~Bundled conduit ambiguity — 1 FT of the 3-PULL SKU, or 3 FT of the 1-PULL SKU?~~ | Sprint 5 | **CLOSED 2026-09-16** — `(n)` is the pull count, so consumption is 1:1. v3.0.0 corrected. |
 | 7 | **2" and 4" conduit part numbers.** The 4" pipe is now known (`#RM-4-11-O-750`). 2" has no SKU in the catalogue at all, so 14 conduit mappings still cannot resolve. Multipliers are settled | Sprint 5 | **Open — 2" only** |
 | 9 | **2" and 4" directional bore still use the base/adder pattern** (`BM60-(2)DP` + `BM60-(2) DPD Dual`, `BM60-(4)DP` + `BM60-(4) DPD Dual`). Same problem the 1.25" ruling fixed. Expand them the same way? | Sprint 8 rev | Open |
-| 10 | **Directional bore rate composition.** `rate(n) = $10 + $2 x (n-1)` is read from the contract's "second or more" wording. Total billing is unchanged, but it is the one composed rate in the build | Sprint 8 rev | Open — confirm with the contract administrator |
+| 10 | ~~Directional bore rate composition~~ | Sprint 8 rev | **CLOSED 2026-09-17** — banded schedule stated by the contract owner: $10 / $12 (2-3) / $14 (4-5). Not additive. |
 | 11 | **Seven billing gaps** — production recorded with no pay unit to bill it. Largest: 11,004 FT `BFO.96.I` + 2,008 FT `BFO.96.IE` (no 96-count unit exists) and 684 FT of 4" railroad bore. `data/labor-billing-gaps.csv` | Sprint 8 rev | **Open — revenue** |
 | 12 | **Per-pole items mapped against per-foot production.** `AFO.SL` sign markers and nut squares, and the HST stubs under `AFO.RTD`. The driver is pole / stub count, not footage | Sprint 8 rev | Open |
 | 13 | **Competing structure SKUs.** `BHF-30T` names three different vaults across two projects; `BHF-10`, `BHF-17T`, `BHF-48T` similar. One structure per unit, so a standard must be picked or the unit split by size | Sprint 8 rev | Open |
@@ -209,7 +211,7 @@ Data Event script**. See the security note in that document.
 | 2026-09-16 | A splice band that does not contain the fiber count is **CRITICAL**, because it is a mispricing, not a data-quality nit. |
 | 2026-09-16 | Material balances are **never stored**. Every quantity is summed from atomic ledger transactions. |
 | 2026-09-17 | **2" and 4" conduit is always a single pipe.** Material multiplier = pull count for those sizes; 1 for bundled 1.25". |
-| 2026-09-17 | Directional bore 1.25" is **one pay unit per pull count**, `BM60(1..5)(1.25)DP` at $10/12/14/16/18. The base + Dual-adder pair is retired. |
+| 2026-09-17 | Directional bore 1.25" is **one pay unit per pull count**, `BM60(1..5)(1.25)DP`. Rates are **banded**: $10 for 1 pipe, $12 for 2-3, $14 for 4-5. Not additive. The base + Dual-adder pair is retired. |
 | 2026-09-17 | A consumption ratio is **APPROVED only** when both projects agree, a single-source ratio is a whole number, or it follows from a ruling. Fractional single-source ratios mean the wrong driver. |
 | 2026-09-17 | **Pack size and waste factor are separate columns**, never folded into the multiplier. Installed quantity stays a measurement; purchasing grosses it up. |
 | 2026-09-17 | **Fiber cable SKU comes from the reel**, not from the pay unit. Two projects placed the same unit with different cable. |
