@@ -60,34 +60,46 @@ no production object has been modified.
 The exported scripts are the deployed text, not a paraphrase. Edit here, then
 push with `forms_update`.
 
-## OUTAGE 2026-09-17 — `forms_update` is rejecting every form
+## OUTAGE 2026-09-17/18 — `forms_update` is rejecting every form
 
 `forms_update` returns `422 could_not_update_form: Please try again later` for
-**every** form on this account. Established by four attempts:
+**every** form on this account. Six probes between 2026-09-17 21:41Z and
+2026-09-18 03:02Z, all failing.
 
-| Attempt | Payload | Result |
+### The payload is not the problem — it is the write path
+
+`forms_validate` returns **`{"valid": true}`** for the exact same payload that
+`forms_update` rejects (confirmed 2026-09-18 03:05Z on `MC Material Master`).
+That isolates the fault to the update endpoint itself.
+
+The full evidence, in the order it was gathered:
+
+| Probe | Result | What it rules out |
 |---|---|---|
-| Production app, added one field + changed an expression | 132 elements | `could_not_update_form` |
-| Production app, same tree with the stored element shapes | 132 elements | `422` on missing booleans — the GET shape is **not round-trippable** |
-| Production app, tree shape unchanged, one expression differs | 132 elements | `could_not_update_form` |
-| **MC Material Master**, 12 flat elements | tiny | `could_not_update_form` |
+| Production app, 132 elements, one field added | `could_not_update_form` | — |
+| Same tree in the shape a GET returns | `422` on missing booleans | The GET shape is **not round-trippable**; the endpoint does parse the body |
+| Production app, tree shape unchanged, one expression differs | `could_not_update_form` | Not caused by adding a field |
+| **`MC Material Master`, 12 flat elements** | `could_not_update_form` | Not payload size |
+| Same, re-probed at 21:50Z, 22:19Z, 00:00Z, 03:02Z | `could_not_update_form` | Not transient |
+| `choice_lists_update`, 146 entries | **succeeds** | Not permissions, not the account, not the token |
+| `forms_create`, four new apps incl. 7-section trees | **succeeds** | Not form writes in general |
+| **`forms_validate`, the rejected payload** | **`valid: true`** | **Not the payload at all** |
 
-`choice_lists_update` succeeds throughout, so this is neither permissions nor
-payload shape. A script-only update is not a way round it: `elements` is
-mandatory (`422 elements: must not be empty`) even though the tool documents it
-as optional.
+A script-only update is not a way round it: `elements` is mandatory
+(`422 elements: must not be empty`) even though the tool documents it as
+optional.
 
-`forms_create` is UNAFFECTED — both Sprint 9 apps were created during the
-outage. So new apps can be built; only changes to existing ones are blocked.
+### Do not recreate the forms as a workaround
 
-**Do not recreate the form as a workaround while this persists.**
 `MC Material Transaction` holds a RecordLink to the production form's ID, and
-repointing it requires the same broken endpoint — a recreate would leave a
-dangling link with no way to fix it.
+the production app's own Sprint 14 structure links point at
+`MC Structure`. Repointing any of those requires the same broken endpoint, so a
+recreate would leave dangling links with no way to fix them.
 
-Pending deployment when the endpoint recovers — the production app payload is
-now **146 elements**, which is a larger single deploy than anyone would choose
-and is the direct cost of the outage:
+### Pending deployment
+
+The production app payload is **146 elements** — a larger single deploy than
+anyone would choose, and the direct cost of the outage:
 
 | Sprint | Pending change |
 |---|---|
@@ -97,11 +109,26 @@ and is the direct cost of the outage:
 | 14 | structure links `m145`-`m150` |
 
 Plus the `MC Material Master` `pack_size` field (`t012`).
-Re-probed 2026-09-17 **22:19Z** on a twelve-element form: still failing.
 
-**The reports are unaffected.** Every Sprint 10-12 deliverable is SQL run
-through the Query API against whatever is deployed, so the outage delays the
-app-side approval gate only.
+### Live defects until it deploys
+
+1. 2" and 4" multi-pull conduit material quantity reads **1:1** instead of
+   pull count x footage.
+2. A reviewer **can approve** a record carrying a CRITICAL exception; there is
+   no approval gate and no correction-detail prompt.
+3. No fingerprints exist, so `duplicate-production.sql` sections 1 and 2 return
+   nothing. Section 3, the scored heuristic, still works.
+
+### The manual alternative
+
+Every pending change is additive fields plus one CalculatedField expression.
+Adding them by hand in the Fulcrum app designer would unblock all three defects
+without waiting on the API. `fulcrum/schemas/mainline-construction-dev.elements.json`
+carries the exact definitions.
+
+`forms_create` is UNAFFECTED — all four Sprint 9 and Sprint 14 apps were created
+during the outage. New apps can be built; only changes to existing ones are
+blocked.
 
 ## Query API conventions (confirmed 2026-09-17 from real table definitions)
 

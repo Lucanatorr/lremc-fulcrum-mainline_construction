@@ -401,7 +401,7 @@ Data Event script**. See the security note in that document.
 | 20 | **Duplicate-detection window (5 minutes) and material variance bands (±10% tolerance, ±25% critical) are proposals**, not rulings. Most likely to need tuning against real data | Sprint 12 | Open — confirm |
 | 16 | **Budget rates are assumed to equal contract rates.** The scope line prices its budget from the contractor rate master. If LREMC budgets at an internal rate, that is a separate master | Sprint 9 | Open |
 | 17 | **Change order line rates are typed, not snapshotted.** A RecordLink inside a repeatable was not attempted, so nothing checks a typed line rate against the rate sheet | Sprint 9 | Open |
-| 15 | **`forms_update` outage.** v5.0.0 app payload ready but undeployable; every form update returns `could_not_update_form`. Retry when Fulcrum recovers | Sprint 8 rev | **Open — blocks deploy** |
+| 15 | **`forms_update` outage.** Six failed probes 2026-09-17 21:41Z to 2026-09-18 03:02Z. `forms_validate` returns `valid: true` for the exact payload `forms_update` rejects, so the fault is the write path, not the payload. `forms_create` and `choice_lists_update` both work. v7.0.0 (146 elements, Sprints 8/12/13/14) undeployable. Full evidence table in `docs/fulcrum-inventory.md`; a manual app-designer edit would unblock it | Sprint 8 rev | **Open — blocks deploy** |
 | 8 | Span footage is hand-entered. Auto-derivation needs a pole dataset with coordinates; `Poles and Inspections_demo_app` (10,000 records) may be a source | Sprint 6 | Open |
 
 ## Rulings on record
