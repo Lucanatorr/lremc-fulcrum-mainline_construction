@@ -63,8 +63,8 @@ push with `forms_update`.
 ## OUTAGE 2026-09-17/18 — `forms_update` is rejecting every form
 
 `forms_update` returns `422 could_not_update_form: Please try again later` for
-**every** form on this account. Six probes between 2026-09-17 21:41Z and
-2026-09-18 03:02Z, all failing.
+**every** form on this account. Eight probes between 2026-09-17 21:41Z and
+2026-09-18 09:36Z, all failing — twelve hours.
 
 ### The payload is not the problem — it is the write path
 
@@ -84,6 +84,14 @@ The full evidence, in the order it was gathered:
 | `choice_lists_update`, 146 entries | **succeeds** | Not permissions, not the account, not the token |
 | `forms_create`, four new apps incl. 7-section trees | **succeeds** | Not form writes in general |
 | **`forms_validate`, the rejected payload** | **`valid: true`** | **Not the payload at all** |
+| Fresh `forms_get`, then update with `removed_element_keys: []`, every key and parent path preserved, the form's own YesNo labels kept | `could_not_update_form` | Not a stale-read guard, and not a deviation from the tool's own prescribed update procedure |
+
+The last row matters: the MCP server reconnected at 09:35Z with a tool
+description spelling out the required update procedure — fetch the form
+immediately before editing, preserve every retained key and parent path, declare
+removals, validate first. That procedure was followed exactly, on a
+twelve-element form, and still failed. There is nothing left on the client side
+to get right.
 
 A script-only update is not a way round it: `elements` is mandatory
 (`422 elements: must not be empty`) even though the tool documents it as
