@@ -6,6 +6,74 @@ Newest entries first. Every Fulcrum object this project creates is listed in
 
 ---
 
+## 2026-09-21 — Sprints 19, 20 & 21: scale, auditability, exception reporting
+
+Two reports, a scale audit that deleted five fields, scale bounds on the only
+two quadratic queries. **774 tests across thirteen suites.** Full write-up in
+`docs/sprint-19-21-build.md`.
+
+### Sprint 19 — the answer was already in the architecture
+
+Audited against hundreds of thousands of production records. The Data Events
+came out clean, and for a reason worth recording: rate, reel and structure
+lookups cost **zero queries at save time**, because RecordLink `record_defaults`
+copies their values onto the transaction at selection time.
+
+That pattern was chosen in Sprint 2 for offline capability and in Sprint 12 for
+historical immutability. Scale is the third independent argument for it. A
+system that looked a rate up on every change would issue a query per keystroke.
+There is now a test asserting no Data Event can ever make an outbound call.
+
+**Five fields deleted.** `calculated_material_usage` was a repeatable declared
+"auto-generated from the mapping master" that nothing populated and nothing
+could — filling it needs a master a device cannot read offline. The same
+impossibility that took three fields off the reel master in Sprint 17. Five
+elements synced to every device for a permanently empty section.
+`material-variance.sql` never read it, so nothing broke.
+
+**The two self-joins were already partitioned** — by reel, and by
+project + contractor + date + labor code — so their cost is quadratic in a
+partition, not the table. Sections 1, 2 and 4 of the duplicate report are
+`GROUP BY fingerprint`, which is exactly what Sprint 13 bought.
+
+What both lacked was a date window. Both now take one, **one-sided on purpose**:
+bounding both sides would hide a pull booked today that overlaps a range from
+months ago, which is the case the report exists for.
+
+### Sprint 20 — the rate is shown twice
+
+`production-audit-trail.sql` answers all thirteen questions in one row.
+
+The design point is the rate. `rate_applied` is the snapshot on the
+transaction; `rate_master_current_rate` is what the master says today; and they
+are allowed to differ. `rate_provenance` says which case applies in words —
+"MASTER REPRICED SINCE - this record kept its original rate". That is the most
+common audit question in the system, and a report showing only one of the two
+numbers would invite the wrong answer.
+
+"Was it subsequently changed?" is narrowed to what matters for money: not
+whether it was ever edited, but whether it was edited AFTER approval — the
+change nobody re-reviewed.
+
+No status is excluded by default. An audit trail that hid voided or rejected
+records would be useless for exactly the cases most likely to be audited.
+
+### Sprint 21 — severity is not the description
+
+`exception-dashboard.sql` emits all seventeen named exception types, one row
+per finding, with a severity AND a detail sentence naming the real figures.
+The brief is explicit that severity must not replace the description, and the
+reason is practical: CRITICAL tells a manager how fast to move, not what is
+wrong or how much money is involved.
+
+Two judgement calls. Over Plan is anchored to the latest approved record of the
+pay unit rather than emitted against all of them, or 500 identical CRITICALs
+would bury the other sixteen types. And the overlap predicate, which the
+dashboard must re-implement to detect anything, is pinned by a test that
+normalizes aliases and asserts it stays character-identical to
+`sequential-overlap.sql` — two implementations of one rule is how two reports
+come to disagree.
+
 ## 2026-09-21 — Sprints 16, 17 & 18: forecasting, fiber reels, field UX
 
 Four reports, a restructured reel master, a field-entry pass on the production
@@ -651,6 +719,11 @@ Data Event script**. See the security note in that document.
 | 2026-09-17 | The **Production ID is not sequential**. Sequential numbering is not offline-safe; the suffix is Fulcrum's own record ID, set once. |
 | 2026-09-17 | A **segment ID sorts its endpoints** before joining them, so one physical path has one identity. A segment from a structure to itself is rejected. |
 | 2026-09-17 | A **structure ID locks** once the structure exists in the field, and is normalized on save. |
+| 2026-09-21 | **No Data Event ever makes an outbound call.** Cross-record checks are server-side reports; a device lookup would be online-only AND a query per keystroke at scale. |
+| 2026-09-21 | **A field a device cannot populate does not belong on the form.** It ships to every device on every sync and is permanently empty. Compute it in a report. |
+| 2026-09-21 | **A date window on a self-joining report is one-sided.** Bounding both sides hides exactly the pairing the report exists to find. |
+| 2026-09-21 | **An audit trail excludes no record status.** The cases most likely to be audited are the voided and rejected ones. |
+| 2026-09-21 | **Severity never replaces the exception description.** Every finding names the record, the figures and the money. |
 | 2026-09-21 | **Reel consumed, slack and remaining footage are never stored.** They are sums over production records; the reel master keeps only its printed range and waste. |
 | 2026-09-21 | **Slack is not subtracted from the printed reel range.** It comes off the reel inside the consumed sequential range, so it is already counted. Waste is subtracted separately. |
 | 2026-09-21 | **Productivity rates divide by ACTIVE days**, and physical and value rates count them separately. A T&M day earns value and installs nothing. |

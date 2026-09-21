@@ -1692,56 +1692,6 @@
   "elements": [
    {
     "type": "Repeatable",
-    "key": "m052",
-    "label": "Calculated Material Usage",
-    "data_name": "calculated_material_usage",
-    "required": false,
-    "disabled": false,
-    "hidden": false,
-    "elements": [
-     {
-      "type": "TextField",
-      "key": "m048",
-      "label": "Material Code",
-      "data_name": "calc_material_code",
-      "required": false,
-      "disabled": true,
-      "hidden": false
-     },
-     {
-      "type": "TextField",
-      "key": "m049",
-      "label": "Description",
-      "data_name": "calc_material_description",
-      "required": false,
-      "disabled": true,
-      "hidden": false
-     },
-     {
-      "type": "TextField",
-      "key": "m050",
-      "label": "Calculated Quantity",
-      "data_name": "calc_material_quantity",
-      "required": false,
-      "disabled": true,
-      "hidden": false,
-      "numeric": true,
-      "format": "decimal"
-     },
-     {
-      "type": "TextField",
-      "key": "m051",
-      "label": "Unit",
-      "data_name": "calc_material_unit",
-      "required": false,
-      "disabled": true,
-      "hidden": false
-     }
-    ],
-    "description": "SPRINT 4: auto-generated from the labor-to-material mapping master. Read-only."
-   },
-   {
-    "type": "Repeatable",
     "key": "m055",
     "label": "Actual Material Used",
     "data_name": "actual_material_used",
@@ -1775,7 +1725,8 @@
     "description": "What the crew reports was actually consumed (Sprint 8)."
    }
   ],
-  "display": "inline"
+  "display": "inline",
+  "description": "What the crew reports was actually consumed. The EXPECTED quantity is not stored here: it is derived onto the record for conduit (Conduit Material Code and Quantity, under UNDERGROUND) and computed for every other family in reports/material-variance.sql. A device cannot read the mapping master, so a repeatable of calculated material could never have been filled in (Sprint 19)."
  },
  {
   "type": "Section",

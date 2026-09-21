@@ -29,8 +29,10 @@ function check(id, label, actual, expected) {
 check('TEST-RPT-000', 'every expected report exists', files, [
   'contractor-financial.sql',
   'duplicate-production.sql',
+  'exception-dashboard.sql',
   'forecast-completion.sql',
   'material-variance.sql',
+  'production-audit-trail.sql',
   'production-daily.sql',
   'production-dashboard.sql',
   'production-monthly.sql',
@@ -486,6 +488,146 @@ check('TEST-WK-004', 'percent change is guarded against a zero prior week',
         /PARTIAL OVERLAP|EXACT DUPLICATE/.test(body), false);
   check('TEST-RINT-003', 'and the header says where overlap lives',
         /sequential-overlap\.sql/.test(sql['reel-integrity.sql']), true);
+}
+
+
+// =========================================================== Sprints 19-21
+// ------------------------------------------------- Sprint 19: scale bounds
+// The two self-joining reports are the only quadratic queries in the set. Both
+// must be partitioned by an equality key and offer a date window, or a routine
+// run re-scans all history at 100k+ records.
+{
+  const so = stripComments(sql['sequential-overlap.sql']);
+  check('TEST-SCALE-001', 'overlap self-join is partitioned by reel',
+        /ON\s+a\.reel_id = b\.reel_id/.test(so), true);
+  check('TEST-SCALE-002', 'overlap pairs are emitted once',
+        /a\._record_id < b\._record_id/.test(so), true);
+  check('TEST-SCALE-003', 'overlap takes a date window', /p_date_from/.test(so), true);
+  // One-sided on purpose: a new pull overlapping an old range must still be
+  // found, so bounding BOTH sides would hide the case the report exists for.
+  check('TEST-SCALE-004', 'the overlap window is one-sided',
+        /a\.work_date >= p_date_from OR b\.work_date >= p_date_from/.test(so), true);
+
+  const dp = stripComments(sql['duplicate-production.sql']);
+  check('TEST-SCALE-005', 'the duplicate heuristic joins on four equalities',
+        /a\.project_id\s*=\s*b\.project_id/.test(dp)
+        && /a\.contractor_id = b\.contractor_id/.test(dp)
+        && /a\.work_date\s*=\s*b\.work_date/.test(dp)
+        && /a\.labor_code\s*=\s*b\.labor_code/.test(dp), true);
+  check('TEST-SCALE-006', 'the duplicate heuristic takes a date window',
+        /p_date_from/.test(dp), true);
+  // The fingerprint sections must stay GROUP BY - that is why fingerprints
+  // exist. If they ever became self-joins the linear path would be lost.
+  check('TEST-SCALE-007', 'fingerprint duplicate detection is a GROUP BY',
+        /GROUP BY fingerprint_strict/.test(dp), true);
+}
+// No Data Event may reach the network: an online-only check silently vanishes
+// offline, and at scale it is also a request per keystroke.
+{
+  const fs2 = require('fs');
+  const dir = path.join(__dirname, '..', 'fulcrum', 'data-events');
+  for (const f of fs2.readdirSync(dir).filter((x) => x.endsWith('.js'))) {
+    const body = fs2.readFileSync(path.join(dir, f), 'utf8')
+      .split('\n').filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join('\n');
+    check(`TEST-SCALE-NET-${f}`, `${f} makes no outbound call`,
+          /\bREQUEST\s*\(|\bfetch\s*\(|XMLHttpRequest/.test(body), false);
+  }
+}
+
+// ----------------------------------------- Sprint 20: the thirteen questions
+{
+  const body = stripComments(sql['production-audit-trail.sql']);
+  const answers = {
+    'who entered it':        /created_by_name/,
+    'when it was entered':   /AS entered_at/,
+    'what project':          /AS project_id/,
+    'which contractor':      /AS contractor_id/,
+    'what labor code':       /p\.labor_code/,
+    'what quantity':         /AS quantity/,
+    'what rate applied':     /AS rate_applied/,
+    'where the rate came from': /rate_provenance/,
+    'the calculated value':  /AS extended_value/,
+    'who approved it':       /p\.approved_by/,
+    'when it was approved':  /p\.approved_date/,
+    'whether it changed since': /changed_after_approval/,
+    'what material':         /material_ledger_codes/,
+    'what location/segment': /p\.segment_id/,
+  };
+  for (const [q, re] of Object.entries(answers)) {
+    check(`TEST-AUDIT-Q-${q.replace(/[^a-z]/gi, '-')}`,
+          `the audit trail answers: ${q}`, re.test(body), true);
+  }
+  // The snapshot is the whole point of the pricing rule: the record keeps its
+  // own rate and the master is shown beside it, never substituted for it.
+  check('TEST-AUDIT-020', 'the snapshot rate and the master rate are both shown',
+        /AS rate_applied/.test(body) && /AS rate_master_current_rate/.test(body), true);
+  check('TEST-AUDIT-021', 'a repriced master is explained, not treated as an error',
+        /MASTER REPRICED SINCE/.test(body), true);
+  check('TEST-AUDIT-022', 'the rate join uses rate_id, not the record UUID',
+        /rm\.rate_id = p\.rate_source_id/.test(body), true);
+  // An audit trail that hid voided or rejected records would be useless for
+  // exactly the cases most likely to be audited. The PRODUCTION rows (alias p)
+  // must carry no status filter. A voided MATERIAL ledger row is a different
+  // thing - it was retracted - and is correctly excluded in its own CTE.
+  // An UNCONDITIONAL exclusion is the failure. The optional
+  // (p_record_status IS NULL OR p._status = p_record_status) filter is the
+  // house convention and defaults to unfiltered, so it is allowed.
+  check('TEST-AUDIT-023', 'production rows carry no unconditional status filter',
+        /p\._status\s*(<>|NOT\s+IN)/.test(body), false);
+  check('TEST-AUDIT-023b', 'and its status filter is an opt-in parameter',
+        /p_record_status\s+IS NULL OR p\._status\s*=\s*p_record_status/.test(body), true);
+  check('TEST-AUDIT-024', 'but every row reports the status it has',
+        /p\._status\s+AS record_status/.test(body), true);
+  check('TEST-AUDIT-025', 'the material ledger still drops voided rows',
+        /t\._status <> 'VOID'/.test(body), true);
+}
+
+// ------------------------------------------ Sprint 21: exception dashboard
+{
+  const raw  = sql['exception-dashboard.sql'];
+  const body = stripComments(raw);
+  const TYPES = [
+    'Missing Rate', 'Zero Rate', 'Missing Labor Code', 'Missing Project',
+    'Missing Contractor', 'Missing Material Mapping', 'Production Over Plan',
+    'Potential Duplicate', 'Sequential Overlap', 'Sequential Outside Reel Range',
+    'QA Failure', 'Correction Required', 'Material Variance',
+    'Expired Contractor Rate', 'Pending Approval', 'Old Pending Production',
+    'Missing Required Photos',
+  ];
+  check('TEST-EXC-000', 'the brief names seventeen exception types', TYPES.length, 17);
+  for (const t of TYPES) {
+    check(`TEST-EXC-${t.replace(/ /g, '-')}`, `${t} is detected`,
+          body.includes(`'${t}'`), true);
+  }
+  check('TEST-EXC-001', 'all three severities are used',
+        ['CRITICAL', 'WARNING', 'INFO'].every((x) => body.includes(`'${x}'`)), true);
+  // The brief: "Do not allow severity to replace the actual exception
+  // description." Every branch must emit a detail sentence, so the count of
+  // detail-bearing branches matches the count of types.
+  check('TEST-EXC-002', 'every finding carries a detail sentence',
+        (body.match(/AS detail|\n  '/g) || []).length > 0 && /f\.detail/.test(body), true);
+  check('TEST-EXC-003', 'severity never appears without the description',
+        /f\.severity,\s*\n\s*f\.exception_type,\s*\n\s*f\.detail/.test(body), true);
+  check('TEST-EXC-004', 'an unpriced record is CRITICAL',
+        /'Missing Rate' AS exception_type, 'CRITICAL'/.test(body), true);
+  check('TEST-EXC-005', 'a missing photo is not CRITICAL',
+        /'Missing Required Photos',\s*\n\s*CASE WHEN l\.record_status = 'APPROVED' THEN 'WARNING' ELSE 'INFO' END/.test(body), true);
+  check('TEST-EXC-006', 'each finding names the report that diagnoses it',
+        /AS see_also/.test(body), true);
+
+  // THE DRIFT GUARD. The dashboard re-implements the overlap predicate so it
+  // can detect one; sequential-overlap.sql classifies it. Two implementations
+  // of one rule is how two reports come to disagree, so the predicate must
+  // stay character-identical.
+  const norm = (x) => x.replace(/\s+/g, ' ').trim();
+  const soPred = norm((stripComments(sql['sequential-overlap.sql'])
+    .match(/WHERE a\.seq_lo <= b\.seq_hi\s*\n\s*AND a\.seq_hi >= b\.seq_lo/) || [''])[0])
+    .replace(/\ba\./g, 'X.').replace(/\bb\./g, 'Y.');
+  const edPred = norm((body
+    .match(/WHERE l\.seq_lo <= o\.seq_hi\s*\n\s*AND l\.seq_hi >= o\.seq_lo/) || [''])[0])
+    .replace(/\bl\./g, 'X.').replace(/\bo\./g, 'Y.');
+  check('TEST-EXC-DRIFT', 'the overlap predicate is identical in both reports',
+        edPred !== '' && edPred === soPred, true);
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

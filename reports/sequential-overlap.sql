@@ -27,7 +27,25 @@
 -- routinely the start of the next. Flagging those would bury real overlaps in
 -- noise. Only an intersection of MORE than a single sequential is an overlap.
 
-WITH norm AS (
+-- SCALE (Sprint 19). This is a self-join, so its cost is quadratic in the
+-- number of rows that share a reel -- not in the table. reel_id is the
+-- partition key and the join's first equality, so at 100k production records
+-- across a few thousand reels the engine compares tens of records per reel,
+-- not 100k against 100k.
+--
+-- The date window is ONE-SIDED on purpose. Bounding both sides would hide the
+-- case this report exists for: a new pull that overlaps a range booked months
+-- ago. So at least one record of each pair must fall inside the window, and
+-- its partner is matched against all history. Leave the window NULL to scan
+-- everything; set it for a routine run.
+
+WITH params AS (
+  SELECT
+    CAST(NULL AS date)    AS p_date_from,
+    CAST(NULL AS date)    AS p_date_to,
+    CAST(NULL AS varchar) AS p_reel_id
+),
+norm AS (
   SELECT
     _record_id,
     production_id,
@@ -39,10 +57,12 @@ WITH norm AS (
     LEAST(starting_sequential, ending_sequential)    AS seq_lo,
     GREATEST(starting_sequential, ending_sequential) AS seq_hi
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2"   -- Mainline Construction - Development
+  CROSS JOIN params
   WHERE starting_sequential IS NOT NULL
     AND ending_sequential   IS NOT NULL
     AND reel_id             IS NOT NULL
     AND _status <> 'VOID'
+    AND (p_reel_id IS NULL OR reel_id = p_reel_id)
 )
 SELECT
   a.production_id AS production_a,
@@ -69,6 +89,12 @@ FROM norm a
 JOIN norm b
   ON  a.reel_id = b.reel_id
   AND a._record_id < b._record_id          -- each pair once, never self-matched
+CROSS JOIN params
 WHERE a.seq_lo <= b.seq_hi
   AND a.seq_hi >= b.seq_lo
+  -- One-sided window: either record may be the recent one.
+  AND (p_date_from IS NULL
+       OR a.work_date >= p_date_from OR b.work_date >= p_date_from)
+  AND (p_date_to IS NULL
+       OR a.work_date <= p_date_to OR b.work_date <= p_date_to)
 ORDER BY severity, a.reel_id, a.seq_lo;

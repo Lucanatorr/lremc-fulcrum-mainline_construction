@@ -29,7 +29,23 @@
 -- had its answer, and a resubmitted correction would otherwise pair with the
 -- original forever.
 
-WITH live AS (
+-- SCALE (Sprint 19). Sections 1, 2 and 4 are GROUP BY over an indexed derived
+-- column, so they are linear in the table -- which is the whole reason the
+-- fingerprints exist. Section 3 is the only self-join, and it is keyed on
+-- project + contractor + work_date + labor_code, so it compares records that
+-- already share four values: a handful of rows per group, not the table.
+--
+-- The window below is one-sided in the same way as sequential-overlap.sql:
+-- a duplicate raised today against a record from last month must still be
+-- found, so only one side of each pair needs to fall inside it.
+
+WITH params AS (
+  SELECT
+    CAST(NULL AS date)    AS p_date_from,
+    CAST(NULL AS date)    AS p_date_to,
+    CAST(NULL AS varchar) AS p_project_id
+),
+live AS (
   SELECT
     _record_id, production_id, work_date,
     project_id_snapshot    AS project_id,
@@ -40,7 +56,9 @@ WITH live AS (
     fingerprint_strict, fingerprint_segment, fingerprint_strength,
     _status AS record_status, _created_at
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2"
+  CROSS JOIN params
   WHERE _status NOT IN ('VOID', 'REJECTED')
+    AND (p_project_id IS NULL OR project_id_snapshot = p_project_id)
 )
 
 -- 1. STRICT FINGERPRINT COLLISION. The same pay unit, on the same day, for the
@@ -176,8 +194,12 @@ FROM (
     AND a.work_date     = b.work_date
     AND a.labor_code    = b.labor_code
     AND a._record_id    < b._record_id       -- each pair once, never self-matched
-  WHERE a.fingerprint_strict IS NULL
-     OR b.fingerprint_strict IS NULL
+  CROSS JOIN params
+  WHERE (a.fingerprint_strict IS NULL OR b.fingerprint_strict IS NULL)
+    AND (p_date_from IS NULL
+         OR a.work_date >= p_date_from OR b.work_date >= p_date_from)
+    AND (p_date_to IS NULL
+         OR a.work_date <= p_date_to OR b.work_date <= p_date_to)
 ) pairs
 GROUP BY rid_a, rid_b
 

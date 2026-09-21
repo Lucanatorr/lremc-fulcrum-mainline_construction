@@ -1,6 +1,29 @@
 /**
  * Mainline Construction - Development
- * Data Events - v7.2.0 (2026-09-21), deployed 2026-09-21.
+ * Data Events - v7.3.0 (2026-09-21), deployed 2026-09-21.
+ *
+ * CHANGE IN v7.3.0 - SPRINT 19 SCALE REVIEW
+ *   No behaviour change in this script. It was audited against the brief's
+ *   target scale - hundreds of projects, thousands of rates and structures,
+ *   hundreds of thousands of production records - and the findings were:
+ *
+ *   + NO OUTBOUND CALLS, still. REQUEST is the only way a Data Event can reach
+ *     other records, it is online-only, and at scale it would also be a
+ *     request per keystroke. Every cross-record check in this system is a
+ *     server-side report for exactly that reason.
+ *   + Every ON('change') handler is O(1) in this record: it reads a handful of
+ *     local fields and writes at most three. None scans a list, and none
+ *     touches a master.
+ *   + Rate and reel lookups cost NOTHING at save time. RecordLink
+ *     record_defaults copy the values physically at selection time, so
+ *     validation reads local fields. That was chosen for offline capability
+ *     and it is also what makes it scale.
+ *   - REMOVED the calculated_material_usage repeatable (m048-m052). Nothing
+ *     populated it and nothing could: filling it needs the Labor-Material
+ *     Mapping master, which a device cannot read. Five elements that shipped
+ *     to every device on every sync, for a section that was always empty. The
+ *     expected quantity is derived onto the record for conduit and computed
+ *     in reports/material-variance.sql for everything else.
  *
  * CHANGE IN v7.2.0 - SPRINT 18 FIELD USER EXPERIENCE
  *   The brief: "A typical field production entry should ideally require the
