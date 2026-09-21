@@ -6,6 +6,70 @@ Newest entries first. Every Fulcrum object this project creates is listed in
 
 ---
 
+## 2026-09-21 — v7.1.0: a bare `USEREMAIL()` was crashing the web record editor
+
+Reported from the field, minutes after the v7.0.0 deploy:
+
+```
+Uncaught ReferenceError: USEREMAIL is not defined
+    at Runtime.eval (<anonymous>:278:3)
+    at Runtime.trigger ... at e.onMessage (expressions-proxy.js)
+```
+
+plus: *"when clicking drop down menus and selecting an option, it does not
+save. only populates after using F12 in chrome."*
+
+**Two symptoms, one cause.** Line 278 was
+`SETVALUE('inspector_email', USEREMAIL())` inside `ON('new-record')`.
+`USERFULLNAME()` on line 277 worked fine.
+
+`USEREMAIL` is an **expression** function — it is in the `context` category for
+CalculatedFields and in none of the Data Events categories. The Data Events
+runtime and the expression runtime share a documentation page, not a global
+namespace, and the web editor exposes less than the mobile app.
+
+The second symptom follows from the first. A ReferenceError in a Data Event is
+not contained to its handler: it escapes `Runtime.trigger` and the expressions
+proxy's `onMessage`, so the host never receives the reply carrying that event's
+queued `SETVALUE` mutations. The derived values were computed and then dropped
+on the floor. Opening devtools forced a re-render, which is why they appeared
+only then — and why a crash in `new-record` looked like a bug in the dropdowns.
+
+### The fix
+
+1. **Every platform accessor now goes through a `typeof` guard** —
+   `userFullName()`, `userEmail()`, `recordId()`, `recordStatus()`. `typeof` is
+   the only safe test for an undeclared identifier: reading one throws, `typeof`
+   on one returns `'undefined'`. `RECORDID` and `USEREMAIL` had `try`/`catch` in
+   `assignProductionId` already; `STATUS()` was bare in four places and would
+   have failed the same way in any runtime lacking it.
+2. **`inspector_email` moved to the runtime that has the function.** It is now
+   `m151`, a CalculatedField: `ONCE(IFERROR(USEREMAIL(), ''))`. `ONCE` locks the
+   value at record creation, so a reviewer opening the record later cannot
+   overwrite the creator's address — which a plain CalculatedField would have
+   done on every load. The old `m014` TextField was removed (zero records, so
+   nothing was lost).
+
+`IFERROR` sits **inside** `ONCE`, not outside: with the order reversed a throw
+means `ONCE` never locks and the field silently retries on later evaluations.
+
+### Why 573 tests didn't catch it
+
+`tests/harness.js` stubbed every platform global unconditionally. **A test
+environment more capable than the real one cannot find a missing-global bug.**
+
+The harness now takes `omitGlobals`, which *deletes* the named globals so a bare
+read throws exactly as it does on a device. `tests/runtime-globals.test.js` (28
+tests) runs the shipped script with them gone, and additionally greps the source
+so a future bare call fails the build without needing a runtime to reproduce it.
+
+Verified the suite actually catches this: reintroducing the original two lines
+turns it red (`TEST-RT-002`, and the bare-call greps) while every pre-existing
+suite stays green — which is precisely the blind spot that let this ship.
+
+**601 tests across twelve suites.** Deployed 2026-09-21T17:04:06Z, element tree
+and script verified against the repo.
+
 ## 2026-09-21 — v7.0.0 deployed: the three-day `forms_update` outage cleared
 
 **The outage ended without any change on our side.** `forms_update` had rejected
@@ -493,4 +557,6 @@ Data Event script**. See the security note in that document.
 | 2026-09-17 | The **Production ID is not sequential**. Sequential numbering is not offline-safe; the suffix is Fulcrum's own record ID, set once. |
 | 2026-09-17 | A **segment ID sorts its endpoints** before joining them, so one physical path has one identity. A segment from a structure to itself is rejected. |
 | 2026-09-17 | A **structure ID locks** once the structure exists in the field, and is normalized on save. |
+| 2026-09-21 | **No platform accessor is ever called bare.** The Data Events runtime and the expression runtime do not share a global namespace; `typeof` guards every one. Where only the expression runtime has the function, the value comes from a CalculatedField. |
+| 2026-09-21 | **The test harness must never be more capable than the device.** Stubs are opt-out, so a suite can prove the script survives a runtime that lacks a global. |
 | 2026-09-17 | Planned footages come from the **project master**; installed footages come from **work_category**. Neither is derived from labor-code prefixes. |

@@ -15,7 +15,17 @@
 const fs = require('fs');
 const path = require('path');
 
-function load(scriptName) {
+/**
+ * @param scriptName  file under fulcrum/data-events/
+ * @param options.omitGlobals  platform globals to leave UNDEFINED, simulating a
+ *   runtime that does not expose them. The Data Events runtime and the
+ *   CalculatedField expression runtime do not share a global set, and the web
+ *   record editor exposes fewer than the mobile app - USEREMAIL is absent from
+ *   the web editor while USERFULLNAME is present. Stubbing every global
+ *   unconditionally is what let a bare USEREMAIL() ship: see
+ *   tests/runtime-globals.test.js.
+ */
+function load(scriptName, options = {}) {
   const file = path.join(__dirname, '..', 'fulcrum', 'data-events', scriptName);
   const src = fs.readFileSync(file, 'utf8');
 
@@ -72,6 +82,12 @@ function load(scriptName) {
   globalThis.LATITUDE = () => record.__lat || null;
   globalThis.LONGITUDE = () => record.__lon || null;
   globalThis.ACCURACY = () => record.__acc || null;
+
+  // Simulate a runtime missing these accessors. Deleting rather than setting
+  // them to undefined matters: the script must survive `typeof X`, and a bare
+  // read of a deleted global throws ReferenceError exactly as it does on a
+  // device.
+  for (const name of options.omitGlobals || []) delete globalThis[name];
 
   // Indirect eval so the script's function declarations land in global scope
   // and can be reached by name, exactly as Fulcrum's own runtime reaches them.

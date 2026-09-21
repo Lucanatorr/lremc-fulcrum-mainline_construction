@@ -1,6 +1,23 @@
 /**
  * Mainline Construction - Development
- * Data Events - v7.0.0 (2026-09-17), deployed 2026-09-21.
+ * Data Events - v7.1.0 (2026-09-21), deployed 2026-09-21.
+ *
+ * CHANGE IN v7.1.0 - FIX: BARE USEREMAIL() CRASHED THE WEB RECORD EDITOR
+ *   Reported from the field: "Uncaught ReferenceError: USEREMAIL is not
+ *   defined", thrown from ON('new-record'), and dropdown selections that did
+ *   not populate until F12 forced a re-render.
+ *
+ *   ONE CAUSE, BOTH SYMPTOMS. USEREMAIL is an EXPRESSION function; it is not
+ *   in the Data Events runtime in the web editor. USERFULLNAME, one line
+ *   above it, is. The ReferenceError escaped the handler, Runtime.trigger and
+ *   the expressions proxy's onMessage, so the host never got the reply
+ *   carrying that event's queued SETVALUEs - which is why unrelated derived
+ *   fields stopped appearing too.
+ *
+ *   + Every platform accessor now goes through a typeof guard. Never bare.
+ *   + inspector_email moved to a CalculatedField, ONCE(USEREMAIL()) (m151),
+ *     evaluated in the runtime that actually has the function and locked at
+ *     record creation so a reviewer cannot overwrite the creator's address.
  *
  * CHANGE IN v7.0.0 - SPRINT 13 DUPLICATE AND DATA-INTEGRITY CONTROLS
  *   + Two derived production FINGERPRINTS, computed on the device.
@@ -68,6 +85,61 @@
  * NO HARD-CODED MASTER DATA. NO SECRETS. NO OUTBOUND CALLS.
  * WEEK DEFINITION: ISO-8601, Monday start, Mon-Fri working week.
  */
+
+// ==================== platform accessor guards (v7.1.0) ====================
+// The Data Events JavaScript runtime and the CalculatedField expression
+// runtime do NOT expose the same globals, and the web record editor does not
+// expose the same set as the mobile app.
+//
+// USEREMAIL is the case that bit us on 2026-09-21. It is documented as an
+// expression function (context category); it is NOT in the Data Events
+// function catalogue; and calling it bare in the Chrome record editor threw
+// "Uncaught ReferenceError: USEREMAIL is not defined" out of ON('new-record').
+// USERFULLNAME on the line directly above it worked. The two look
+// interchangeable and are not.
+//
+// A ReferenceError here is NOT contained to the handler that raised it. It
+// escapes Runtime.trigger and the expressions proxy's onMessage, so the host
+// never receives the reply carrying that event's queued SETVALUE mutations -
+// they are computed and then silently dropped. That is why a broken
+// new-record handler ALSO stopped dropdown selections from populating until
+// opening devtools forced a re-render. One missing global, two symptoms.
+//
+// typeof is the ONLY safe test for an undeclared identifier: reading one
+// throws, typeof on one returns 'undefined'. Every platform accessor goes
+// through a guard from here on. Never call one bare.
+
+function platformString(fn) {
+  try {
+    var v = fn();
+    return (v === null || v === undefined) ? '' : String(v);
+  } catch (e) {
+    return '';
+  }
+}
+
+function userFullName() {
+  if (typeof USERFULLNAME !== 'function') return '';
+  return platformString(function () { return USERFULLNAME(); });
+}
+
+// Absent from the Data Events runtime in the web record editor. Returns ''
+// there. inspector_email is populated by a CalculatedField (m151) instead,
+// because USEREMAIL does exist in the expression runtime.
+function userEmail() {
+  if (typeof USEREMAIL !== 'function') return '';
+  return platformString(function () { return USEREMAIL(); });
+}
+
+function recordId() {
+  if (typeof RECORDID !== 'function') return '';
+  return platformString(function () { return RECORDID(); });
+}
+
+function recordStatus() {
+  if (typeof STATUS !== 'function') return '';
+  return platformString(function () { return STATUS(); });
+}
 
 function isBlank(v) {
   return v === null || v === undefined || v === '' ||
@@ -274,8 +346,12 @@ ON('change', 'pole_id', deriveSpanId);
 ON('change', 'previous_pole_id', deriveSpanId);
 
 ON('new-record', function (event) {
-  SETVALUE('inspector', USERFULLNAME());
-  SETVALUE('inspector_email', USEREMAIL());
+  // inspector_email is NOT set here: USEREMAIL does not exist in the Data
+  // Events runtime. The m151 CalculatedField ONCE(USEREMAIL()) captures it in
+  // the runtime that does have it, and locks it at record creation so a later
+  // reviewer opening the record cannot overwrite the creator's address.
+  var who = userFullName();
+  if (who) SETVALUE('inspector', who);
 });
 
 // ==================== QA/QC and approval workflow (Sprint 12) ====================
@@ -284,7 +360,7 @@ var PENDING_STATUSES  = ['DRAFT', 'SUBMITTED', 'UNDER REVIEW', 'CORRECTION REQUI
 var REVIEWED_STATUSES = ['APPROVED', 'REJECTED'];
 
 function applyWorkflowState() {
-  var s = STATUS();
+  var s = recordStatus();
   // A reviewer must say what needs fixing. "Correction required" with no detail
   // sends a crew back to site to guess.
   SETREQUIRED('correction_detail', s === 'CORRECTION REQUIRED');
@@ -304,7 +380,7 @@ ON('change', 'correction_completed', function (event) {
   if (choiceValue($correction_completed) === 'yes') {
     if (isBlank($correction_completed_date)) {
       SETVALUE('correction_completed_date', new Date().toISOString());
-      SETVALUE('correction_completed_by', USERFULLNAME());
+      SETVALUE('correction_completed_by', userFullName());
     }
   } else {
     SETVALUE('correction_completed_date', null);
@@ -313,23 +389,23 @@ ON('change', 'correction_completed', function (event) {
 });
 
 ON('change-status', function (event) {
-  var s = STATUS();
+  var s = recordStatus();
   var now = new Date().toISOString();
   if (s === 'SUBMITTED' && isBlank($submitted_by)) {
-    SETVALUE('submitted_by', USERFULLNAME());
+    SETVALUE('submitted_by', userFullName());
     SETVALUE('submitted_date', now);
   } else if (s === 'UNDER REVIEW') {
-    SETVALUE('reviewed_by', USERFULLNAME());
+    SETVALUE('reviewed_by', userFullName());
     SETVALUE('reviewed_date', now);
   } else if (s === 'APPROVED') {
-    SETVALUE('approved_by', USERFULLNAME());
+    SETVALUE('approved_by', userFullName());
     SETVALUE('approved_date', now);
   } else if (s === 'REJECTED' || s === 'CORRECTION REQUIRED') {
     // An approval stamp is what every downstream report reads to decide this
     // production counts. A record sent back must not keep one.
     SETVALUE('approved_by', null);
     SETVALUE('approved_date', null);
-    SETVALUE('reviewed_by', USERFULLNAME());
+    SETVALUE('reviewed_by', userFullName());
     SETVALUE('reviewed_date', now);
     if (s === 'CORRECTION REQUIRED') {
       SETVALUE('correction_completed', null);
@@ -556,7 +632,7 @@ function buildExceptions() {
                     'and sequentials, or the from/to structures');
   }
 
-  var status = STATUS();
+  var status = recordStatus();
   if (status === 'CORRECTION REQUIRED' && isBlank($correction_detail)) {
     flag('CRITICAL', 'Correction required but nothing states what to correct');
   }
@@ -652,8 +728,7 @@ function buildFingerprints() {
 function assignProductionId() {
   if (!isBlank($production_id)) return;
   var d = parseDate($work_date) || new Date();
-  var rid = '';
-  try { rid = RECORDID() || ''; } catch (e) { rid = ''; }
+  var rid = recordId();
   var suffix;
   if (rid) {
     suffix = String(rid).replace(/[^A-Za-z0-9]/g, '').slice(-8).toUpperCase();
@@ -661,8 +736,7 @@ function assignProductionId() {
     // RECORDID can be unavailable before a record's first save. A bare
     // timestamp would let two devices saving in the same millisecond collide,
     // so the user's email is folded in to keep the fallback unique per device.
-    var who = '';
-    try { who = USEREMAIL() || ''; } catch (e) { who = ''; }
+    var who = userEmail();
     var whoTag = who
       ? String(who).replace(/[^A-Za-z0-9]/g, '').slice(0, 3).toUpperCase()
       : 'XXX';
@@ -674,7 +748,7 @@ function assignProductionId() {
 // The gate. buildExceptions() has just run, so exception_severity reflects this
 // save. Only CRITICAL blocks; WARNING and INFO never do.
 function enforceApprovalGate() {
-  if (STATUS() !== 'APPROVED') return;
+  if (recordStatus() !== 'APPROVED') return;
 
   if (choiceValue($exception_severity) === 'CRITICAL') {
     INVALID('This record carries a CRITICAL exception and cannot be approved: ' +

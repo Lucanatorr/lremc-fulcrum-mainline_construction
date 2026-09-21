@@ -211,7 +211,13 @@ const src = fs.readFileSync(
   path.join(__dirname, '..', 'fulcrum', 'data-events', 'mainline-construction-dev.js'), 'utf8');
 const declared = (/Data Events - (v\d+\.\d+\.\d+)/.exec(src) || [])[1];
 check('TEST-VER-001', 'the script declares a version', typeof declared, 'string');
-check('TEST-VER-002', 'the header declares v7.0.0', declared, 'v7.0.0');
+// Anchored to the newest CHANGE IN block rather than a literal, so bumping the
+// version is one edit in the script and none in the tests - while still
+// catching the drift this guard was added for (a v5.0.0 header over a v7
+// script, because a search-and-replace had silently no-opped).
+const newestChange = (/CHANGE IN (v\d+\.\d+\.\d+)/.exec(src) || [])[1];
+check('TEST-VER-002', 'the header version matches its newest CHANGE IN block',
+      declared, newestChange);
 check('TEST-VER-003', 'v7 behaviour is actually present',
       /function buildFingerprints/.test(src), true);
 check('TEST-VER-004', 'v6 behaviour is actually present',

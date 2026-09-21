@@ -49,7 +49,7 @@ no production object has been modified.
 
 | Object | Schema | Data Events |
 |---|---|---|
-| Mainline Construction - Development | `fulcrum/schemas/mainline-construction-dev.elements.json` | `fulcrum/data-events/mainline-construction-dev.js` (v7.0.0, deployed 2026-09-21) |
+| Mainline Construction - Development | `fulcrum/schemas/mainline-construction-dev.elements.json` | `fulcrum/data-events/mainline-construction-dev.js` (v7.1.0, deployed 2026-09-21) |
 | MC Material Master - Development | `fulcrum/schemas/mc-material-master-dev.elements.json` | none |
 | MC Material Transaction - Development | `fulcrum/schemas/mc-material-transaction-dev.elements.json` | `fulcrum/data-events/mc-material-transaction-dev.js` (v1.0.0) |
 | MC Project Scope Line - Development | `fulcrum/schemas/mc-project-scope-line-dev.elements.json` | `fulcrum/data-events/mc-project-scope-line-dev.js` (v1.0.0) |
@@ -115,6 +115,43 @@ All three defects that were live during the outage are now closed: 2" and 4"
 multi-pull conduit material reads pull count x footage, a CRITICAL exception
 blocks approval, and fingerprints exist so `duplicate-production.sql` sections 1
 and 2 return rows.
+
+## The Data Events runtime is NOT the expression runtime (found 2026-09-21)
+
+They share a function catalogue in the docs and do not share one at runtime,
+and the web record editor exposes fewer globals than the mobile app.
+
+| Function | Expression (CalculatedField) | Data Events (web editor) |
+|---|---|---|
+| `USERFULLNAME()` | yes | **yes** — it is the `new-record` example in Fulcrum's own reference |
+| `USEREMAIL()` | yes | **NO** — `ReferenceError: USEREMAIL is not defined` |
+
+`USEREMAIL` is listed under the expression `context` category and is absent
+from every Data Events category. The two functions look interchangeable, sit on
+adjacent lines in the obvious implementation, and only one of them works.
+
+**A ReferenceError in a Data Event is not contained to its handler.** It
+escapes `Runtime.trigger` and the expressions proxy's `onMessage`, so the host
+never receives the reply carrying that event's queued `SETVALUE` mutations —
+they are computed and then dropped. A crash in `ON('new-record')` therefore
+also stopped unrelated dropdown-derived fields from appearing until devtools
+forced a re-render. **One missing global presents as two unrelated bugs.**
+
+Rules that follow:
+
+- **Never call a platform accessor bare.** `typeof X !== 'function'` is the only
+  safe test — reading an undeclared identifier throws, `typeof` on one does not.
+  `fulcrum/data-events/mainline-construction-dev.js` routes `USERFULLNAME`,
+  `USEREMAIL`, `RECORDID` and `STATUS` through guards.
+- **Never let the test harness be more capable than the device.**
+  `tests/harness.js` stubbed every global unconditionally, so 573 tests passed
+  over a script that crashed on open. It now takes `omitGlobals`, and
+  `tests/runtime-globals.test.js` runs the shipped script with those globals
+  deleted.
+- **Where only the expression runtime has the function, use a CalculatedField.**
+  `inspector_email` is now `m151`, `ONCE(IFERROR(USEREMAIL(), ''))`. `ONCE`
+  locks the value at record creation, so a reviewer opening the record later
+  cannot overwrite the creator's address.
 
 ## Query API conventions (confirmed 2026-09-17 from real table definitions)
 
