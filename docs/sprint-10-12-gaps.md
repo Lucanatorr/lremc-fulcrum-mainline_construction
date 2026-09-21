@@ -63,22 +63,21 @@ every report, every rate validation, every scope figure — depends on this and
 cannot be demonstrated without it. This is the single biggest blocker in the
 project and it is not a coding task.
 
-## 3. Sprint 12's app-side work is written but not deployed
+## 3. Sprint 12's app-side work — RESOLVED 2026-09-21
 
 Data Events **v6.0.0** — the approval gate, the correction fields `m137`–`m141`,
-the blank-QA-status fix — **is not live**. Neither is the Sprint 8 size-dependent
-conduit quantity from v5.0.0.
+the blank-QA-status fix — **is now live**, as is the Sprint 8 size-dependent
+conduit quantity from v5.0.0, both carried in the v7.0.0 deploy.
 
-`forms_update` has returned `could_not_update_form: Please try again later` for
-**every form on the account** since 2026-09-17, including a twelve-element one,
-while `forms_create` works normally. Re-probed at 21:50Z. Recreating the
-production form is not a workaround: `MC Material Transaction` links to its ID
-and repointing that needs the same endpoint.
+`forms_update` had returned `could_not_update_form: Please try again later` for
+**every form on the account** from 2026-09-17, including a twelve-element one,
+while `forms_create` worked normally. It cleared on 2026-09-21 with no change to
+the payload or the procedure.
 
-So today the deployed app **will let a reviewer approve a record carrying a
-CRITICAL exception**, and will not prompt for correction detail. The reports
-behave correctly either way — they read whatever is there — but the gate that
-was meant to stop bad data at source is inert.
+The deployed app now **blocks approval of a record carrying a CRITICAL
+exception** and requires correction detail when a record is sent back. The
+reports behaved correctly throughout — they read whatever is there — but the
+gate that stops bad data at source is no longer inert.
 
 ---
 

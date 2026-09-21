@@ -6,6 +6,58 @@ Newest entries first. Every Fulcrum object this project creates is listed in
 
 ---
 
+## 2026-09-21 — v7.0.0 deployed: the three-day `forms_update` outage cleared
+
+**The outage ended without any change on our side.** `forms_update` had rejected
+every form on the account since 2026-09-17 21:41Z with
+`422 could_not_update_form`. Retried on 2026-09-21 with the same payload shape
+and the same procedure, it succeeded. `MC Material Master` went first
+(16:35:30Z), then the production app (16:45:48Z).
+
+**One call cleared a four-sprint backlog.** 146 elements plus the v7.0.0
+script, on `06c36c8e-4a88-4cf3-a691-9a792f8374d2`:
+
+| Sprint | Change now live |
+|---|---|
+| 8 | size-dependent conduit material quantity (`m117`) |
+| 12 | approval gate, correction fields `m137`-`m141` |
+| 13 | production fingerprints `m142`-`m144` |
+| 14 | structure links `m145`-`m150` |
+
+**All three live defects are closed.** 2" and 4" multi-pull conduit now reads
+pull count x footage instead of 1:1; a CRITICAL exception blocks approval; and
+fingerprints exist, so `duplicate-production.sql` sections 1 and 2 return rows
+rather than nothing.
+
+### The call timed out and had already succeeded
+
+The MCP client returned a timeout on a 77 KB payload. Rather than retry, the
+form was read back: 146 elements live, the deployed script **byte-identical**
+to `fulcrum/data-events/mainline-construction-dev.js`, and the element tree
+matching the repo schema on key path, type, data_name, expression, linked
+list/form, description, choices, `record_defaults` and `visible_conditions`.
+A blind retry would have re-sent 77 KB to re-apply work that was already done.
+This is now written into the gotchas: **read the form back, never retry blind.**
+
+### Two stale texts caught on the way in, both about the same ruling
+
+Neither would have failed a test, because neither is executable — and that is
+exactly why they survived.
+
+1. **The script header still documented the additive DP schedule.** It read
+   `BM60(1)(1.25)DP .. BM60(5)(1.25)DP at 10/12/14/16/18` — the reading the
+   contract owner corrected on 2026-09-17. The rate master and
+   `scripts/normalize_rates.py` carry the correct banded schedule
+   ($10 / $12 / $12 / $14 / $14), so nothing was mispriced; but the comment
+   explaining the rule to the next reader taught the wrong rule, and a 5-pull
+   bore priced from it overbills by 29%. Replaced with an explicit
+   *RULING 2026-09-18 — THE DP RATE SCHEDULE IS BANDED, NOT ADDITIVE* block
+   that states the wrong answer and why it is wrong.
+2. **`m021` Labor Code still said "141 pay units."** The choice list has held
+   146 since the DP expansion. Corrected in the deployed payload.
+
+**573 tests across eleven suites, all passing.**
+
 ## 2026-09-17 — Sprints 13, 14 & 15 complete, and two defects fixed in 10-12
 
 Two apps, four reports, Data Events **v7.0.0**. **569 tests across eleven
@@ -401,7 +453,7 @@ Data Event script**. See the security note in that document.
 | 20 | **Duplicate-detection window (5 minutes) and material variance bands (±10% tolerance, ±25% critical) are proposals**, not rulings. Most likely to need tuning against real data | Sprint 12 | Open — confirm |
 | 16 | **Budget rates are assumed to equal contract rates.** The scope line prices its budget from the contractor rate master. If LREMC budgets at an internal rate, that is a separate master | Sprint 9 | Open |
 | 17 | **Change order line rates are typed, not snapshotted.** A RecordLink inside a repeatable was not attempted, so nothing checks a typed line rate against the rate sheet | Sprint 9 | Open |
-| 15 | **`forms_update` outage.** Six failed probes 2026-09-17 21:41Z to 2026-09-18 03:02Z. `forms_validate` returns `valid: true` for the exact payload `forms_update` rejects, so the fault is the write path, not the payload. `forms_create` and `choice_lists_update` both work. v7.0.0 (146 elements, Sprints 8/12/13/14) undeployable. Full evidence table in `docs/fulcrum-inventory.md`; a manual app-designer edit would unblock it | Sprint 8 rev | **Open — blocks deploy** |
+| 15 | ~~`forms_update` outage~~ | Sprint 8 rev | **CLOSED 2026-09-21** — cleared on its own after ~3 days, with no change to the payload or the procedure. v7.0.0 deployed: 146 elements, `updated_at` 2026-09-21T16:45:48Z. Evidence table kept in `docs/fulcrum-inventory.md` as the path to re-walk if it recurs. |
 | 8 | Span footage is hand-entered. Auto-derivation needs a pole dataset with coordinates; `Poles and Inspections_demo_app` (10,000 records) may be a source | Sprint 6 | Open |
 
 ## Rulings on record

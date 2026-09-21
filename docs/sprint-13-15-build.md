@@ -1,7 +1,7 @@
 # Sprints 13, 14 & 15 — Duplicates, Structures, Segments and Dashboards
 
 Two new apps, four new reports, Data Events **v7.0.0**, and two SQL defects
-fixed in the Sprint 10–12 reports. **569 tests across eleven suites.**
+fixed in the Sprint 10–12 reports. **573 tests across eleven suites.**
 
 | Object | ID |
 |---|---|
@@ -245,28 +245,28 @@ negative.
 
 ---
 
-## Still not deployed
+## Deployed 2026-09-21 (this section described the outage; it has since cleared)
 
-`forms_update` has returned `could_not_update_form` for every form on the
-account since 2026-09-17, re-probed at **22:19Z** on a twelve-element form.
-`forms_create` works normally, which is why all four Sprint 9/14 apps went in
-without trouble.
+`forms_update` returned `could_not_update_form` for every form on the account
+from 2026-09-17 until 2026-09-21, when it started working again with no change
+on our side. `forms_create` worked throughout, which is why all four Sprint 9/14
+apps went in without trouble.
 
-The pending payload for `Mainline Construction - Development` is now **146
-elements** and covers:
+The payload for `Mainline Construction - Development` was **146 elements** and
+went in as one deploy:
 
-| Sprint | Pending change |
+| Sprint | Change, now live |
 |---|---|
 | 8 | size-dependent conduit material quantity (`m117` expression) |
 | 12 | approval gate, correction fields `m137`–`m141` |
 | 13 | fingerprints `m142`–`m144` |
 | 14 | structure links `m145`–`m150` |
 
-That is a larger single deploy than I would choose, and it is the direct cost of
-the outage. Everything in it is tested against the shipped script via
-`tests/harness.js`; none of it is live.
+That is a larger single deploy than I would choose, and it was the direct cost
+of the outage. Everything in it is tested against the shipped script via
+`tests/harness.js`, and the deployed script was verified byte-identical to the
+repo copy afterwards.
 
-The reports are unaffected — they read whatever is deployed — except that
-`duplicate-production.sql` sections 1 and 2 return nothing until fingerprints
-exist. Section 3, the original scored heuristic, is kept precisely for that
-reason and works today.
+`duplicate-production.sql` sections 1 and 2 now return rows, because the
+fingerprints they group on exist. Section 3, the original scored heuristic, is
+kept as the fallback for records too sparse to fingerprint.

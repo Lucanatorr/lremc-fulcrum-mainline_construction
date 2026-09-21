@@ -1,8 +1,36 @@
 /**
  * Mainline Construction - Development
- * Data Events - v5.0.0 (2026-09-17), supersedes v4.0.0.
+ * Data Events - v7.0.0 (2026-09-17), deployed 2026-09-21.
  *
- * CHANGE IN THIS VERSION
+ * CHANGE IN v7.0.0 - SPRINT 13 DUPLICATE AND DATA-INTEGRITY CONTROLS
+ *   + Two derived production FINGERPRINTS, computed on the device.
+ *   + Fingerprint strength, so a mostly-blank record cannot look like a match.
+ *   + Production ID hardened against cross-device collision on its fallback.
+ *
+ *   WHY A FINGERPRINT FIELD IS THE RIGHT FULCRUM MECHANISM
+ *   Comparing records needs other records, which a device cannot reach
+ *   offline. But COMPUTING a canonical signature needs only this record, so
+ *   the device does that part every time. Duplicate detection then collapses
+ *   from a heuristic self-join into GROUP BY fingerprint HAVING COUNT(*) > 1,
+ *   and the value is visible on the record so a reviewer can see WHY two
+ *   records matched. No hashing: Fulcrum exposes no crypto, and a readable
+ *   delimited string is better here anyway.
+ *
+ * CHANGE IN v6.0.0 - SPRINT 12 QA/QC AND APPROVAL WORKFLOW
+ *   + An approval GATE: a record carrying a CRITICAL exception, a failed QA
+ *     review, or no recorded QA outcome cannot be set to APPROVED.
+ *   + Correction tracking: detail, completion, and who completed it when.
+ *   + Review stamps hardened - a record sent back does not keep an approval.
+ *
+ *   WHY THE GATE IS CRITICAL-ONLY
+ *   The brief: "Do not automatically reject records solely because of a
+ *   warning unless there is a clear business rule requiring rejection."
+ *   Warnings are judgement calls - a 600 FT span may be real, a missing photo
+ *   may be unavoidable - so a reviewer decides. A CRITICAL is different in
+ *   kind: an unpriced or mispriced record cannot count toward earned value,
+ *   billing or remaining scope without corrupting all three.
+ *
+ * CHANGE IN v5.0.0
  *   + Conduit material multiplier is now SIZE DEPENDENT (ruling below).
  *   + Directional bore codes BM60(n)(1.25)DP parse like the plow units.
  *   + Retired pay units raise a flag instead of silently deriving nothing.
@@ -21,10 +49,16 @@
  *   Conduit sizes in scope: 1.25, 2 and 4 inch only.
  *
  * RULING 2026-09-17 - DIRECTIONAL BORE RESTRUCTURED
- *   BM60-(1.25)DP ($10) plus BM60-(1.25)DPD Dual ($2 per additional pipe) are
- *   replaced by BM60(1)(1.25)DP .. BM60(5)(1.25)DP at 10/12/14/16/18. The pull
- *   count is now a fact of the selected pay unit instead of being implied by
- *   how many transactions someone remembered to raise. Total billing unchanged.
+ *   BM60-(1.25)DP plus BM60-(1.25)DPD Dual are replaced by BM60(1)(1.25)DP ..
+ *   BM60(5)(1.25)DP. The pull count is now a fact of the selected pay unit
+ *   instead of being implied by how many transactions someone remembered
+ *   to raise.
+ *
+ * RULING 2026-09-18 - THE DP RATE SCHEDULE IS BANDED, NOT ADDITIVE
+ *   1 pull $10; 2 and 3 pulls $12; 4 and 5 pulls $14. Reading the contract's
+ *   "second or more" wording as a per-pipe adder gives 10/12/14/16/18 and
+ *   overbills a 5-pull bore by 29%. The schedule is master data and lives in
+ *   the rate master - this script never prices anything.
  *
  * WASTE FACTOR IS NOT APPLIED HERE. Conduit carries a 10% purchasing waste
  * factor, but it lives in the Labor-Material Mapping master, not in this
@@ -190,11 +224,10 @@ function deriveConduitPackage() {
   setIfChanged('conduit_diameter',      $conduit_diameter,      pkg ? pkg.size : null);
   setIfChanged('conduit_material_code', $conduit_material_code, pkg ? pkg.materialCode : null);
   // The multiplier is NOT written to a field. Conduit Material Quantity is a
-  // CalculatedField that applies it from the derived diameter and pull count,
-  // because a Fulcrum forms_update that adds a field to this form fails with an
-  // opaque could_not_update_form - see docs/fulcrum-inventory.md. The rule is
-  // stated once here in BUNDLED_CONDUIT_SIZES and mirrored in that one
-  // expression; tests/conduit-dp-material.test.js asserts the two agree.
+  // CalculatedField that applies it from the derived diameter and pull count.
+  // That keeps the rule stated once here in BUNDLED_CONDUIT_SIZES and mirrored
+  // in that one expression; tests/conduit-dp-material.test.js asserts the two
+  // agree, so they cannot drift.
 }
 
 // ==================== splice band (Sprint 7) ====================

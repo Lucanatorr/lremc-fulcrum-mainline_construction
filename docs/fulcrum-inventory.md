@@ -49,7 +49,7 @@ no production object has been modified.
 
 | Object | Schema | Data Events |
 |---|---|---|
-| Mainline Construction - Development | `fulcrum/schemas/mainline-construction-dev.elements.json` | `fulcrum/data-events/mainline-construction-dev.js` (v7.0.0, **pending deploy**) |
+| Mainline Construction - Development | `fulcrum/schemas/mainline-construction-dev.elements.json` | `fulcrum/data-events/mainline-construction-dev.js` (v7.0.0, deployed 2026-09-21) |
 | MC Material Master - Development | `fulcrum/schemas/mc-material-master-dev.elements.json` | none |
 | MC Material Transaction - Development | `fulcrum/schemas/mc-material-transaction-dev.elements.json` | `fulcrum/data-events/mc-material-transaction-dev.js` (v1.0.0) |
 | MC Project Scope Line - Development | `fulcrum/schemas/mc-project-scope-line-dev.elements.json` | `fulcrum/data-events/mc-project-scope-line-dev.js` (v1.0.0) |
@@ -60,21 +60,19 @@ no production object has been modified.
 The exported scripts are the deployed text, not a paraphrase. Edit here, then
 push with `forms_update`.
 
-## OUTAGE 2026-09-17/18 — `forms_update` is rejecting every form
+## RESOLVED 2026-09-21 — the `forms_update` outage cleared after ~3 days
 
-`forms_update` returns `422 could_not_update_form: Please try again later` for
-**every** form on this account. Eight probes between 2026-09-17 21:41Z and
-2026-09-18 09:36Z, all failing — twelve hours.
+`forms_update` returned `422 could_not_update_form: Please try again later` for
+**every** form on this account from 2026-09-17 21:41Z. Eight probes over twelve
+hours all failed. It cleared on its own: `MC Material Master` updated at
+2026-09-21T16:35:30Z and `Mainline Construction - Development` at
+2026-09-21T16:45:48Z, with no change to the payload or the procedure.
 
-### The payload is not the problem — it is the write path
+Nothing on the client side was ever at fault, and the evidence gathered during
+the outage is worth keeping because it is the diagnostic path to re-walk if it
+recurs:
 
-`forms_validate` returns **`{"valid": true}`** for the exact same payload that
-`forms_update` rejects (confirmed 2026-09-18 03:05Z on `MC Material Master`).
-That isolates the fault to the update endpoint itself.
-
-The full evidence, in the order it was gathered:
-
-| Probe | Result | What it rules out |
+| Probe | Result | What it ruled out |
 |---|---|---|
 | Production app, 132 elements, one field added | `could_not_update_form` | — |
 | Same tree in the shape a GET returns | `422` on missing booleans | The GET shape is **not round-trippable**; the endpoint does parse the body |
@@ -84,59 +82,39 @@ The full evidence, in the order it was gathered:
 | `choice_lists_update`, 146 entries | **succeeds** | Not permissions, not the account, not the token |
 | `forms_create`, four new apps incl. 7-section trees | **succeeds** | Not form writes in general |
 | **`forms_validate`, the rejected payload** | **`valid: true`** | **Not the payload at all** |
-| Fresh `forms_get`, then update with `removed_element_keys: []`, every key and parent path preserved, the form's own YesNo labels kept | `could_not_update_form` | Not a stale-read guard, and not a deviation from the tool's own prescribed update procedure |
+| Fresh `forms_get`, then update with `removed_element_keys: []`, every key and parent path preserved | `could_not_update_form` | Not a stale-read guard, and not a deviation from the tool's prescribed update procedure |
 
-The last row matters: the MCP server reconnected at 09:35Z with a tool
-description spelling out the required update procedure — fetch the form
-immediately before editing, preserve every retained key and parent path, declare
-removals, validate first. That procedure was followed exactly, on a
-twelve-element form, and still failed. There is nothing left on the client side
-to get right.
+**The lesson: `forms_validate` isolates the fault.** When it returns
+`valid: true` and `forms_update` still rejects, the problem is the endpoint, not
+the request. Stop editing the payload and wait.
 
-A script-only update is not a way round it: `elements` is mandatory
-(`422 elements: must not be empty`) even though the tool documents it as
-optional.
+### What deployed on 2026-09-21
 
-### Do not recreate the forms as a workaround
+One `forms_update` on `06c36c8e-4a88-4cf3-a691-9a792f8374d2`, 146 elements plus
+the v7.0.0 script, clearing the whole four-sprint backlog at once:
 
-`MC Material Transaction` holds a RecordLink to the production form's ID, and
-the production app's own Sprint 14 structure links point at
-`MC Structure`. Repointing any of those requires the same broken endpoint, so a
-recreate would leave dangling links with no way to fix them.
-
-### Pending deployment
-
-The production app payload is **146 elements** — a larger single deploy than
-anyone would choose, and the direct cost of the outage:
-
-| Sprint | Pending change |
+| Sprint | Change |
 |---|---|
 | 8 | size-dependent conduit material quantity (`m117` expression) |
 | 12 | approval gate, correction fields `m137`-`m141` |
 | 13 | production fingerprints `m142`-`m144` |
 | 14 | structure links `m145`-`m150` |
 
-Plus the `MC Material Master` `pack_size` field (`t012`).
+Plus the `MC Material Master` `pack_size` field (`t012`) and the `m021` Labor
+Code description, corrected from "141 pay units" to 146.
 
-### Live defects until it deploys
+**The call timed out client-side and had still succeeded server-side.** Verified
+after the fact rather than retried: 146 elements live, `updated_at`
+2026-09-21T16:45:48Z, the deployed script byte-identical to the repo copy, and
+the full element tree matching `fulcrum/schemas/mainline-construction-dev.elements.json`
+on key path, type, data_name, expression, linked list/form, description, choices,
+record_defaults and visible_conditions. A blind retry of a 77 KB payload would
+have been the wrong move.
 
-1. 2" and 4" multi-pull conduit material quantity reads **1:1** instead of
-   pull count x footage.
-2. A reviewer **can approve** a record carrying a CRITICAL exception; there is
-   no approval gate and no correction-detail prompt.
-3. No fingerprints exist, so `duplicate-production.sql` sections 1 and 2 return
-   nothing. Section 3, the scored heuristic, still works.
-
-### The manual alternative
-
-Every pending change is additive fields plus one CalculatedField expression.
-Adding them by hand in the Fulcrum app designer would unblock all three defects
-without waiting on the API. `fulcrum/schemas/mainline-construction-dev.elements.json`
-carries the exact definitions.
-
-`forms_create` is UNAFFECTED — all four Sprint 9 and Sprint 14 apps were created
-during the outage. New apps can be built; only changes to existing ones are
-blocked.
+All three defects that were live during the outage are now closed: 2" and 4"
+multi-pull conduit material reads pull count x footage, a CRITICAL exception
+blocks approval, and fingerprints exist so `duplicate-production.sql` sections 1
+and 2 return rows.
 
 ## Query API conventions (confirmed 2026-09-17 from real table definitions)
 
@@ -162,7 +140,10 @@ blocked.
 - `forms_update` and `choice_lists_update` **blank the name** unless `name` is
   resent with every call.
 - A large `forms_update` can exceed the MCP client timeout while still
-  succeeding server-side. Verify before retrying.
+  succeeding server-side. **Confirmed 2026-09-21:** the 146-element v7.0.0
+  deploy returned a client timeout and had already applied. Always read the
+  form back before retrying — a blind retry of a 77 KB payload is expensive and
+  can double-apply.
 - `CalculatedField` `display.style` must be one of `text`, `number`, `date`,
   `currency`. `string` is rejected.
 - The MCP server exposes **no record-creation tool**, so master data must be
@@ -170,9 +151,10 @@ blocked.
 - **A field's type cannot be changed after creation.** Converting a ChoiceField
   to a RecordLinkField requires a new key; the old field is dropped.
 - Deleting fields and adding new ones in the *same* `forms_update` can return an
-  opaque `could_not_update_form: Please try again later`. As of 2026-09-17 that
-  error is returned for *every* update regardless of payload — see the outage
-  note above. Before concluding a payload is at fault, probe with a tiny form.
+  opaque `could_not_update_form: Please try again later`. Between 2026-09-17 and
+  2026-09-21 that error was returned for *every* update regardless of payload —
+  see the resolved outage note above. Before concluding a payload is at fault,
+  probe with a tiny form and run `forms_validate`.
 - **A form GET's element shape cannot be sent straight back.** The API omits
   `required` / `disabled` / `hidden` on read but demands them on write, and omits
   `neutral_enabled` / `positive` / `negative` on `YesNoField` for the same reason.

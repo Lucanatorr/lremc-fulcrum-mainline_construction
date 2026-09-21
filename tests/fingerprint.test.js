@@ -201,5 +201,21 @@ check('TEST-PID-022', 'the fallback is not random per save', (() => {
   return h.get('production_id') === once;
 })(), true);
 
+// ----------------------------------------------- the header must not lie
+// Both the v6 and v7 header edits once silently no-opped because the search
+// string did not match, leaving a file that behaved as v7 while its header
+// claimed v5. The behaviour tests all passed throughout, so only this catches it.
+const fs = require('fs');
+const path = require('path');
+const src = fs.readFileSync(
+  path.join(__dirname, '..', 'fulcrum', 'data-events', 'mainline-construction-dev.js'), 'utf8');
+const declared = (/Data Events - (v\d+\.\d+\.\d+)/.exec(src) || [])[1];
+check('TEST-VER-001', 'the script declares a version', typeof declared, 'string');
+check('TEST-VER-002', 'the header declares v7.0.0', declared, 'v7.0.0');
+check('TEST-VER-003', 'v7 behaviour is actually present',
+      /function buildFingerprints/.test(src), true);
+check('TEST-VER-004', 'v6 behaviour is actually present',
+      /function enforceApprovalGate/.test(src), true);
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
