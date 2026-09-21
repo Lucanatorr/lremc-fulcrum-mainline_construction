@@ -19,6 +19,7 @@ no production object has been modified.
 | MC Change Order - Development | `458ae172-b7b4-43b5-8917-d7a792c9e81a` | Sprint 9 scope changes, repeatable line per labor code |
 | MC Structure - Development | `397b52cf-a4f0-4871-b8ea-1fdb592fe2ab` | Sprint 14 network structure master, nine types |
 | MC Segment - Development | `7da87588-940a-4b9e-915d-5ec25d5c0ebc` | Sprint 14 FROM -> TO segment master, direction-normalized ID |
+| MC Project Closeout - Development | `351bb1f1-9837-47c8-be5b-bb0727fe93a0` | Sprint 22 closeout: eleven milestones, readiness review, authorized override |
 
 ## Choice lists (the account had none before this project)
 
@@ -51,6 +52,7 @@ no production object has been modified.
 |---|---|---|
 | Mainline Construction - Development | `fulcrum/schemas/mainline-construction-dev.elements.json` | `fulcrum/data-events/mainline-construction-dev.js` (v7.3.0, deployed 2026-09-21) |
 | MC Fiber Reel - Development | `fulcrum/schemas/mc-fiber-reel-dev.elements.json` | `fulcrum/data-events/mc-fiber-reel-dev.js` (v2.0.0, deployed 2026-09-21) |
+| MC Project Closeout - Development | `fulcrum/schemas/mc-project-closeout-dev.elements.json` | `fulcrum/data-events/mc-project-closeout-dev.js` (v1.0.0, deployed 2026-09-21) |
 | MC Material Master - Development | `fulcrum/schemas/mc-material-master-dev.elements.json` | none |
 | MC Material Transaction - Development | `fulcrum/schemas/mc-material-transaction-dev.elements.json` | `fulcrum/data-events/mc-material-transaction-dev.js` (v1.0.0) |
 | MC Project Scope Line - Development | `fulcrum/schemas/mc-project-scope-line-dev.elements.json` | `fulcrum/data-events/mc-project-scope-line-dev.js` (v1.0.0) |

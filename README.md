@@ -10,7 +10,7 @@ tracking from initial construction through closeout.
 |---|---|
 | `docs/` | Implementation log, discovery findings, per-sprint build notes, object inventory |
 | `scripts/` | Rate-sheet normalization |
-| `tests/` | Data Event logic tests, 774 of them, run against the authoritative script |
+| `tests/` | Data Event logic tests, 895 of them, run against the authoritative script |
 | `fulcrum/` | Deployed schemas and Data Event sources |
 | `data/` | Extracted + normalized master data, and import-ready CSVs |
 | `reports/` | Production, financial, scope and QA reports (SQL) — see `reports/_conventions.md` |
@@ -18,15 +18,21 @@ tracking from initial construction through closeout.
 ## Start here
 
 1. `docs/implementation-log.md` — what happened, what was decided, what is open
-2. `docs/sprint-10-12-gaps.md` — **what is not finished**, and why. Read this
+2. **`docs/sprint-23-readiness.md` — the production readiness assessment.
+   Verdict: NOT READY. Read this before deploying anything.**
+3. `docs/sprint-23-test-matrix.md` — status of all 113 Sprint 23 sections
+4. `docs/sprint-23-known-limitations.md` — the architectural limits, stated
+5. `docs/operations-guide.md` — administrator, field-user and manager guides
+6. `docs/architecture.md` — architecture and data relationships
+7. `docs/sprint-10-12-gaps.md` — **what is not finished**, and why. Read this
    before assuming any report works: none has ever been executed
-3. `docs/sprint-0-discovery.md` — environment inventory **and a live security finding**
-4. `docs/fulcrum-inventory.md` — every Fulcrum object created, and where its
+8. `docs/sprint-0-discovery.md` — environment inventory **and a live security finding**
+9. `docs/fulcrum-inventory.md` — every Fulcrum object created, and where its
    schema and Data Events source live in this repo
 
 ## Run the tests
 
-774 tests, no dependencies, plain `node`. Data Event tests load the shipped
+895 tests, no dependencies, plain `node`. Data Event tests load the shipped
 script directly via `tests/harness.js`, and report tests check each SQL file
 against `reports/_conventions.md`, so neither can drift:
 

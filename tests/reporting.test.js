@@ -27,6 +27,7 @@ function check(id, label, actual, expected) {
 }
 
 check('TEST-RPT-000', 'every expected report exists', files, [
+  'closeout-readiness.sql',
   'contractor-financial.sql',
   'duplicate-production.sql',
   'exception-dashboard.sql',
@@ -628,6 +629,37 @@ check('TEST-WK-004', 'percent change is guarded against a zero prior week',
     .replace(/\bl\./g, 'X.').replace(/\bo\./g, 'Y.');
   check('TEST-EXC-DRIFT', 'the overlap predicate is identical in both reports',
         edPred !== '' && edPred === soPred, true);
+}
+
+
+// ============================================================== Sprint 22
+{
+  const body = stripComments(sql['closeout-readiness.sql']);
+  // The brief names eight things that must be identified before CLOSED.
+  const BLOCKERS = [
+    'Unapproved Production', 'Failed QA Records', 'Open Corrections',
+    'Remaining Planned Work', 'Material Discrepancies', 'Missing Documentation',
+    'Unresolved Change Orders', 'Missing Test Results',
+  ];
+  check('TEST-CLOSE-000', 'the brief names eight pre-close checks', BLOCKERS.length, 8);
+  for (const b of BLOCKERS) {
+    check(`TEST-CLOSE-${b.replace(/ /g, '-')}`, `${b} is identified`,
+          body.includes(`'${b}'`), true);
+  }
+  check('TEST-CLOSE-001', 'each blocker carries a severity',
+        /f\.severity/.test(body), true);
+  check('TEST-CLOSE-002', 'and a detail sentence, not just a count',
+        /f\.detail/.test(body), true);
+  check('TEST-CLOSE-003', 'each names the report that diagnoses it',
+        /f\.see_also/.test(body), true);
+  // Unapproved production, failed QA, open corrections and unresolved change
+  // orders all mean a money or scope figure is not final.
+  for (const b of ['Unapproved Production', 'Failed QA Records',
+                   'Open Corrections', 'Unresolved Change Orders']) {
+    check(`TEST-CLOSE-SEV-${b.replace(/ /g, '-')}`, `${b} is CRITICAL`,
+          new RegExp(`'${b}',\\s*\\n?\\s*'CRITICAL'`).test(body)
+          || body.includes(`'${b}' AS blocker,\n  'CRITICAL'`), true);
+  }
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

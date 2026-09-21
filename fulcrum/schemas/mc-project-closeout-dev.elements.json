@@ -1,0 +1,557 @@
+[
+ {
+  "type": "TextField",
+  "key": "k000",
+  "label": "Closeout ID",
+  "data_name": "closeout_id",
+  "required": false,
+  "disabled": true,
+  "hidden": false,
+  "description": "System-assigned, set once on first save and never regenerated."
+ },
+ {
+  "type": "RecordLinkField",
+  "key": "k001",
+  "label": "Project",
+  "data_name": "project_link",
+  "required": true,
+  "disabled": false,
+  "hidden": false,
+  "form_id": "5ce243d4-9ec1-4fbd-8659-7be9f632b55c",
+  "allow_existing_records": true,
+  "record_defaults": [
+   {
+    "destination_field_key": "k002",
+    "source_field_key": "p001"
+   },
+   {
+    "destination_field_key": "k003",
+    "source_field_key": "p002"
+   }
+  ],
+  "description": "One closeout record per project. ID and name are copied down and snapshotted like every other link in this system."
+ },
+ {
+  "type": "TextField",
+  "key": "k002",
+  "label": "Project ID (snapshot)",
+  "data_name": "project_id_snap",
+  "required": false,
+  "disabled": true,
+  "hidden": false
+ },
+ {
+  "type": "TextField",
+  "key": "k003",
+  "label": "Project Name (snapshot)",
+  "data_name": "project_name_snap",
+  "required": false,
+  "disabled": true,
+  "hidden": false
+ },
+ {
+  "type": "Section",
+  "key": "k100",
+  "label": "CLOSEOUT MILESTONES",
+  "data_name": "closeout_milestones",
+  "required": false,
+  "disabled": false,
+  "hidden": false,
+  "display": "inline",
+  "description": "The eleven milestones the brief lists. The twelfth - Project Closed - is the record STATUS rather than a flag: a checkbox and a status that both claim to mean closed can disagree, and then nobody knows which one billing should believe.",
+  "elements": [
+   {
+    "type": "YesNoField",
+    "key": "k010",
+    "label": "Construction Complete",
+    "data_name": "construction_complete",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "neutral_enabled": false,
+    "positive": {
+     "label": "Yes",
+     "value": "yes"
+    },
+    "negative": {
+     "label": "No",
+     "value": "no"
+    }
+   },
+   {
+    "type": "DateTimeField",
+    "key": "k011",
+    "label": "Construction Complete Date",
+    "data_name": "construction_complete_date",
+    "required": false,
+    "disabled": true,
+    "hidden": false,
+    "description": "Stamped automatically when the milestone above is set to Yes, and cleared if it is set back."
+   },
+   {
+    "type": "YesNoField",
+    "key": "k012",
+    "label": "Fiber Placement Complete",
+    "data_name": "fiber_placement_complete",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "neutral_enabled": false,
+    "positive": {
+     "label": "Yes",
+     "value": "yes"
+    },
+    "negative": {
+     "label": "No",
+     "value": "no"
+    }
+   },
+   {
+    "type": "DateTimeField",
+    "key": "k013",
+    "label": "Fiber Placement Complete Date",
+    "data_name": "fiber_placement_complete_date",
+    "required": false,
+    "disabled": true,
+    "hidden": false,
+    "description": "Stamped automatically when the milestone above is set to Yes, and cleared if it is set back."
+   },
+   {
+    "type": "YesNoField",
+    "key": "k014",
+    "label": "Splicing Complete",
+    "data_name": "splicing_complete",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "neutral_enabled": false,
+    "positive": {
+     "label": "Yes",
+     "value": "yes"
+    },
+    "negative": {
+     "label": "No",
+     "value": "no"
+    }
+   },
+   {
+    "type": "DateTimeField",
+    "key": "k015",
+    "label": "Splicing Complete Date",
+    "data_name": "splicing_complete_date",
+    "required": false,
+    "disabled": true,
+    "hidden": false,
+    "description": "Stamped automatically when the milestone above is set to Yes, and cleared if it is set back."
+   },
+   {
+    "type": "YesNoField",
+    "key": "k016",
+    "label": "Testing Complete",
+    "data_name": "testing_complete",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "neutral_enabled": false,
+    "positive": {
+     "label": "Yes",
+     "value": "yes"
+    },
+    "negative": {
+     "label": "No",
+     "value": "no"
+    }
+   },
+   {
+    "type": "DateTimeField",
+    "key": "k017",
+    "label": "Testing Complete Date",
+    "data_name": "testing_complete_date",
+    "required": false,
+    "disabled": true,
+    "hidden": false,
+    "description": "Stamped automatically when the milestone above is set to Yes, and cleared if it is set back."
+   },
+   {
+    "type": "YesNoField",
+    "key": "k018",
+    "label": "Restoration Complete",
+    "data_name": "restoration_complete",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "neutral_enabled": false,
+    "positive": {
+     "label": "Yes",
+     "value": "yes"
+    },
+    "negative": {
+     "label": "No",
+     "value": "no"
+    }
+   },
+   {
+    "type": "DateTimeField",
+    "key": "k019",
+    "label": "Restoration Complete Date",
+    "data_name": "restoration_complete_date",
+    "required": false,
+    "disabled": true,
+    "hidden": false,
+    "description": "Stamped automatically when the milestone above is set to Yes, and cleared if it is set back."
+   },
+   {
+    "type": "YesNoField",
+    "key": "k020",
+    "label": "QA Complete",
+    "data_name": "qa_complete",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "neutral_enabled": false,
+    "positive": {
+     "label": "Yes",
+     "value": "yes"
+    },
+    "negative": {
+     "label": "No",
+     "value": "no"
+    }
+   },
+   {
+    "type": "DateTimeField",
+    "key": "k021",
+    "label": "QA Complete Date",
+    "data_name": "qa_complete_date",
+    "required": false,
+    "disabled": true,
+    "hidden": false,
+    "description": "Stamped automatically when the milestone above is set to Yes, and cleared if it is set back."
+   },
+   {
+    "type": "YesNoField",
+    "key": "k022",
+    "label": "As-Builts Complete",
+    "data_name": "as_builts_complete",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "neutral_enabled": false,
+    "positive": {
+     "label": "Yes",
+     "value": "yes"
+    },
+    "negative": {
+     "label": "No",
+     "value": "no"
+    }
+   },
+   {
+    "type": "DateTimeField",
+    "key": "k023",
+    "label": "As-Builts Complete Date",
+    "data_name": "as_builts_complete_date",
+    "required": false,
+    "disabled": true,
+    "hidden": false,
+    "description": "Stamped automatically when the milestone above is set to Yes, and cleared if it is set back."
+   },
+   {
+    "type": "YesNoField",
+    "key": "k024",
+    "label": "Material Reconciliation Complete",
+    "data_name": "material_reconciliation_complete",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "neutral_enabled": false,
+    "positive": {
+     "label": "Yes",
+     "value": "yes"
+    },
+    "negative": {
+     "label": "No",
+     "value": "no"
+    }
+   },
+   {
+    "type": "DateTimeField",
+    "key": "k025",
+    "label": "Material Reconciliation Complete Date",
+    "data_name": "material_reconciliation_complete_date",
+    "required": false,
+    "disabled": true,
+    "hidden": false,
+    "description": "Stamped automatically when the milestone above is set to Yes, and cleared if it is set back."
+   },
+   {
+    "type": "YesNoField",
+    "key": "k026",
+    "label": "Contractor Production Approved",
+    "data_name": "contractor_production_approved",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "neutral_enabled": false,
+    "positive": {
+     "label": "Yes",
+     "value": "yes"
+    },
+    "negative": {
+     "label": "No",
+     "value": "no"
+    }
+   },
+   {
+    "type": "DateTimeField",
+    "key": "k027",
+    "label": "Contractor Production Approved Date",
+    "data_name": "contractor_production_approved_date",
+    "required": false,
+    "disabled": true,
+    "hidden": false,
+    "description": "Stamped automatically when the milestone above is set to Yes, and cleared if it is set back."
+   },
+   {
+    "type": "YesNoField",
+    "key": "k028",
+    "label": "Final Billing Complete",
+    "data_name": "final_billing_complete",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "neutral_enabled": false,
+    "positive": {
+     "label": "Yes",
+     "value": "yes"
+    },
+    "negative": {
+     "label": "No",
+     "value": "no"
+    }
+   },
+   {
+    "type": "DateTimeField",
+    "key": "k029",
+    "label": "Final Billing Complete Date",
+    "data_name": "final_billing_complete_date",
+    "required": false,
+    "disabled": true,
+    "hidden": false,
+    "description": "Stamped automatically when the milestone above is set to Yes, and cleared if it is set back."
+   },
+   {
+    "type": "YesNoField",
+    "key": "k030",
+    "label": "Closeout Documents Received",
+    "data_name": "closeout_documents_received",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "neutral_enabled": false,
+    "positive": {
+     "label": "Yes",
+     "value": "yes"
+    },
+    "negative": {
+     "label": "No",
+     "value": "no"
+    }
+   },
+   {
+    "type": "DateTimeField",
+    "key": "k031",
+    "label": "Closeout Documents Received Date",
+    "data_name": "closeout_documents_received_date",
+    "required": false,
+    "disabled": true,
+    "hidden": false,
+    "description": "Stamped automatically when the milestone above is set to Yes, and cleared if it is set back."
+   }
+  ]
+ },
+ {
+  "type": "Section",
+  "key": "k101",
+  "label": "CLOSEOUT VALIDATION",
+  "data_name": "closeout_validation",
+  "required": false,
+  "disabled": false,
+  "hidden": false,
+  "display": "inline",
+  "description": "The eight checks the brief requires before CLOSED - unapproved production, failed QA, open corrections, remaining planned work, material discrepancies, missing documentation, unresolved change orders, missing test results - all need other records, which this record cannot see. They are computed by reports/closeout-readiness.sql. What this section does is make somebody state, on the record, that they ran it.",
+  "elements": [
+   {
+    "type": "YesNoField",
+    "key": "k040",
+    "label": "Readiness Report Reviewed",
+    "data_name": "readiness_reviewed",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "neutral_enabled": false,
+    "positive": {
+     "label": "Yes",
+     "value": "yes"
+    },
+    "negative": {
+     "label": "No",
+     "value": "no"
+    },
+    "description": "Set to Yes once reports/closeout-readiness.sql has been run for this project and its findings read. Required before CLOSED."
+   },
+   {
+    "type": "DateTimeField",
+    "key": "k041",
+    "label": "Readiness Reviewed Date",
+    "data_name": "readiness_reviewed_date",
+    "required": false,
+    "disabled": true,
+    "hidden": false,
+    "description": "Stamped automatically when the readiness report is marked reviewed, and cleared if that is unset."
+   },
+   {
+    "type": "TextField",
+    "key": "k042",
+    "label": "Readiness Reviewed By",
+    "data_name": "readiness_reviewed_by",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
+    "type": "TextField",
+    "key": "k043",
+    "label": "Open Blockers Noted",
+    "data_name": "open_blockers_noted",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "description": "What the readiness report still showed at the time of review. Left blank when it came back clean."
+   }
+  ]
+ },
+ {
+  "type": "Section",
+  "key": "k102",
+  "label": "AUTHORIZED OVERRIDE",
+  "data_name": "authorized_override",
+  "required": false,
+  "disabled": false,
+  "hidden": false,
+  "display": "inline",
+  "description": "A project can be closed with milestones outstanding, but not silently. The brief: allow an authorized override if required, but record the reason.",
+  "elements": [
+   {
+    "type": "YesNoField",
+    "key": "k050",
+    "label": "Closeout Override",
+    "data_name": "closeout_override",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "neutral_enabled": false,
+    "positive": {
+     "label": "Yes",
+     "value": "yes"
+    },
+    "negative": {
+     "label": "No",
+     "value": "no"
+    },
+    "description": "Closing this project despite outstanding milestones or open blockers."
+   },
+   {
+    "type": "TextField",
+    "key": "k051",
+    "label": "Override Reason",
+    "data_name": "override_reason",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "description": "Required whenever the override is set. A reason is the whole point of the override - without one the override is just a silent close."
+   },
+   {
+    "type": "TextField",
+    "key": "k052",
+    "label": "Override Authorized By",
+    "data_name": "override_by",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
+    "type": "DateTimeField",
+    "key": "k053",
+    "label": "Override Date",
+    "data_name": "override_date",
+    "required": false,
+    "disabled": true,
+    "hidden": false,
+    "description": "Stamped automatically when the override is set, and cleared if it is unset."
+   }
+  ]
+ },
+ {
+  "type": "Section",
+  "key": "k103",
+  "label": "CLOSURE",
+  "data_name": "closure",
+  "required": false,
+  "disabled": false,
+  "hidden": false,
+  "display": "inline",
+  "elements": [
+   {
+    "type": "TextField",
+    "key": "k060",
+    "label": "Closed By",
+    "data_name": "closed_by",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
+    "type": "DateTimeField",
+    "key": "k061",
+    "label": "Closed Date",
+    "data_name": "closed_date",
+    "required": false,
+    "disabled": true,
+    "hidden": false,
+    "description": "Stamped automatically when the record status becomes CLOSED, and cleared if the project is REOPENED."
+   },
+   {
+    "type": "TextField",
+    "key": "k062",
+    "label": "Reopen Reason",
+    "data_name": "reopen_reason",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "description": "Required when a CLOSED project is reopened. A closeout that can be undone without a reason is not a control."
+   },
+   {
+    "type": "PhotoField",
+    "key": "k063",
+    "label": "Closeout Documents",
+    "data_name": "closeout_documents",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "annotations_enabled": true,
+    "timestamp_enabled": true,
+    "description": "As-builts, test results, permits, final lien waivers - whatever the closeout package requires."
+   }
+  ]
+ },
+ {
+  "type": "TextField",
+  "key": "k070",
+  "label": "Notes",
+  "data_name": "notes",
+  "required": false,
+  "disabled": false,
+  "hidden": false
+ }
+]

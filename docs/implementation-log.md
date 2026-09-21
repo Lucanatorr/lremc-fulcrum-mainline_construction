@@ -6,6 +6,69 @@ Newest entries first. Every Fulcrum object this project creates is listed in
 
 ---
 
+## 2026-09-21 — Sprints 22 & 23: closeout, and an honest readiness verdict
+
+**895 assertions across fifteen suites, all passing. The production readiness
+gate does NOT open.** Full assessment in `docs/sprint-23-readiness.md`.
+
+### Sprint 22 — closeout
+
+New app `MC Project Closeout` (`351bb1f1-9837-47c8-be5b-bb0727fe93a0`): eleven
+milestones with auto-stamped dates, a readiness review, an authorized override.
+Plus `reports/closeout-readiness.sql` computing the eight pre-close checks.
+
+Two design calls worth recording.
+
+**"Project Closed" is the record STATUS, not a twelfth checkbox.** The brief
+lists twelve things to track. A checkbox and a status that both claim to mean
+closed will eventually disagree, and then no report knows which to believe.
+
+**The app does not pretend to evaluate the eight checks.** Every one of them -
+unapproved production, failed QA, open corrections, remaining scope, material
+discrepancies, missing documentation, unresolved change orders, missing test
+results - needs other records, which a Fulcrum record cannot see. So the report
+computes them and the app enforces what it actually can: that somebody states
+they ran it, and that closing over outstanding items is an attributed, reasoned
+override rather than a status change nobody notices. A reasonless override is
+rejected even when nothing else is wrong.
+
+### Sprint 23 — testing and user acceptance
+
+113 sections. The honest split: **31 PASS, 16 PASS (static), 6 PARTIAL,
+24 BLOCKED**, and 36 covered in the destructive-change sub-matrix.
+
+`tests/sprint23-acceptance.test.js` executes the sections that turn on
+calculation logic, using the brief's own numbers, against the SHIPPED
+expressions rather than a copy: 100000->101250 = 1,250 FT and so does the
+reverse; 1250+150+50 = 1,450 FT; 500 x $8.25 = $4,125.00. Eighteen hostile
+records across three events produce no NaN, Infinity, undefined or
+[object Object]. Ten further validate-record passes on a settled record change
+nothing and issue no writes.
+
+The adopted rounding strategy is now stated and tested: **round once, at the
+end, to 2 dp; never round an input.** Pre-rounding a $7.875 rate gives $23.64
+for 3 units instead of $23.63 - a cent per record that compounds.
+
+**What is blocked is blocked by one thing.** No dev app holds a record and the
+toolchain cannot create one, so no report in this system has ever returned a
+row. The 371 report assertions verify FORM - table addressing, _status,
+cross-unit rules, numeric casts. That proves the SQL will run. It does not
+prove the numbers are right, and those are different claims.
+
+### The verdict
+
+Six of the fourteen readiness conditions pass, four fail, four cannot be
+assessed. **NOT READY FOR PRODUCTION**, with remediation ordered in
+`docs/sprint-23-readiness.md`. The two highest items are not code: rotate the
+production API tokens, and import the master data so something can finally be
+executed.
+
+Eleven CRITICAL defects were found and fixed during this build. Three of them
+would have shipped wrong money.
+
+Per the brief's stopping rule, no further production changes until these
+findings have been reviewed.
+
 ## 2026-09-21 — Sprints 19, 20 & 21: scale, auditability, exception reporting
 
 Two reports, a scale audit that deleted five fields, scale bounds on the only
@@ -680,6 +743,10 @@ Data Event script**. See the security note in that document.
 | 15 | ~~`forms_update` outage~~ | Sprint 8 rev | **CLOSED 2026-09-21** — cleared on its own after ~3 days, with no change to the payload or the procedure. v7.0.0 deployed: 146 elements, `updated_at` 2026-09-21T16:45:48Z. Evidence table kept in `docs/fulcrum-inventory.md` as the path to re-walk if it recurs. |
 | 26 | **Should work category be derived from the labor-code prefix?** It is the largest remaining entry saving in the field app, and the 2026-09-17 ruling forbids inferring category from a prefix. The ruling was written about footage classification; applying it to data entry may be stricter than intended | Sprint 18 | Open — needs a ruling |
 | 27 | **Productivity and forecast reports read `work_day_of_week`**, derived on the record. Records written by import or API without running Data Events have it blank and drop out of both reports silently | Sprint 16 | Open |
+| 28 | **Material mapping version is not snapshotted** onto production (23.47.1 asks for it "where feasible"). The mapping master has no records, so there is no version to snapshot yet | Sprint 23 | Open |
+| 29 | **No production adjustment/reversal transaction** (23.47.26). Correcting billed production edits the record rather than posting a compensating entry, so the original claim is lost. The material ledger already works this way; production does not | Sprint 23 | Open — business decision |
+| 30 | **VOID is honoured but not attributed** (23.47.28). Every report excludes VOID records, but nothing records void reason, voided-by or void date | Sprint 23 | Open |
+| 31 | **No backout/recovery procedure** (23.76 #13). Every schema and script is versioned, so rollback is a redeploy of a prior commit - but that has never been rehearsed or written down | Sprint 23 | Open |
 | 8 | Span footage is hand-entered. Auto-derivation needs a pole dataset with coordinates; `Poles and Inspections_demo_app` (10,000 records) may be a source | Sprint 6 | Open |
 
 ## Rulings on record
@@ -719,6 +786,10 @@ Data Event script**. See the security note in that document.
 | 2026-09-17 | The **Production ID is not sequential**. Sequential numbering is not offline-safe; the suffix is Fulcrum's own record ID, set once. |
 | 2026-09-17 | A **segment ID sorts its endpoints** before joining them, so one physical path has one identity. A segment from a structure to itself is rejected. |
 | 2026-09-17 | A **structure ID locks** once the structure exists in the field, and is normalized on save. |
+| 2026-09-21 | **Round once, at the end, to two decimal places. Never round an input.** Pre-rounding a rate costs a cent per record and compounds across a project. |
+| 2026-09-21 | **"Project Closed" is a record status, never also a checkbox.** Two things that both claim to mean closed will disagree. |
+| 2026-09-21 | **An override must carry a reason, or it is not an override.** Rejected even when nothing else is wrong. |
+| 2026-09-21 | **A passing structural test proves SQL will run, not that its numbers are right.** Those are different claims and only one has been tested. |
 | 2026-09-21 | **No Data Event ever makes an outbound call.** Cross-record checks are server-side reports; a device lookup would be online-only AND a query per keystroke at scale. |
 | 2026-09-21 | **A field a device cannot populate does not belong on the form.** It ships to every device on every sync and is permanently empty. Compute it in a report. |
 | 2026-09-21 | **A date window on a self-joining report is one-sided.** Bounding both sides hides exactly the pairing the report exists to find. |
