@@ -1,6 +1,29 @@
 /**
  * Mainline Construction - Development
- * Data Events - v7.1.0 (2026-09-21), deployed 2026-09-21.
+ * Data Events - v7.2.0 (2026-09-21), deployed 2026-09-21.
+ *
+ * CHANGE IN v7.2.0 - SPRINT 18 FIELD USER EXPERIENCE
+ *   The brief: "A typical field production entry should ideally require the
+ *   user to select Project, Contractor/Crew, Work Type, Labor Code, From/To,
+ *   production quantity OR sequentials, and provide required evidence. The
+ *   system should derive everything else that can safely be derived."
+ *
+ *   + QUANTITY IS DERIVED FROM SEQUENTIALS for fiber placement measured in FT,
+ *     when the crew left it blank. "Quantity or sequentials" means one entry,
+ *     not both: a crew that recorded 1000->4200 has already said 3200 FT.
+ *     Only when blank - a typed quantity is never overwritten, because the
+ *     billed quantity is the crew's claim, not this script's arithmetic.
+ *   + A cross-check WARNING when a typed quantity and the installed footage
+ *     disagree by more than 5%, which is how a transposed sequential or a
+ *     quantity typed into the wrong unit gets caught at entry instead of in
+ *     a billing dispute.
+ *
+ *   ON DERIVING WORK CATEGORY FROM THE LABOR CODE: NOT DONE, deliberately.
+ *   It is the obvious next saving and it contradicts the 2026-09-17 ruling
+ *   that installed footage comes from work_category and is never inferred from
+ *   a labor-code prefix. Deriving the category from the prefix here would make
+ *   that ruling self-referential - the prefix would decide the category that
+ *   the ruling says must not come from the prefix.
  *
  * CHANGE IN v7.1.0 - FIX: BARE USEREMAIL() CRASHED THE WEB RECORD EDITOR
  *   Reported from the field: "Uncaught ReferenceError: USEREMAIL is not
@@ -332,11 +355,38 @@ function deriveSpliceBand() {
   setIfChanged('splice_band_derived', $splice_band_derived, bandLabel(b));
 }
 
+// ==================== quantity from sequentials (Sprint 18) ====================
+// Computed from the components rather than read from $total_installed_footage:
+// that field is a CalculatedField evaluated by the expression runtime, and this
+// runs in the Data Events runtime during validate-record, where its value may
+// not yet reflect this save. The components are plain fields and are current.
+
+function installedFootage() {
+  var ss = toNum($starting_sequential);
+  var es = toNum($ending_sequential);
+  if (ss === null || es === null) return null;
+  return Math.abs(es - ss) + (toNum($slack_footage) || 0) + (toNum($other_added_footage) || 0);
+}
+
+function deriveQuantityFromSequentials() {
+  if (!isBlank($quantity)) return;                 // never overwrite a claim
+  if (choiceValue($work_category) !== 'Fiber Placement') return;
+  if (choiceValue($unit) !== 'FT') return;
+  var ft = installedFootage();
+  if (ft === null || ft <= 0) return;
+  SETVALUE('quantity', Math.round(ft * 100) / 100);
+}
+
 ON('change', 'labor_code', function (event) {
   applyLaborMetadata();
   deriveConduitPackage();
   deriveSpliceBand();
 });
+
+ON('change', 'starting_sequential', deriveQuantityFromSequentials);
+ON('change', 'ending_sequential', deriveQuantityFromSequentials);
+ON('change', 'slack_footage', deriveQuantityFromSequentials);
+ON('change', 'other_added_footage', deriveQuantityFromSequentials);
 
 function deriveSegmentId() {
   setIfChanged('segment_id', $segment_id, normalizedPair($from_location, $to_location));
@@ -633,6 +683,22 @@ function buildExceptions() {
     flag('WARNING', 'Fiber placement with no sequentials recorded - the cable ' +
                     'cannot be traced back to a reel');
   }
+  // Sprint 18. A transposed sequential, or a quantity typed in the wrong unit,
+  // shows up here as a quantity that disagrees with the footage the crew
+  // recorded. 5% absorbs ordinary rounding; anything wider is worth a look
+  // before it reaches a billing dispute.
+  var installed = installedFootage();
+  if (cat === 'Fiber Placement' && unit === 'FT' &&
+      installed !== null && installed > 0 && qty !== null && qty > 0) {
+    var gap = Math.abs(qty - installed);
+    if (gap / installed > 0.05) {
+      flag('WARNING', 'Billed quantity ' + qty + ' FT differs from the installed ' +
+                      'footage of ' + (Math.round(installed * 100) / 100) + ' FT ' +
+                      '(sequential + slack + other) by ' +
+                      (Math.round(gap * 100) / 100) + ' FT. Check the sequentials ' +
+                      'or the quantity');
+    }
+  }
   // A record too sparse to fingerprint cannot be duplicate-checked at all,
   // which is worth saying out loud rather than leaving it silently unchecked.
   var fpStrength = toNum($fingerprint_strength);
@@ -792,6 +858,7 @@ ON('validate-record', function (event) {
   deriveSpliceBand();
   deriveSegmentId();
   deriveSpanId();
+  deriveQuantityFromSequentials();   // before buildExceptions reads quantity
   buildFingerprints();          // after segment_id, which it reads
   buildExceptions();
   enforceApprovalGate();

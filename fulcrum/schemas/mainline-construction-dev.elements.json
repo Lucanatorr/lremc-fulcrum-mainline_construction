@@ -36,9 +36,10 @@
       "source_field_key": "p002"
      }
     ],
-    "description": "Links to the Project master. ID and name are copied down and snapshotted.",
+    "description": "Links to the Project master. ID and name are copied down and snapshotted. Carried forward from the previous record on this device (Sprint 18) - a crew works one project all day.",
     "disabled": false,
-    "hidden": false
+    "hidden": false,
+    "default_previous_value": true
    },
    {
     "type": "TextField",
@@ -76,9 +77,10 @@
       "source_field_key": "c002"
      }
     ],
-    "description": "Links to the Contractor master. ID and name are copied down and snapshotted.",
+    "description": "Links to the Contractor master. ID and name are copied down and snapshotted. Carried forward from the previous record on this device (Sprint 18).",
     "disabled": false,
-    "hidden": false
+    "hidden": false,
+    "default_previous_value": true
    },
    {
     "type": "TextField",
@@ -105,7 +107,8 @@
     "data_name": "work_date",
     "required": true,
     "disabled": false,
-    "hidden": false
+    "hidden": false,
+    "description": "Deliberately NOT carried forward from the previous record: default_previous_value persists across days on a device, so the first entry of a new shift would silently inherit yesterday's date, and a mis-dated record corrupts the week, the forecast window and every per-day rate without tripping any check."
    },
    {
     "type": "TextField",
@@ -124,7 +127,9 @@
     "data_name": "crew",
     "required": false,
     "disabled": false,
-    "hidden": false
+    "hidden": false,
+    "default_previous_value": true,
+    "description": "Carried forward from the previous record on this device (Sprint 18)."
    },
    {
     "type": "TextField",
@@ -133,7 +138,9 @@
     "data_name": "route",
     "required": false,
     "disabled": false,
-    "hidden": false
+    "hidden": false,
+    "default_previous_value": true,
+    "description": "Carried forward from the previous record on this device (Sprint 18)."
    },
    {
     "type": "TextField",
@@ -222,7 +229,9 @@
     "required": true,
     "disabled": false,
     "hidden": false,
-    "choice_list_id": "06cf7fc6-d939-488e-bf53-4f027b603887"
+    "choice_list_id": "06cf7fc6-d939-488e-bf53-4f027b603887",
+    "default_previous_value": true,
+    "description": "Carried forward from the previous record on this device (Sprint 18)."
    },
    {
     "type": "ChoiceField",
@@ -232,7 +241,9 @@
     "required": false,
     "disabled": false,
     "hidden": false,
-    "choice_list_id": "5828393b-b4dc-4545-8db0-921e352c5b8c"
+    "choice_list_id": "5828393b-b4dc-4545-8db0-921e352c5b8c",
+    "default_previous_value": true,
+    "description": "Carried forward from the previous record on this device (Sprint 18)."
    },
    {
     "type": "ChoiceField",
@@ -264,7 +275,8 @@
     "hidden": false,
     "numeric": true,
     "format": "decimal",
-    "min": 0
+    "min": 0,
+    "description": "The quantity this production is billed on, in the unit shown below. For fiber placement measured in FT it fills in from the sequentials as soon as you enter them (Sprint 18) - record the range OR the quantity, not both. Anything typed here wins and is never overwritten."
    },
    {
     "type": "ChoiceField",

@@ -29,17 +29,21 @@ function check(id, label, actual, expected) {
 check('TEST-RPT-000', 'every expected report exists', files, [
   'contractor-financial.sql',
   'duplicate-production.sql',
+  'forecast-completion.sql',
   'material-variance.sql',
   'production-daily.sql',
   'production-dashboard.sql',
   'production-monthly.sql',
   'production-trend.sql',
   'production-weekly.sql',
+  'productivity.sql',
   'project-financial.sql',
   'project-scope-status.sql',
   'project-summary.sql',
   'qa-review-queue.sql',
   'rate-audit.sql',
+  'reel-balance.sql',
+  'reel-integrity.sql',
   'remaining-work.sql',
   'segment-integrity.sql',
   'sequential-overlap.sql',
@@ -393,6 +397,96 @@ check('TEST-WK-003', 'a gap week reads as NO PRIOR WEEK, not as a fake change',
       /'NO PRIOR WEEK'/.test(wk), true);
 check('TEST-WK-004', 'percent change is guarded against a zero prior week',
       /prev\.approved_quantity IS NULL OR prev\.approved_quantity = 0 THEN NULL/.test(wk), true);
+
+
+// =========================================================== Sprints 16-18
+// ------------------------------------------- Sprint 16: productivity rates
+{
+  const body = stripComments(sql['productivity.sql']);
+  // Convention 2 in its sharpest form: a productivity report is exactly where
+  // somebody would be tempted to add feet to each to splices and call it
+  // "units produced". Every physical SUM here must be fenced to one unit.
+  const sums = body.match(/SUM\([^)]*quantity[^)]*\)/g) || [];
+  const unfenced = sums.filter((x) => !/unit\s*=\s*'/.test(x));
+  check('TEST-PROD-001', 'every physical quantity sum is fenced to one unit', unfenced, []);
+  check('TEST-PROD-002', 'value is aggregated across pay units',
+        /SUM\(extended_value\)/.test(body), true);
+  check('TEST-PROD-003', 'rates divide by ACTIVE days, not elapsed days',
+        /NULLIF\(physical_active_days, 0\)/.test(body), true);
+  check('TEST-PROD-004', 'value uses its own denominator',
+        /NULLIF\(value_active_days, 0\)/.test(body), true);
+  check('TEST-PROD-005', 'weekend work is excluded from a per-working-day rate',
+        /work_day_of_week NOT IN \('Saturday', 'Sunday'\)/.test(body), true);
+  check('TEST-PROD-006', 'approved only', /_status = 'APPROVED'/.test(body), true);
+  check('TEST-PROD-007', 'T&M is excluded from physical production',
+        /NOT IN \('HR', 'EVENT'\)/.test(body), true);
+  check('TEST-PROD-008', 'all three dimensions the brief names are reported',
+        ['CREW', 'CONTRACTOR', 'CONSTRUCTION METHOD'].every((d) => body.includes(`'${d}'`)), true);
+  check('TEST-PROD-009', 'a thin sample is labelled rather than presented as a rate',
+        /sample_strength/.test(body), true);
+}
+
+// --------------------------------------- Sprint 16: estimated completion
+{
+  const body = stripComments(sql['forecast-completion.sql']);
+  check('TEST-FCST-001', 'the recent window is configurable',
+        /p_window_days/.test(body), true);
+  check('TEST-FCST-002', 'the window is ranked by recency',
+        /ROW_NUMBER\(\) OVER/.test(body) && /ORDER BY work_date DESC/.test(body), true);
+  // The brief: avoid zero-production days. HAVING is what enforces "active".
+  check('TEST-FCST-003', 'zero-production days are excluded from the window',
+        /HAVING SUM\(COALESCE\(p\.quantity, 0\)\) > 0/.test(body), true);
+  check('TEST-FCST-004', 'division by a zero rate is guarded',
+        /avg_daily_quantity, 0\) <= 0 THEN NULL/.test(body), true);
+  check('TEST-FCST-005', 'too little history yields NULL, not a number',
+        /p_min_days_for_forecast THEN NULL/.test(body), true);
+  check('TEST-FCST-006', 'every row states what the forecast rests on',
+        /forecast_basis/.test(body), true);
+  check('TEST-FCST-007', 'it forecasts per pay unit, never per project',
+        /GROUP BY p\.project_id_snapshot, p\.labor_code, p\.work_date/.test(body), true);
+  check('TEST-FCST-008', 'weekends are excluded from working days',
+        /work_day_of_week NOT IN \('Saturday', 'Sunday'\)/.test(body), true);
+}
+
+// ------------------------------------------ Sprint 17: reel balance
+{
+  const body = stripComments(sql['reel-balance.sql']);
+  // The brief's central warning: slack is already inside the consumed
+  // sequential range, so subtracting it again understates every reel.
+  const remaining = (body.match(/original_reel_footage, 0\)\s*\n?\s*-[\s\S]{0,160}?AS remaining_estimated_footage/) || [''])[0];
+  check('TEST-REEL-001', 'remaining footage subtracts consumed and waste',
+        /printed_sequential_consumed/.test(remaining) && /waste_recorded/.test(remaining), true);
+  check('TEST-REEL-002', 'remaining footage does NOT subtract slack again',
+        /slack/i.test(remaining), false);
+  for (const c of ['printed_sequential_consumed', 'physical_installed_footage',
+                   'slack_installed', 'waste_recorded', 'remaining_estimated_footage']) {
+    check(`TEST-REEL-SEP-${c}`, `${c} is reported as its own column`,
+          new RegExp(`AS ${c}\\b`).test(body), true);
+  }
+  check('TEST-REEL-003', 'the handling difference is exposed',
+        /handling_difference/.test(body), true);
+  check('TEST-REEL-004', 'pending consumption is separate from approved',
+        /pending_sequential_consumed/.test(body), true);
+  check('TEST-REEL-005', 'an over-consumed reel is called out',
+        /OVER-CONSUMED/.test(body), true);
+}
+
+// ------------------------------------------ Sprint 17: reel integrity
+{
+  const body = stripComments(sql['reel-integrity.sql']);
+  for (const f of ['IMPOSSIBLE SEQUENTIAL', 'OUTSIDE REEL RANGE',
+                   'UNKNOWN REEL', 'NO REEL LINKED', 'REEL OVER-CONSUMED']) {
+    check(`TEST-RINT-${f.replace(/ /g, '-')}`, `${f} is detected`, body.includes(`'${f}'`), true);
+  }
+  check('TEST-RINT-001', 'severities match the app three-level model',
+        ['CRITICAL', 'WARNING', 'INFO'].every((x) => body.includes(`'${x}'`)), true);
+  // Overlap and duplicate range belong to sequential-overlap.sql. Two
+  // implementations of the same check is how two reports come to disagree.
+  check('TEST-RINT-002', 'overlap detection is not duplicated here',
+        /PARTIAL OVERLAP|EXACT DUPLICATE/.test(body), false);
+  check('TEST-RINT-003', 'and the header says where overlap lives',
+        /sequential-overlap\.sql/.test(sql['reel-integrity.sql']), true);
+}
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

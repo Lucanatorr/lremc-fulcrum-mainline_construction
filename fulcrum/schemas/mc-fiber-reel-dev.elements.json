@@ -1,0 +1,226 @@
+[
+ {
+  "type": "TextField",
+  "key": "f001",
+  "label": "Reel ID",
+  "data_name": "reel_id",
+  "required": true,
+  "disabled": false,
+  "hidden": false,
+  "description": "Permanent key, e.g. REEL-TEST-001."
+ },
+ {
+  "type": "Section",
+  "key": "f103",
+  "label": "ASSIGNMENT",
+  "data_name": "assignment",
+  "required": false,
+  "disabled": false,
+  "hidden": false,
+  "display": "inline",
+  "description": "Who holds this reel and what it was issued for (Sprint 17). Both are RecordLinks whose ID and name are copied down, so a reel record still resolves if a master changes.",
+  "elements": [
+   {
+    "type": "RecordLinkField",
+    "key": "f013",
+    "label": "Project",
+    "data_name": "project_link",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "form_id": "5ce243d4-9ec1-4fbd-8659-7be9f632b55c",
+    "allow_existing_records": true,
+    "record_defaults": [
+     {"destination_field_key": "f014", "source_field_key": "p001"},
+     {"destination_field_key": "f015", "source_field_key": "p002"}
+    ],
+    "description": "Blank means the reel is not yet assigned to a project."
+   },
+   {
+    "type": "TextField",
+    "key": "f014",
+    "label": "Project ID (snapshot)",
+    "data_name": "project_id_snap",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
+    "type": "TextField",
+    "key": "f015",
+    "label": "Project Name (snapshot)",
+    "data_name": "project_name_snap",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
+    "type": "RecordLinkField",
+    "key": "f016",
+    "label": "Contractor",
+    "data_name": "contractor_link",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "form_id": "d8a368b5-1e19-4f5f-8cf9-ff8fbdd03ab4",
+    "allow_existing_records": true,
+    "record_defaults": [
+     {"destination_field_key": "f017", "source_field_key": "c001"},
+     {"destination_field_key": "f018", "source_field_key": "c002"}
+    ],
+    "description": "The contractor currently holding the reel."
+   },
+   {
+    "type": "TextField",
+    "key": "f017",
+    "label": "Contractor ID (snapshot)",
+    "data_name": "contractor_id_snap",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   },
+   {
+    "type": "TextField",
+    "key": "f018",
+    "label": "Contractor Name (snapshot)",
+    "data_name": "contractor_name_snap",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+   }
+  ]
+ },
+ {
+  "type": "Section",
+  "key": "f100",
+  "label": "CABLE",
+  "data_name": "cable",
+  "required": false,
+  "disabled": false,
+  "hidden": false,
+  "display": "inline",
+  "elements": [
+   {
+    "type": "TextField",
+    "key": "f002",
+    "label": "Manufacturer",
+    "data_name": "manufacturer",
+    "required": false,
+    "disabled": false,
+    "hidden": false
+   },
+   {
+    "type": "ChoiceField",
+    "key": "f003",
+    "label": "Cable Type",
+    "data_name": "cable_type",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "choices": [
+     {"label": "ADSS (self-support)", "value": "ADSS"},
+     {"label": "Loose Tube - Armored", "value": "Loose Tube Armored"},
+     {"label": "Ribbon", "value": "Ribbon"},
+     {"label": "MST / RTD", "value": "MST-RTD"},
+     {"label": "Drop", "value": "Drop"}
+    ]
+   },
+   {
+    "type": "TextField",
+    "key": "f004",
+    "label": "Fiber Count",
+    "data_name": "fiber_count",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "numeric": true,
+    "format": "integer",
+    "min": 1
+   }
+  ]
+ },
+ {
+  "type": "Section",
+  "key": "f101",
+  "label": "PRINTED SEQUENTIAL RANGE",
+  "data_name": "printed_sequential_range",
+  "required": false,
+  "disabled": false,
+  "hidden": false,
+  "display": "inline",
+  "description": "What is printed on the cable jacket. This is the reference every production sequential is validated against.",
+  "elements": [
+   {
+    "type": "TextField",
+    "key": "f005",
+    "label": "Beginning Sequential",
+    "data_name": "beginning_sequential",
+    "required": true,
+    "disabled": false,
+    "hidden": false,
+    "numeric": true,
+    "format": "integer",
+    "min": 0
+   },
+   {
+    "type": "TextField",
+    "key": "f006",
+    "label": "Ending Sequential",
+    "data_name": "ending_sequential",
+    "required": true,
+    "disabled": false,
+    "hidden": false,
+    "numeric": true,
+    "format": "integer",
+    "min": 0
+   },
+   {
+    "type": "CalculatedField",
+    "key": "f007",
+    "label": "Original Reel Footage",
+    "data_name": "original_reel_footage",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "expression": "IF(OR(ISBLANK($beginning_sequential), ISBLANK($ending_sequential)), '', ABS(NUM($ending_sequential) - NUM($beginning_sequential)))",
+    "display": {"currency": null, "style": "number"},
+    "description": "ABS(End - Beginning). Direction-independent, like production sequentials."
+   }
+  ]
+ },
+ {
+  "type": "Section",
+  "key": "f102",
+  "label": "CONSUMPTION",
+  "data_name": "consumption",
+  "required": false,
+  "disabled": false,
+  "hidden": false,
+  "display": "inline",
+  "description": "SPRINT 17: consumed footage, slack and remaining footage are NOT stored here. They are sums over production records, which this record cannot see, and storing a running total would break the rule that totals are never stored. Run reports/reel-balance.sql for the five separate figures: printed sequential consumed, physical installed footage, slack, waste and estimated remaining. Only waste lives here, because it is a fact about the reel that no production record carries.",
+  "elements": [
+   {
+    "type": "TextField",
+    "key": "f010",
+    "label": "Waste Recorded",
+    "data_name": "waste_recorded",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "numeric": true,
+    "format": "decimal",
+    "min": 0,
+    "description": "Cumulative cable lost to handling, damage or cut-back. Off the reel and installed nowhere, so it is the one figure subtracted separately from the printed range. Slack is NOT waste: it is installed, inside the consumed sequential range."
+   }
+  ]
+ },
+ {
+  "type": "TextField",
+  "key": "f012",
+  "label": "Notes",
+  "data_name": "notes",
+  "required": false,
+  "disabled": false,
+  "hidden": false
+ }
+]

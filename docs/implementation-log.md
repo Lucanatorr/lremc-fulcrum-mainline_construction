@@ -6,6 +6,87 @@ Newest entries first. Every Fulcrum object this project creates is listed in
 
 ---
 
+## 2026-09-21 — Sprints 16, 17 & 18: forecasting, fiber reels, field UX
+
+Four reports, a restructured reel master, a field-entry pass on the production
+app. **704 tests across thirteen suites.** Full write-up in
+`docs/sprint-16-18-build.md`.
+
+### Sprint 16 — two reports, one rule
+
+`productivity.sql` (FT/day, EA/day, splices/day, value/day by crew, contractor
+and construction method) and `forecast-completion.sql` (remaining / recent
+average daily = estimated working days remaining).
+
+Both turn on the brief's own rule that physical units cannot be added and
+currency can. Every physical sum is fenced to one unit; value is the only
+cross-unit aggregate, and a test fails the build if that slips.
+
+Two things the arithmetic had to get right. **Active days, not elapsed days** —
+a crew that placed 4,000 FT over four days ran at 1,000 FT/day, and dividing by
+the week's five working days would report 800 and blame the rain. And **two
+denominators** — a day spent entirely on flagging earns value but puts nothing
+in the ground, so physical and value rates count active days separately.
+
+The forecast returns NULL rather than a number whenever the arithmetic would be
+dishonest: nothing remaining, no recent production, or fewer than three active
+days of history. Every row states what it rests on.
+
+### Sprint 17 — a field that was confidently wrong
+
+Sprint 4 had already built most of the reel master. What Sprint 17 mostly did
+was **take three fields away**.
+
+`printed_sequential_consumed`, `slack_recorded` and
+`estimated_remaining_footage` were all sums over production records, and nothing
+populated them — nothing on a device can, since a record cannot see other
+records. That was not just a blank field. `estimated_remaining_footage`
+computed `original - consumed - waste` with the middle term permanently null, so
+it reported `original - waste` and called it remaining. **A fully pulled reel
+would still have shown its full length as available**, and somebody would have
+planned a pull against it.
+
+They are gone. `reel-balance.sql` computes the five concepts the brief insists
+stay separate, the same way scope totals are computed rather than stored.
+
+The subtle one is slack. The brief warns against subtracting it from the printed
+range, and the physical reason is that slack comes off the reel *inside* the
+consumed sequential range — the jacket numbers advance while the coil is pulled.
+Subtracting it again would understate every reel by the size of its coils. Waste
+*is* subtracted separately, because cut-back cable leaves the reel without ever
+appearing in an installed range.
+
+`reel-integrity.sql` covers what the device cannot: the app's outside-range
+warning fires against the range snapshotted when the reel was linked, so a later
+correction to the reel master never re-tests old records. This report does.
+Overlap and duplicate range are deliberately NOT re-implemented — that is
+`sequential-overlap.sql`, and two implementations of one check is how two
+reports come to disagree.
+
+### Sprint 18 — minimum entry, and one saving refused
+
+Project, contractor, crew, route, work category and construction method now
+carry forward to the next record. A crew booking twelve records re-picks none
+of them.
+
+**Work date deliberately does not.** `default_previous_value` persists across
+days on a device, so the first entry of a new shift would inherit yesterday's
+date — and a mis-dated record corrupts the ISO week, the forecast window and
+every per-day rate, with nothing in the exception model to catch it. One tap
+saved against a silent, wide failure.
+
+Quantity now derives from sequentials for fiber placement billed in feet, since
+a crew that recorded 1000→4200 has already said 3200 FT. Only when blank: a
+typed quantity is the crew's claim and is never overwritten. A companion
+warning fires when the two disagree by more than 5%, which is how a transposed
+sequential gets caught at entry rather than in a billing dispute.
+
+**Deriving work category from the labor code was refused.** It is the obvious
+next saving, and it contradicts the 2026-09-17 ruling that installed footage
+comes from `work_category` and is never inferred from a labor-code prefix.
+Doing it would make that ruling self-referential. Reversing it is a business
+decision, not a refactor — open item 26.
+
 ## 2026-09-21 — v7.1.0: a bare `USEREMAIL()` was crashing the web record editor
 
 Reported from the field, minutes after the v7.0.0 deploy:
@@ -529,6 +610,8 @@ Data Event script**. See the security note in that document.
 | 16 | **Budget rates are assumed to equal contract rates.** The scope line prices its budget from the contractor rate master. If LREMC budgets at an internal rate, that is a separate master | Sprint 9 | Open |
 | 17 | **Change order line rates are typed, not snapshotted.** A RecordLink inside a repeatable was not attempted, so nothing checks a typed line rate against the rate sheet | Sprint 9 | Open |
 | 15 | ~~`forms_update` outage~~ | Sprint 8 rev | **CLOSED 2026-09-21** — cleared on its own after ~3 days, with no change to the payload or the procedure. v7.0.0 deployed: 146 elements, `updated_at` 2026-09-21T16:45:48Z. Evidence table kept in `docs/fulcrum-inventory.md` as the path to re-walk if it recurs. |
+| 26 | **Should work category be derived from the labor-code prefix?** It is the largest remaining entry saving in the field app, and the 2026-09-17 ruling forbids inferring category from a prefix. The ruling was written about footage classification; applying it to data entry may be stricter than intended | Sprint 18 | Open — needs a ruling |
+| 27 | **Productivity and forecast reports read `work_day_of_week`**, derived on the record. Records written by import or API without running Data Events have it blank and drop out of both reports silently | Sprint 16 | Open |
 | 8 | Span footage is hand-entered. Auto-derivation needs a pole dataset with coordinates; `Poles and Inspections_demo_app` (10,000 records) may be a source | Sprint 6 | Open |
 
 ## Rulings on record
@@ -568,6 +651,11 @@ Data Event script**. See the security note in that document.
 | 2026-09-17 | The **Production ID is not sequential**. Sequential numbering is not offline-safe; the suffix is Fulcrum's own record ID, set once. |
 | 2026-09-17 | A **segment ID sorts its endpoints** before joining them, so one physical path has one identity. A segment from a structure to itself is rejected. |
 | 2026-09-17 | A **structure ID locks** once the structure exists in the field, and is normalized on save. |
+| 2026-09-21 | **Reel consumed, slack and remaining footage are never stored.** They are sums over production records; the reel master keeps only its printed range and waste. |
+| 2026-09-21 | **Slack is not subtracted from the printed reel range.** It comes off the reel inside the consumed sequential range, so it is already counted. Waste is subtracted separately. |
+| 2026-09-21 | **Productivity rates divide by ACTIVE days**, and physical and value rates count them separately. A T&M day earns value and installs nothing. |
+| 2026-09-21 | **A forecast with too little history returns NULL, not a number**, and every row states what it rests on. |
+| 2026-09-21 | **Work date never carries forward between records.** Every other repeated field does. |
 | 2026-09-21 | **No platform accessor is ever called bare.** The Data Events runtime and the expression runtime do not share a global namespace; `typeof` guards every one. Where only the expression runtime has the function, the value comes from a CalculatedField. |
 | 2026-09-21 | **The test harness must never be more capable than the device.** Stubs are opt-out, so a suite can prove the script survives a runtime that lacks a global. |
 | 2026-09-17 | Planned footages come from the **project master**; installed footages come from **work_category**. Neither is derived from labor-code prefixes. |
