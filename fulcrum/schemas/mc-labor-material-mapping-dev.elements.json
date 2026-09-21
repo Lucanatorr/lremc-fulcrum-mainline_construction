@@ -1,0 +1,261 @@
+[
+ {
+  "type": "TextField",
+  "key": "g001",
+  "label": "Mapping ID",
+  "data_name": "mapping_id",
+  "description": "Permanent key, e.g. MAP-000123.",
+  "disabled": false,
+  "hidden": false,
+  "numeric": false,
+  "required": true
+ },
+ {
+  "type": "ChoiceField",
+  "key": "g002",
+  "label": "Labor Code",
+  "data_name": "labor_code",
+  "allow_other": false,
+  "choice_list_id": "ddccba3b-c5b6-4a38-8892-805e916afacd",
+  "disabled": false,
+  "hidden": false,
+  "multiple": false,
+  "required": true
+ },
+ {
+  "type": "Section",
+  "key": "g100",
+  "label": "MATERIAL",
+  "data_name": "material",
+  "disabled": false,
+  "display": "inline",
+  "hidden": false,
+  "required": false,
+  "elements": [
+   {
+    "type": "TextField",
+    "key": "g003",
+    "label": "Material Code / Part Number",
+    "data_name": "material_code",
+    "disabled": false,
+    "hidden": false,
+    "numeric": false,
+    "required": true
+   },
+   {
+    "type": "TextField",
+    "key": "g004",
+    "label": "Material Description",
+    "data_name": "material_description",
+    "disabled": false,
+    "hidden": false,
+    "numeric": false,
+    "required": false
+   },
+   {
+    "type": "ChoiceField",
+    "key": "g005",
+    "label": "Material Unit",
+    "data_name": "material_unit",
+    "allow_other": false,
+    "choice_list_id": "8713e0c3-3b5e-40a5-9886-3e5b979b7461",
+    "disabled": false,
+    "hidden": false,
+    "multiple": false,
+    "required": true
+   }
+  ]
+ },
+ {
+  "type": "Section",
+  "key": "g101",
+  "label": "CALCULATION",
+  "data_name": "calculation",
+  "disabled": false,
+  "display": "inline",
+  "hidden": false,
+  "required": false,
+  "elements": [
+   {
+    "type": "ChoiceField",
+    "key": "g006",
+    "label": "Calculation Type",
+    "data_name": "calculation_type",
+    "allow_other": false,
+    "choices": [
+     {
+      "label": "Per production unit (quantity x multiplier)",
+      "value": "PER_UNIT"
+     },
+     {
+      "label": "Fixed quantity per record",
+      "value": "FIXED"
+     }
+    ],
+    "disabled": false,
+    "hidden": false,
+    "multiple": false,
+    "required": true
+   },
+   {
+    "type": "TextField",
+    "key": "g007",
+    "label": "Multiplier",
+    "data_name": "multiplier",
+    "description": "PER_UNIT: material qty = production qty x this. FIXED: material qty = this.",
+    "disabled": false,
+    "format": "decimal",
+    "hidden": false,
+    "min": 0,
+    "numeric": true,
+    "required": true
+   },
+   {
+    "type": "TextField",
+    "key": "g014",
+    "label": "Waste Factor",
+    "data_name": "waste_factor",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "numeric": true,
+    "format": "decimal",
+    "min": 1,
+    "description": "Purchasing allowance, as a multiplier. 1.10 means order 10% more than the installed quantity. SEPARATE from the multiplier on purpose (ruling 2026-09-17): the multiplier states what goes in the ground and must stay a clean measurement; grossing up for waste is a purchasing step. Blank or 1.00 means no allowance."
+   },
+   {
+    "type": "ChoiceField",
+    "key": "g008",
+    "label": "Source",
+    "data_name": "source",
+    "allow_other": false,
+    "choices": [
+     {
+      "label": "DERIVED - read from the labor code itself",
+      "value": "DERIVED"
+     },
+     {
+      "label": "BUSINESS RULE - a human decided this",
+      "value": "BUSINESS_RULE"
+     },
+     {
+      "label": "NEEDS REVIEW - proposed, not yet approved",
+      "value": "NEEDS_REVIEW"
+     }
+    ],
+    "description": "Provenance. NEEDS REVIEW mappings must not drive production calculations until approved (Sprint 23.67).",
+    "disabled": false,
+    "hidden": false,
+    "multiple": false,
+    "required": true
+   },
+   {
+    "type": "ChoiceField",
+    "key": "g015",
+    "label": "Confidence",
+    "data_name": "confidence",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "allow_other": false,
+    "multiple": false,
+    "description": "How this ratio was established. Only RULING, CONFIRMED and a whole-number SINGLE SOURCE are approved for use; the rest are proposals awaiting a decision.",
+    "choices": [
+     {
+      "label": "RULING - settled by an explicit business ruling",
+      "value": "RULING"
+     },
+     {
+      "label": "CONFIRMED - both source projects agree within 5%",
+      "value": "CONFIRMED"
+     },
+     {
+      "label": "SINGLE SOURCE - one project only",
+      "value": "SINGLE SOURCE"
+     },
+     {
+      "label": "CONFLICT - sources disagree",
+      "value": "CONFLICT"
+     },
+     {
+      "label": "COMPETING SKU - more than one part claimed",
+      "value": "COMPETING SKU"
+     },
+     {
+      "label": "REEL-SOURCED - the SKU comes from the reel, not the pay unit",
+      "value": "REEL-SOURCED"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "type": "Section",
+  "key": "g102",
+  "label": "EFFECTIVE PERIOD",
+  "data_name": "effective_period",
+  "disabled": false,
+  "display": "inline",
+  "hidden": false,
+  "required": false,
+  "elements": [
+   {
+    "type": "DateTimeField",
+    "key": "g009",
+    "label": "Effective Date",
+    "data_name": "effective_date",
+    "disabled": false,
+    "hidden": false,
+    "required": true
+   },
+   {
+    "type": "DateTimeField",
+    "key": "g010",
+    "label": "Expiration Date",
+    "data_name": "expiration_date",
+    "description": "Blank means open-ended.",
+    "disabled": false,
+    "hidden": false,
+    "required": false
+   },
+   {
+    "type": "YesNoField",
+    "key": "g011",
+    "label": "Active",
+    "data_name": "active",
+    "disabled": false,
+    "hidden": false,
+    "negative": {
+     "label": "Inactive",
+     "value": "no"
+    },
+    "neutral_enabled": false,
+    "positive": {
+     "label": "Active",
+     "value": "yes"
+    },
+    "required": true
+   },
+   {
+    "type": "TextField",
+    "key": "g012",
+    "label": "Supersedes Mapping ID",
+    "data_name": "supersedes_mapping_id",
+    "disabled": false,
+    "hidden": false,
+    "numeric": false,
+    "required": false
+   }
+  ]
+ },
+ {
+  "type": "TextField",
+  "key": "g013",
+  "label": "Notes",
+  "data_name": "notes",
+  "disabled": false,
+  "hidden": false,
+  "numeric": false,
+  "required": false
+ }
+]

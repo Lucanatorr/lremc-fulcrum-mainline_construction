@@ -6,6 +6,63 @@ Newest entries first. Every Fulcrum object this project creates is listed in
 
 ---
 
+## 2026-09-21 — Master data import: pre-flighted, and three defects it exposed
+
+**The import itself could not be performed from this session**, and the reason
+is now verified rather than assumed:
+
+1. The Fulcrum MCP server has **no record-creation tool**. Its only record
+   tool, `query_records`, is documented read-only.
+2. **`api.fulcrumapp.com` is blocked by the environment's network policy** —
+   the agent proxy answers `403` to `CONNECT api.fulcrumapp.com:443`. Even with
+   a credential the Records API is unreachable from here.
+
+So the useful work was to make the import a five-minute job instead of a
+mapping exercise, and to check whether the data would actually land. It would
+not have.
+
+### Three defects the pre-flight found
+
+**1. The mapping app had no `waste_factor` field.** 25 of 135 mappings carry
+1.10 — the 10% conduit purchasing allowance. Sprint 8's ruling says the waste
+factor is a separate column and must never be folded into the multiplier,
+because the multiplier has to stay a clean measurement of what went in the
+ground. There was nowhere for it to land, so the import would have dropped it
+silently and purchasing would have under-ordered conduit by 10% forever.
+Added as `g014`.
+
+**2. The mapping app had no `confidence` field.** The RULING / CONFIRMED /
+SINGLE SOURCE / CONFLICT / COMPETING SKU / REEL-SOURCED tier decides whether a
+mapping is trustworthy enough to use. Built in Sprint 8, with nowhere to go.
+Added as `g015`.
+
+**3. 110 of 135 rows carry `source = OBSERVED_CONSUMPTION`, which the app's
+Source list did not contain.** Sprint 8 introduced observed-consumption
+provenance and this Sprint 5 app never learned about it, so 81% of the file
+would have failed a required field. Added to the choice list.
+
+### Ten rows held back on purpose
+
+`labor-material-mapping.csv` carries 125 rows; the other 10 are in
+`_held-back-labor-material-mapping.csv` with a reason on each. They map
+material to six pay units that do not exist in the rate sheet — the billing
+gaps from open item 11. Importing them would leave a required ChoiceField
+empty on 10 records. **None of the 10 is APPROVED**, so nothing approved is
+lost, and they move across automatically once those pay units exist.
+
+### What is ready
+
+`scripts/validate_import.py` pre-flights all five files against the deployed
+schemas and exits non-zero if anything would import wrong. It currently reports
+zero unresolved blockers. `data/import/README.md` is the runbook: five files,
+~412 records, in dependency order, with every column header already equal to
+the app's `data_name` so Fulcrum maps them automatically.
+
+One caveat documented there rather than discovered later: **RecordLinks do not
+import from CSV**, so the rate master's `contractor_link` and `project_link`
+will be empty. Nothing depends on them — production copies from the rate's
+snapshot columns, which do import.
+
 ## 2026-09-21 — Sprints 22 & 23: closeout, and an honest readiness verdict
 
 **895 assertions across fifteen suites, all passing. The production readiness
