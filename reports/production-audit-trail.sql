@@ -80,7 +80,11 @@ reported_material AS (
   SELECT
     r._parent_id,
     COUNT(*) AS reported_material_rows,
-    STRING_AGG(r.actual_material, ', ') AS reported_materials
+    -- actual_material is a ClassificationField, which Query exposes as
+    -- text[], not text. It has to be flattened to a scalar before STRING_AGG
+    -- can aggregate across the repeatable's rows.
+    STRING_AGG(ARRAY_TO_STRING(r.actual_material, ', '), '; ')
+                                                  AS reported_materials
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2/actual_material_used" r
   GROUP BY r._parent_id
 )
@@ -194,8 +198,11 @@ SELECT
   p.gps_accuracy_m,
 
   -- ------------------------------------------------------ the evidence
-  p.qa_photos_captions,
-  p.attachments_captions,
+  -- Both caption columns are text[] (PhotoField). Flattened so the audit
+  -- export reads as text rather than an array literal.
+  ARRAY_TO_STRING(p.qa_photos_captions, ' | ')  AS qa_photos_captions,
+  ARRAY_TO_STRING(p.attachments_captions, ' | ') AS attachments_captions,
+  CARDINALITY(p.qa_photos)                     AS qa_photo_count,
   p.signature_timestamp,
   p.exception_severity,
   p.exception_flags,

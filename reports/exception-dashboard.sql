@@ -60,7 +60,7 @@ live AS (
     p._record_id, p.production_id, p._status AS record_status, p.work_date,
     p.project_id_snapshot AS project_id, p.contractor_id_snapshot AS contractor_id,
     p.crew, p.labor_code, p.unit, p.quantity, p.contractor_rate, p.extended_value,
-    p.rate_source_id, p.rate_expiration_snap, p.qa_status, p.qa_photos_captions,
+    p.rate_source_id, p.rate_expiration_snap, p.qa_status, p.qa_photos,
     p.correction_detail, p.reel_id, p.cable_id,
     p.starting_sequential, p.ending_sequential,
     LEAST(p.starting_sequential, p.ending_sequential)    AS seq_lo,
@@ -326,7 +326,10 @@ UNION ALL SELECT l._record_id, 'Missing Required Photos',
           ELSE '.' END,
   'qa-review-queue.sql', ROUND(CAST(COALESCE(l.extended_value, 0) AS numeric), 2)
 FROM live l
-WHERE l.qa_photos_captions IS NULL OR l.qa_photos_captions = ''
+-- qa_photos is a PhotoField, which Query exposes as text[], not text.
+-- "no photographs" is an empty array, not an empty string; comparing it to
+-- '' raises "malformed array literal" and the whole report fails.
+WHERE l.qa_photos IS NULL OR CARDINALITY(l.qa_photos) = 0
 )
 
 SELECT

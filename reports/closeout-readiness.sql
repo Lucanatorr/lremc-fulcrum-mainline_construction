@@ -159,7 +159,11 @@ UNION ALL SELECT
   'exception-dashboard.sql'
 FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2" p
 WHERE p._status = 'APPROVED'
-  AND (p.qa_photos_captions IS NULL OR p.qa_photos_captions = '')
+  -- qa_photos is a PhotoField, which Query exposes as text[], not text.
+  -- "no photographs" is therefore an empty array, not an empty string;
+  -- comparing it to '' raises "malformed array literal" and the whole
+  -- report fails. CARDINALITY is the scalar test.
+  AND (p.qa_photos IS NULL OR CARDINALITY(p.qa_photos) = 0)
 GROUP BY p.project_id_snapshot
 
 -- 7. UNRESOLVED CHANGE ORDERS. A pending change order means the authorized

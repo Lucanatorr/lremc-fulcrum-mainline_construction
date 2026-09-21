@@ -59,22 +59,22 @@ weekly AS (
 )
 
 SELECT
-  project_id,
-  project_name,
-  contractor_id,
-  contractor_name,
-  work_week,
-  labor_code,
-  labor_description,
-  unit,
+  w.project_id,
+  w.project_name,
+  w.contractor_id,
+  w.contractor_name,
+  w.work_week,
+  w.labor_code,
+  w.labor_description,
+  w.unit,
 
-  approved_quantity,
-  approved_value,
-  pending_quantity,
-  pending_value,
-  transactions,
-  days_worked,
-  weekend_days_worked,
+  w.approved_quantity,
+  w.approved_value,
+  w.pending_quantity,
+  w.pending_value,
+  w.transactions,
+  w.days_worked,
+  w.weekend_days_worked,
 
   -- Previous week for the same project + contractor + labor code. LAG over
   -- work_week ordering is deliberately NOT used: a gap week with no production
@@ -84,19 +84,19 @@ SELECT
   prev.approved_quantity                    AS prev_week_approved_quantity,
   prev.approved_value                       AS prev_week_approved_value,
   CASE WHEN prev.approved_quantity IS NULL THEN NULL
-       ELSE approved_quantity - prev.approved_quantity END
+       ELSE w.approved_quantity - prev.approved_quantity END
                                             AS quantity_change,
   CASE WHEN prev.approved_quantity IS NULL OR prev.approved_quantity = 0 THEN NULL
-       ELSE ROUND(CAST((approved_quantity - prev.approved_quantity)
+       ELSE ROUND(CAST((w.approved_quantity - prev.approved_quantity)
                   / prev.approved_quantity * 100 AS numeric), 2) END
                                             AS quantity_change_pct,
   CASE WHEN prev.approved_value IS NULL THEN NULL
-       ELSE ROUND(CAST(approved_value - prev.approved_value AS numeric), 2) END
+       ELSE ROUND(CAST(w.approved_value - prev.approved_value AS numeric), 2) END
                                             AS value_change,
   CASE
     WHEN prev.approved_quantity IS NULL                       THEN 'NO PRIOR WEEK'
-    WHEN approved_quantity > prev.approved_quantity            THEN 'UP'
-    WHEN approved_quantity < prev.approved_quantity            THEN 'DOWN'
+    WHEN w.approved_quantity > prev.approved_quantity            THEN 'UP'
+    WHEN w.approved_quantity < prev.approved_quantity            THEN 'DOWN'
     ELSE 'FLAT'
   END                                       AS trend
 FROM weekly w
@@ -119,4 +119,4 @@ LEFT JOIN weekly prev
              THEN CAST(CAST(SUBSTRING(w.work_week, 1, 4) AS integer) - 1 AS varchar) || '-W53'
         END
       )
-ORDER BY project_id, contractor_id, work_week, labor_code;
+ORDER BY w.project_id, w.contractor_id, w.work_week, w.labor_code;
