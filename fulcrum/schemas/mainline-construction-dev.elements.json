@@ -114,22 +114,8 @@
     "data_name": "inspector",
     "required": false,
     "disabled": true,
-    "hidden": false
-   },
-   {
-    "type": "CalculatedField",
-    "key": "m151",
-    "label": "Inspector Email",
-    "data_name": "inspector_email",
-    "required": false,
-    "disabled": false,
     "hidden": false,
-    "expression": "ONCE(IFERROR(USEREMAIL(), ''))",
-    "display": {
-     "currency": null,
-     "style": "text"
-    },
-    "description": "Captured from the signed-in user at record creation and locked by ONCE, so a later reviewer cannot overwrite the creator's address. This is a CalculatedField rather than a script-set TextField because USEREMAIL exists in the expression runtime but NOT in the Data Events runtime in the web record editor, where calling it bare threw a ReferenceError (fixed 2026-09-21)."
+    "description": "The signed-in user at record creation, shown so a field user can see who raised this without running a query. The platform's own _created_by_id is the authority and is what reports join on."
    },
    {
     "type": "TextField",

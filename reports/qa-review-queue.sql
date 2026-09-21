@@ -92,6 +92,14 @@ queue AS (
     p.contractor_id_snapshot AS contractor_id,
     p.crew,
     p.inspector,
+    -- Creator identity comes from the platform, not from a field on the record.
+    -- Fulcrum stamps _created_by_id on every record; memberships resolves it to
+    -- a name and address that are always current. The app briefly carried an
+    -- inspector_email field for this; it could not be populated (USEREMAIL is
+    -- absent from the Data Events runtime) and would have gone stale anyway.
+    m.name  AS created_by_name,
+    m.email AS created_by_email,
+    m.role_name AS created_by_role,
     p.reviewed_by,
     p.reviewed_date,
     p.work_category,
@@ -125,6 +133,7 @@ queue AS (
     ON au.project_id = p.project_id_snapshot AND au.labor_code = p.labor_code
   LEFT JOIN approved_so_far asf
     ON asf.project_id = p.project_id_snapshot AND asf.labor_code = p.labor_code
+  LEFT JOIN memberships m ON m.user_id = p._created_by_id
   WHERE p._status IN ('DRAFT', 'SUBMITTED', 'UNDER REVIEW', 'CORRECTION REQUIRED')
     AND (p_project_id    IS NULL OR p.project_id_snapshot    = p_project_id)
     AND (p_contractor_id IS NULL OR p.contractor_id_snapshot = p_contractor_id)
@@ -140,6 +149,9 @@ SELECT
   contractor_id,
   crew,
   inspector,
+  created_by_name,
+  created_by_email,
+  created_by_role,
   reviewed_by,
   work_category,
   labor_code,

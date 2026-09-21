@@ -43,15 +43,26 @@ only then — and why a crash in `new-record` looked like a bug in the dropdowns
    on one returns `'undefined'`. `RECORDID` and `USEREMAIL` had `try`/`catch` in
    `assignProductionId` already; `STATUS()` was bare in four places and would
    have failed the same way in any runtime lacking it.
-2. **`inspector_email` moved to the runtime that has the function.** It is now
-   `m151`, a CalculatedField: `ONCE(IFERROR(USEREMAIL(), ''))`. `ONCE` locks the
-   value at record creation, so a reviewer opening the record later cannot
-   overwrite the creator's address — which a plain CalculatedField would have
-   done on every load. The old `m014` TextField was removed (zero records, so
-   nothing was lost).
+2. **`inspector_email` was removed entirely.** First it moved to a
+   CalculatedField, `ONCE(IFERROR(USEREMAIL(), ''))` (`m151`), on the reasoning
+   that `USEREMAIL` is documented for the expression runtime. **That was wrong,
+   and the field came back blank.** On this account the function is effectively
+   unavailable in both runtimes.
 
-`IFERROR` sits **inside** `ONCE`, not outside: with the order reversed a throw
-means `ONCE` never locks and the field silently retries on later evaluations.
+   The second attempt was the right one, and it deletes the field rather than
+   populating it. **Fulcrum already records who created every record**:
+   `_created_by_id`, joinable to `memberships.user_id` for `name`, `email` and
+   `role_name`. There was never anything to capture.
+
+   Worth stating why a copy would have been wrong even if `USEREMAIL` had
+   worked: it duplicates platform metadata, and **it goes stale**. An address or
+   a surname changes in one place and every record ever written keeps the old
+   value. The join is always current. `qa-review-queue.sql` now exposes
+   `created_by_name` / `created_by_email` / `created_by_role`, and
+   `reports/_conventions.md` section 5 makes it the standing rule.
+
+   `inspector` stays — it is the only identity a field user can read without
+   running SQL — but its description now says `_created_by_id` is the authority.
 
 ### Why 573 tests didn't catch it
 

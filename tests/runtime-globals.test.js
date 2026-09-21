@@ -148,12 +148,15 @@ check('TEST-RT-012', 'and raises no INVALID', bare.invalids, []);
 // bump and a suite that fails for a reason it does not own.
 check('TEST-RT-VER', 'the header documents the USEREMAIL fix',
       /CHANGE IN v7\.1\.0 - FIX: BARE USEREMAIL/.test(src), true);
-check(
-  'TEST-RT-M151',
-  'the script defers inspector_email to the m151 CalculatedField',
-  /m151/.test(src),
-  true
-);
+// inspector_email is gone entirely: USEREMAIL reached neither runtime, and
+// _created_by_id already carries the answer. Assert the script does not write
+// the field and does not claim a field that no longer exists.
+check('TEST-RT-EMAIL-1', 'the script never writes inspector_email',
+      /SETVALUE\(\s*'inspector_email'/.test(src), false);
+check('TEST-RT-EMAIL-2', 'and no longer references the removed m151 field',
+      /m151/.test(src), false);
+check('TEST-RT-EMAIL-3', 'creator identity is documented as _created_by_id',
+      /_created_by_id/.test(src), true);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

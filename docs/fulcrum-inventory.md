@@ -148,10 +148,16 @@ Rules that follow:
   over a script that crashed on open. It now takes `omitGlobals`, and
   `tests/runtime-globals.test.js` runs the shipped script with those globals
   deleted.
-- **Where only the expression runtime has the function, use a CalculatedField.**
-  `inspector_email` is now `m151`, `ONCE(IFERROR(USEREMAIL(), ''))`. `ONCE`
-  locks the value at record creation, so a reviewer opening the record later
-  cannot overwrite the creator's address.
+- **`USEREMAIL()` did not resolve in a CalculatedField either.** Moving
+  `inspector_email` to `ONCE(IFERROR(USEREMAIL(), ''))` deployed cleanly and
+  still rendered blank, so on this account the function is effectively
+  unavailable in both runtimes. The field was removed (`m151`, 2026-09-21).
+- **Creator identity is platform metadata, not a field.** Every record carries
+  `_created_by_id` and `_updated_by_id`, both joinable to `memberships.user_id`
+  for `name`, `email` and `role_name`. Reports read it from there; the app
+  stores no copy, which would duplicate it and go stale. `inspector` remains as
+  a display convenience only — the one identity a field user can read without
+  running SQL. See `reports/_conventions.md` section 5.
 
 ## Query API conventions (confirmed 2026-09-17 from real table definitions)
 

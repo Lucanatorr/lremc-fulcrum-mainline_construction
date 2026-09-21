@@ -15,9 +15,12 @@
  *   fields stopped appearing too.
  *
  *   + Every platform accessor now goes through a typeof guard. Never bare.
- *   + inspector_email moved to a CalculatedField, ONCE(USEREMAIL()) (m151),
- *     evaluated in the runtime that actually has the function and locked at
- *     record creation so a reviewer cannot overwrite the creator's address.
+ *   + inspector_email is GONE. USEREMAIL reached neither runtime here, and the
+ *     value was already being stored twice: Fulcrum stamps _created_by_id on
+ *     every record, which joins to memberships.user_id for the name, email and
+ *     role. Reports read it from there - see reports/_conventions.md. Copying
+ *     it onto the record would have duplicated platform metadata and gone
+ *     stale the moment somebody's address changed.
  *
  * CHANGE IN v7.0.0 - SPRINT 13 DUPLICATE AND DATA-INTEGRITY CONTROLS
  *   + Two derived production FINGERPRINTS, computed on the device.
@@ -123,9 +126,11 @@ function userFullName() {
   return platformString(function () { return USERFULLNAME(); });
 }
 
-// Absent from the Data Events runtime in the web record editor. Returns ''
-// there. inspector_email is populated by a CalculatedField (m151) instead,
-// because USEREMAIL does exist in the expression runtime.
+// Absent from the Data Events runtime in the web record editor, and it did
+// not resolve in a CalculatedField either. Kept only as the last-resort
+// uniqueness salt in assignProductionId's fallback, where '' is acceptable.
+// Nothing user-visible depends on it: creator identity comes from
+// _created_by_id, which the platform stamps on every record.
 function userEmail() {
   if (typeof USEREMAIL !== 'function') return '';
   return platformString(function () { return USEREMAIL(); });
@@ -346,10 +351,15 @@ ON('change', 'pole_id', deriveSpanId);
 ON('change', 'previous_pole_id', deriveSpanId);
 
 ON('new-record', function (event) {
-  // inspector_email is NOT set here: USEREMAIL does not exist in the Data
-  // Events runtime. The m151 CalculatedField ONCE(USEREMAIL()) captures it in
-  // the runtime that does have it, and locks it at record creation so a later
-  // reviewer opening the record cannot overwrite the creator's address.
+  // No email is captured here. USEREMAIL is absent from the Data Events
+  // runtime AND did not resolve in a CalculatedField either, and the platform
+  // already records who created this: _created_by_id, which joins to
+  // memberships.user_id for name, email and role. A copy on the record would
+  // duplicate platform metadata and go stale when an address changes.
+  //
+  // 'inspector' stays because it is the one identity a FIELD user can see
+  // without running SQL. It is a display convenience; _created_by_id is the
+  // authority, and reports use that.
   var who = userFullName();
   if (who) SETVALUE('inspector', who);
 });

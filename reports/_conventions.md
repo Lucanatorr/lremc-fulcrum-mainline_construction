@@ -59,3 +59,39 @@ divide by working days, not calendar days.
 Reports that take filters open with a `params` CTE of `NULL` literals and use
 `(p_x IS NULL OR col = p_x)`. Unedited, the report runs unfiltered; to filter,
 edit the one CTE. No report hides a filter in its body.
+
+## 5. Who did it comes from the platform, never from a field
+
+Fulcrum stamps `_created_by_id` and `_updated_by_id` on **every** record. Both
+join to `memberships.user_id`, which carries `name`, `first_name`, `last_name`,
+`email` and `role_name`.
+
+```sql
+LEFT JOIN memberships m ON m.user_id = p._created_by_id
+```
+
+So a report never needs a "created by" or "email" field on the form, and the
+app must not carry one:
+
+- It cannot be populated reliably. `USEREMAIL()` is documented for the
+  expression runtime, is absent from the Data Events runtime, and did not
+  resolve in a CalculatedField here either. The app briefly carried an
+  `inspector_email` field for exactly this and it was always blank.
+- **A copy goes stale.** An address or a surname changes in one place, and every
+  record ever written keeps the old value. The join is always current.
+- It is duplication. The value is already stored, by the platform, for free.
+
+`memberships.email` is marked *"only to be included in results when explicitly
+requested"* — ask for it deliberately, as `qa-review-queue.sql` does, rather
+than adding it to every SELECT.
+
+**The one exception on the record itself is `inspector`.** It is the only
+identity a field user can read without running SQL, so it stays as a display
+convenience set at record creation. `_created_by_id` remains the authority, and
+reports read that.
+
+The same rule covers the workflow stamps. `submitted_by`, `reviewed_by` and
+`approved_by` are NOT duplication: they record who performed a specific
+transition, which the platform does not track. `_updated_by_id` only knows who
+touched the record last.
+
