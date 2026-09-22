@@ -69,7 +69,7 @@ active_days AS (
     SUM(COALESCE(p.quantity, 0)) AS day_quantity
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2" p
   WHERE p._status = 'APPROVED'
-    AND p.unit NOT IN ('HR', 'EVENT')
+    AND COALESCE(p.unit, '') NOT IN ('HR', 'EVENT')
     AND p.work_day_of_week NOT IN ('Saturday', 'Sunday')
   GROUP BY p.project_id_snapshot, p.labor_code, p.work_date
   HAVING SUM(COALESCE(p.quantity, 0)) > 0

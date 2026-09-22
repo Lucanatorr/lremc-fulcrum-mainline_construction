@@ -56,7 +56,7 @@ base AS (
     COALESCE(p.quantity, 0)       AS quantity,
     COALESCE(p.extended_value, 0) AS extended_value,
     -- Physical production: everything except time-and-materials (convention 3).
-    CASE WHEN p.unit NOT IN ('HR', 'EVENT') AND COALESCE(p.quantity, 0) > 0
+    CASE WHEN COALESCE(p.unit, '') NOT IN ('HR', 'EVENT') AND COALESCE(p.quantity, 0) > 0
          THEN 1 ELSE 0 END        AS is_physical
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2" p
   CROSS JOIN params

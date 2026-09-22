@@ -148,7 +148,9 @@ production AS (
 SELECT
   m.project_id,
   m.project_name,
-  m.status                                     AS project_status,
+  -- Convention 2: a project's lifecycle state is the record status column,
+  -- _status. The Project Master carries no separate "status" field.
+  m._status                                    AS project_status,
   COALESCE(CAST(pr.contractors AS varchar) || ' contractor(s): ' || pr.a_contractor_name,
            'no production yet')                AS contractor,
   m.customer,

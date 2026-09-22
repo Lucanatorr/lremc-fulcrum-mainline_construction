@@ -60,7 +60,10 @@ approved_so_far AS (
   GROUP BY project_id_snapshot, labor_code
 ),
 
-overlaps AS (
+-- Named sequential_spans, not "overlaps": OVERLAPS is a reserved SQL keyword
+-- (the "(a,b) OVERLAPS (c,d)" period operator), so a CTE of that name is a
+-- syntax error and takes the whole report down with it.
+sequential_spans AS (
   SELECT reel_id, LEAST(starting_sequential, ending_sequential) AS lo,
          GREATEST(starting_sequential, ending_sequential) AS hi, _record_id
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2"
@@ -71,8 +74,8 @@ overlaps AS (
 ),
 overlap_counts AS (
   SELECT a._record_id, COUNT(*) AS overlapping_records
-  FROM overlaps a
-  JOIN overlaps b
+  FROM sequential_spans a
+  JOIN sequential_spans b
     ON  a.reel_id = b.reel_id
     AND a._record_id <> b._record_id
     -- Strictly more than a touching boundary: adjacency is legitimate, reels

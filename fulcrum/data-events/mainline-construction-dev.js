@@ -212,6 +212,12 @@ function choiceValue(f) {
   return '';
 }
 
+// NOTE: the Data Events runtime does NOT expose choice labels. A ChoiceField
+// arrives as { choice_values, other_values } only, so this returns the VALUE in
+// practice. The choice_labels branch is kept solely because the web editor has
+// been observed to pass it on some builds; nothing may DEPEND on a label being
+// available. Anything that needs the label's content must snapshot it from the
+// master record instead (see applyLaborMetadata).
 function choiceLabel(f) {
   if (!f) return '';
   if (typeof f === 'string') return f;
@@ -273,15 +279,40 @@ function deriveReportingPeriod() {
 
 ON('change', 'work_date', deriveReportingPeriod);
 
+// RULING 2026-09-22 - THE UNIT COMES FROM THE RATE, NOT FROM A LABEL
+//
+// This function used to parse the unit out of the labor code's choice LABEL,
+// which reads "BM60(2)(1.25)DP (FT) Labor to install two (2) ...". That cannot
+// work: the Data Events runtime hands a ChoiceField over as
+// { choice_values: [...], other_values: [...] } and exposes no label at all.
+// choiceLabel() therefore fell through to the VALUE, "BM60(2)(1.25)DP", which
+// carries no "(FT)" marker, the regex missed, and the !m branch then actively
+// NULLED the unit. Every record saved in the editor lost its unit, whatever
+// its labor code - confirmed live on PRD-2026-143C1840.
+//
+// That is not a cosmetic loss. Every financial rollup keys the
+// time-and-materials split on the unit ("HR and EVENT must NOT be aggregated
+// into physical production totals"), so a null unit silently drops the record
+// out of physical value.
+//
+// The unit is now copied physically from the selected rate by the rate_link
+// record_defaults (r010 -> m024), exactly as labor_description already is
+// (r009 -> m022). That is better than any label parse: it cannot disagree with
+// the rate actually applied, it needs no runtime API that does not exist, and
+// being a physical copy it stays correct even if the master is later repriced.
+//
+// What remains here is a guard, not a derivation: never overwrite or clear the
+// snapshot. It only fills the unit when it is blank AND the label happens to
+// carry a marker, which covers a record whose unit was cleared by hand.
 function applyLaborMetadata() {
+  if (!isBlank(choiceValue($unit))) return;      // the snapshot wins, always
+
   var label = choiceLabel($labor_code);
-  var m = isBlank(label)
-    ? null
-    : /^(.*?)\s*\((FT|EA|HR|SPLICE|SF|EVENT)\)\s*(.*)$/.exec(label);
-  if (!m) {
-    setIfChanged('unit', choiceValue($unit), null);
-    return;
-  }
+  if (isBlank(label)) return;
+
+  var m = /^(.*?)\s*\((FT|EA|HR|SPLICE|SF|EVENT)\)\s*(.*)$/.exec(label);
+  if (!m) return;                                // never null it out
+
   setIfChanged('unit', choiceValue($unit), m[2]);
   if (isBlank($labor_description)) {
     setIfChanged('labor_description', $labor_description, m[3]);

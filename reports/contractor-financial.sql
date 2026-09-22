@@ -72,7 +72,7 @@ SELECT
 
   -- Physical vs time-and-materials, because a contractor billing mostly hours
   -- is a different conversation from one billing mostly footage.
-  ROUND(CAST(SUM(CASE WHEN record_status = 'APPROVED' AND unit NOT IN ('HR','EVENT')
+  ROUND(CAST(SUM(CASE WHEN record_status = 'APPROVED' AND COALESCE(unit, '') NOT IN ('HR','EVENT')
                  THEN COALESCE(extended_value,0) ELSE 0 END) AS numeric), 2) AS approved_physical_value,
   ROUND(CAST(SUM(CASE WHEN record_status = 'APPROVED' AND unit IN ('HR','EVENT')
                  THEN COALESCE(extended_value,0) ELSE 0 END) AS numeric), 2) AS approved_tm_value,

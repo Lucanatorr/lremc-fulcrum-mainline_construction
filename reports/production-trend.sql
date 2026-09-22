@@ -34,7 +34,7 @@ daily AS (
     -- time a reviewer works through the queue.
     SUM(CASE WHEN p._status = 'APPROVED' THEN COALESCE(p.extended_value, 0) ELSE 0 END)
       AS approved_value,
-    SUM(CASE WHEN p._status = 'APPROVED' AND p.unit NOT IN ('HR','EVENT')
+    SUM(CASE WHEN p._status = 'APPROVED' AND COALESCE(p.unit, '') NOT IN ('HR','EVENT')
              THEN COALESCE(p.extended_value, 0) ELSE 0 END)
       AS physical_value,
     SUM(CASE WHEN p._status = 'APPROVED' AND p.unit IN ('HR','EVENT')
