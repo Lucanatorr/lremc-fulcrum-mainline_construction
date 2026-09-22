@@ -350,3 +350,86 @@ None of these say the calculations are wrong. The financial core reconciles, the
 rate snapshot holds, the banded DP schedule is confirmed live, and 24 of 24
 reports execute. What is missing is the evidence the prompt requires before
 anyone is allowed to rely on that.
+
+
+---
+
+## 7. Closed during this audit
+
+The review was not read-only. These were found and fixed while checking the
+prompt's requirements:
+
+### 7.1 A timezone defect that moved every work date back a day (NEW, fixed)
+
+Writing the date-boundary tests the prompt requires found a live bug on the
+first probe. Fulcrum stores a date-only field as UTC midnight; `parseDate()`
+read it back with the local getters, returning the previous day anywhere west
+of UTC. In `America/New_York` the live record's **Monday derived as Sunday**,
+and 1 January derived as the **previous year**.
+
+That is not cosmetic. `productivity.sql` and `forecast-completion.sql` both
+filter `work_day_of_week NOT IN ('Saturday','Sunday')`, so every Monday's
+production was being dropped from productivity and forecasting with nothing to
+show it had gone. The duplicate fingerprint moved with the date, so the same
+work saved in two zones produced two fingerprints and stopped matching itself.
+The rate expiry comparison shifted too.
+
+Fixed once in `parseDate()` (v7.5.0), same fix applied to the material
+transaction and structure scripts. `tests/date-boundary.test.js` now runs 30
+assertions under four timezones — with the bug reintroduced, **UTC passes all
+30 while New York fails 19**, which is precisely how it survived 914 passing
+tests.
+
+### 7.2 The four required continuous logs
+
+Three of the four did not exist. Now created, with real content rather than
+empty templates:
+
+- `docs/business-decision-log.md` — 17 decisions with the prompt's columns,
+  and an explicit list of the decisions the prompt names that are **still
+  open** (negative production transactions, closed-project enforcement, the
+  organizational timezone)
+- `docs/open-issue-log.md` — 17 issues with priority and impact, including the
+  two P1s that were previously only prose: the production app's live API
+  credentials, and the `forms_update` outage
+- `docs/data-event-inventory.md` — all nine scripts with trigger, fields
+  monitored and modified, queries, dependencies, offline behaviour, deployment
+  date and rollback version, plus an honest statement of which five are
+  **not live**
+
+### 7.3 The offline capability matrix
+
+`docs/offline-capability-matrix.md` now classifies every control using the
+prompt's own four categories. The useful outcome is a clean split that was
+implicit in the design but never stated: **everything on one record is fully
+offline; everything needing two records is a post-sync report**, because no
+Data Event in this system uses `REQUEST`.
+
+---
+
+## 8. Revised gap list
+
+After §7, what remains outstanding against the prompt:
+
+**P1 — blocks production**
+
+1. Destructive-change matrix has no recorded results (OI-04)
+2. No security or permission testing (OI-05)
+3. No UAT with real users, no feedback register (OI-06)
+4. Production lifecycle missing Reopened / Reversed / Adjusted (OI-03)
+5. `forms_update` outage — five scripts and two schema changes undeployed (OI-02)
+6. Live API credentials in the production app's script (OI-01)
+
+**P2**
+
+7. No voided/reversed value view (OI-07)
+8. No calculation-version stamp (OI-08)
+9. Rate model missing Currency and contract reference (OI-09)
+10. QA/QC missing owner, due date, inspection type, QA ID (OI-10)
+11. Sprints 24–32 never started (OI-16)
+
+**P3**
+
+12. Forecasting burn-rate and previous-7-day metrics (OI-14)
+13. Organizational timezone never stated (OI-17) — derivation is now
+    timezone-independent, so this is documentation rather than defect
