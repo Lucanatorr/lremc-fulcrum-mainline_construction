@@ -1,6 +1,17 @@
 /**
  * Mainline Construction - Development
- * Data Events - v7.4.0 (2026-09-22), deployed 2026-09-22.
+ * Data Events - v7.5.0 (2026-09-22). NOT YET DEPLOYED - forms_update is
+ * refusing all writes, see docs/sprint-23-known-limitations.md L16.
+ *
+ * CHANGE IN v7.5.0 - A WORK DATE IS A CALENDAR DATE, NOT AN INSTANT
+ * parseDate() read a UTC-midnight date-only field with the LOCAL getters, so
+ * every derived reporting field was a day early anywhere west of UTC. In
+ * America/New_York the live record's Monday derived as Sunday - and every
+ * report filtering weekends out drops Sunday, so a full day of production left
+ * productivity and forecasting silently. 1 January booked into the previous
+ * year. The duplicate fingerprint moved with it. Normalized once in
+ * parseDate(); see tests/date-boundary.test.js, which runs under four
+ * timezones because a UTC-only suite is what let this through.
  *
  * CHANGE IN v7.4.0 - THE UNIT COMES FROM THE RATE, NOT FROM A LABEL
  * applyLaborMetadata() parsed the unit out of the labor code's choice LABEL.
@@ -242,10 +253,34 @@ function setIfChanged(dataName, current, next) {
   if (a !== b) SETVALUE(dataName, isBlank(next) ? null : next);
 }
 
+// RULING 2026-09-22 - A WORK DATE IS A CALENDAR DATE, NOT AN INSTANT
+//
+// Fulcrum stores a date-only field as UTC midnight: the live record
+// PRD-2026-143C1840 carries work_date = 2026-09-21T00:00:00.000Z. Reading that
+// back with the LOCAL getters - getFullYear/getMonth/getDate/getDay - returns
+// the PREVIOUS day anywhere west of UTC, which is everywhere LREMC operates.
+// Measured in America/New_York before this fix:
+//
+//   2026-09-21T00:00:00Z  ->  Sunday 2026-09-20, week 2026-W38   (truly Monday, W39)
+//   2026-01-01T00:00:00Z  ->  year 2025, month 2025-12           (truly 2026-01)
+//
+// The damage was not cosmetic. A Monday derived as Sunday is dropped by every
+// report filtering `work_day_of_week NOT IN ('Saturday','Sunday')` -
+// productivity and forecasting both do - so a whole day's production silently
+// left the numbers. A 1 January record booked into the previous financial
+// year. The duplicate fingerprint shifted by a day, so the same record saved
+// in two timezones produced two different fingerprints and stopped matching.
+//
+// Normalizing here rather than at each call site fixes all of them at once:
+// reporting period, the rate effective/expiry comparison, the weekend flag,
+// the fingerprint and the production-ID year. Every caller passes a date-only
+// value, so re-anchoring the UTC calendar date onto local midnight is safe and
+// makes the local getters return the date the field actually holds.
 function parseDate(v) {
   if (isBlank(v)) return null;
   var d = new Date(v);
-  return isNaN(d.getTime()) ? null : d;
+  if (isNaN(d.getTime())) return null;
+  return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
 }
 
 function dayOnly(d) { return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()); }
