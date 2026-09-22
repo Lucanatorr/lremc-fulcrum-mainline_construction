@@ -287,7 +287,7 @@
         "disabled": true,
         "hidden": false,
         "choice_list_id": "8713e0c3-3b5e-40a5-9886-3e5b979b7461",
-        "description": "Derived from the selected Labor Code."
+        "description": "Copied from the selected Contractor Rate, which is the authority on how a pay unit is measured. The Data Events runtime exposes no choice labels, so this can never be parsed out of the labor code (v7.4.0)."
       }
     ],
     "display": "inline"
