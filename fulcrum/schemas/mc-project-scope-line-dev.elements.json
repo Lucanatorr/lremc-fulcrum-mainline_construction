@@ -1,28 +1,310 @@
 [
- {"type":"TextField","key":"s001","label":"Scope Line ID","data_name":"scope_line_id","description":"Derived from Project ID and Labor Code. Two lines sharing one ID means a duplicate scope line, which would double-count the budget.","required":false,"disabled":true,"hidden":false},
- {"type":"Section","key":"s100","label":"BASELINE","data_name":"baseline","required":false,"disabled":false,"hidden":false,"display":"inline","elements":[
-  {"type":"RecordLinkField","key":"s002","label":"Project","data_name":"project_link","description":"ID and name are copied down and snapshotted, so the line still resolves if the master is renamed.","required":true,"disabled":false,"hidden":false,"form_id":"5ce243d4-9ec1-4fbd-8659-7be9f632b55c","record_defaults":[{"destination_field_key":"s003","source_field_key":"p001"},{"destination_field_key":"s004","source_field_key":"p002"}],"allow_existing_records":true},
-  {"type":"TextField","key":"s003","label":"Project ID (snapshot)","data_name":"project_id_snap","required":false,"disabled":true,"hidden":false},
-  {"type":"TextField","key":"s004","label":"Project Name (snapshot)","data_name":"project_name_snap","required":false,"disabled":true,"hidden":false},
-  {"type":"ChoiceField","key":"s005","label":"Labor Code","data_name":"labor_code","description":"The pay unit this scope line budgets. One line per Project + Labor Code.","required":true,"disabled":false,"hidden":false,"choice_list_id":"ddccba3b-c5b6-4a38-8892-805e916afacd"},
-  {"type":"ChoiceField","key":"s006","label":"Unit","data_name":"unit","description":"Derived from the Labor Code.","required":false,"disabled":true,"hidden":false,"choice_list_id":"8713e0c3-3b5e-40a5-9886-3e5b979b7461"},
-  {"type":"TextField","key":"s007","label":"Original Planned Quantity","data_name":"original_planned_quantity","description":"THE BASELINE. Editable only while this line is DRAFT. Once baselined the Data Event locks it read-only - scope changes go through a change order so the original stays available for comparison.","required":true,"disabled":false,"hidden":false,"min":0,"numeric":true,"format":"decimal"},
-  {"type":"RecordLinkField","key":"s008","label":"Budget Rate Source","data_name":"rate_link","description":"The contract rate this budget was priced at. Copied down PHYSICALLY, so a later reprice cannot silently restate the budget.","required":false,"disabled":false,"hidden":false,"form_id":"a5529dd0-54fa-4b8d-b595-d0218df0ee97","record_defaults":[{"destination_field_key":"s009","source_field_key":"r011"},{"destination_field_key":"s010","source_field_key":"r001"},{"destination_field_key":"s011","source_field_key":"r008"},{"destination_field_key":"s012","source_field_key":"r006"}],"allow_existing_records":true},
-  {"type":"TextField","key":"s009","label":"Budget Rate (snapshot)","data_name":"budget_rate","required":false,"disabled":true,"hidden":false,"min":0,"numeric":true,"format":"decimal"},
-  {"type":"TextField","key":"s010","label":"Rate Record ID (snapshot)","data_name":"rate_source_id","required":false,"disabled":true,"hidden":false},
-  {"type":"ChoiceField","key":"s011","label":"Rate Labor Code (snapshot)","data_name":"rate_labor_code_snap","description":"Compared against the scope Labor Code to catch a budget priced off the wrong pay unit.","required":false,"disabled":true,"hidden":false,"choice_list_id":"ddccba3b-c5b6-4a38-8892-805e916afacd"},
-  {"type":"TextField","key":"s012","label":"Rate Project ID (snapshot)","data_name":"rate_project_id_snap","description":"Blank means the rate applies to all projects.","required":false,"disabled":true,"hidden":false},
-  {"type":"CalculatedField","key":"s013","label":"Original Budget Value","data_name":"original_budget_value","description":"Original Planned Quantity x Budget Rate (Step 0.10). Quantity and rate stay separate and independently auditable.","required":false,"disabled":false,"hidden":false,"expression":"ROUND(COALESCE(NUM($original_planned_quantity),0) * COALESCE(NUM($budget_rate),0), 2)","display":{"currency":"USD","style":"currency"}},
-  {"type":"DateTimeField","key":"s014","label":"Baseline Set Date","data_name":"baseline_set_date","description":"Stamped when the line leaves DRAFT.","required":false,"disabled":true,"hidden":false},
-  {"type":"TextField","key":"s015","label":"Baseline Set By","data_name":"baseline_set_by","required":false,"disabled":true,"hidden":false}
- ]},
- {"type":"Section","key":"s101","label":"SCOPE MANAGEMENT","data_name":"scope_management","required":false,"disabled":false,"hidden":false,"display":"inline","elements":[
-  {"type":"TextField","key":"s016","label":"Phase / WBS","data_name":"phase_wbs","description":"Optional grouping for reporting, e.g. a route, a subdivision or a funding phase.","required":false,"disabled":false,"hidden":false},
-  {"type":"DateTimeField","key":"s017","label":"Planned Start","data_name":"planned_start","required":false,"disabled":false,"hidden":false},
-  {"type":"DateTimeField","key":"s018","label":"Planned Finish","data_name":"planned_finish","required":false,"disabled":false,"hidden":false},
-  {"type":"YesNoField","key":"s019","label":"Active","data_name":"active","description":"Deactivate rather than delete: a closed scope line must keep resolving for historical reporting.","required":false,"disabled":false,"hidden":false,"neutral_enabled":false,"positive":{"label":"Yes","value":"yes"},"negative":{"label":"No","value":"no"}},
-  {"type":"TextField","key":"s020","label":"Notes","data_name":"notes","required":false,"disabled":false,"hidden":false},
-  {"type":"TextField","key":"s021","label":"Exceptions (auto)","data_name":"exception_flags","description":"Auto-populated by validation. Warnings never block a save.","required":false,"disabled":true,"hidden":false},
-  {"type":"ChoiceField","key":"s022","label":"Exception Severity","data_name":"exception_severity","required":false,"disabled":true,"hidden":false,"choices":[{"label":"INFO","value":"INFO"},{"label":"WARNING","value":"WARNING"},{"label":"CRITICAL","value":"CRITICAL"}]}
- ]}
+  {
+    "type": "TextField",
+    "key": "s001",
+    "label": "Scope Line ID",
+    "data_name": "scope_line_id",
+    "description": "Derived from Project ID and Labor Code. Two lines sharing one ID means a duplicate scope line, which would double-count the budget.",
+    "required": false,
+    "disabled": true,
+    "hidden": false
+  },
+  {
+    "type": "Section",
+    "key": "s100",
+    "label": "BASELINE",
+    "data_name": "baseline",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "display": "inline",
+    "elements": [
+      {
+        "type": "RecordLinkField",
+        "key": "s002",
+        "label": "Project",
+        "data_name": "project_link",
+        "description": "ID and name are copied down and snapshotted, so the line still resolves if the master is renamed.",
+        "required": true,
+        "disabled": false,
+        "hidden": false,
+        "form_id": "5ce243d4-9ec1-4fbd-8659-7be9f632b55c",
+        "record_defaults": [
+          {
+            "destination_field_key": "s003",
+            "source_field_key": "p001"
+          },
+          {
+            "destination_field_key": "s004",
+            "source_field_key": "p002"
+          }
+        ],
+        "allow_existing_records": true
+      },
+      {
+        "type": "TextField",
+        "key": "s003",
+        "label": "Project ID (snapshot)",
+        "data_name": "project_id_snap",
+        "required": false,
+        "disabled": true,
+        "hidden": false
+      },
+      {
+        "type": "TextField",
+        "key": "s004",
+        "label": "Project Name (snapshot)",
+        "data_name": "project_name_snap",
+        "required": false,
+        "disabled": true,
+        "hidden": false
+      },
+      {
+        "type": "ChoiceField",
+        "key": "s005",
+        "label": "Labor Code",
+        "data_name": "labor_code",
+        "description": "The pay unit this scope line budgets. One line per Project + Labor Code.",
+        "required": true,
+        "disabled": false,
+        "hidden": false,
+        "choice_list_id": "ddccba3b-c5b6-4a38-8892-805e916afacd"
+      },
+      {
+        "type": "ChoiceField",
+        "key": "s006",
+        "label": "Unit",
+        "data_name": "unit",
+        "description": "Copied from the Budget Rate Source, which is the authority on how a pay unit is measured. It cannot be parsed from the labor code: the Data Events runtime exposes no choice labels (v7.4.0).",
+        "required": false,
+        "disabled": true,
+        "hidden": false,
+        "choice_list_id": "8713e0c3-3b5e-40a5-9886-3e5b979b7461"
+      },
+      {
+        "type": "TextField",
+        "key": "s007",
+        "label": "Original Planned Quantity",
+        "data_name": "original_planned_quantity",
+        "description": "THE BASELINE. Editable only while this line is DRAFT. Once baselined the Data Event locks it read-only - scope changes go through a change order so the original stays available for comparison.",
+        "required": true,
+        "disabled": false,
+        "hidden": false,
+        "min": 0,
+        "numeric": true,
+        "format": "decimal"
+      },
+      {
+        "type": "RecordLinkField",
+        "key": "s008",
+        "label": "Budget Rate Source",
+        "data_name": "rate_link",
+        "description": "The contract rate this budget was priced at. Copied down PHYSICALLY, so a later reprice cannot silently restate the budget.",
+        "required": false,
+        "disabled": false,
+        "hidden": false,
+        "form_id": "a5529dd0-54fa-4b8d-b595-d0218df0ee97",
+        "record_defaults": [
+          {
+            "destination_field_key": "s009",
+            "source_field_key": "r011"
+          },
+          {
+            "destination_field_key": "s010",
+            "source_field_key": "r001"
+          },
+          {
+            "destination_field_key": "s011",
+            "source_field_key": "r008"
+          },
+          {
+            "destination_field_key": "s012",
+            "source_field_key": "r006"
+          },
+          {
+            "destination_field_key": "s006",
+            "source_field_key": "r010"
+          }
+        ],
+        "allow_existing_records": true
+      },
+      {
+        "type": "TextField",
+        "key": "s009",
+        "label": "Budget Rate (snapshot)",
+        "data_name": "budget_rate",
+        "required": false,
+        "disabled": true,
+        "hidden": false,
+        "min": 0,
+        "numeric": true,
+        "format": "decimal"
+      },
+      {
+        "type": "TextField",
+        "key": "s010",
+        "label": "Rate Record ID (snapshot)",
+        "data_name": "rate_source_id",
+        "required": false,
+        "disabled": true,
+        "hidden": false
+      },
+      {
+        "type": "ChoiceField",
+        "key": "s011",
+        "label": "Rate Labor Code (snapshot)",
+        "data_name": "rate_labor_code_snap",
+        "description": "Compared against the scope Labor Code to catch a budget priced off the wrong pay unit.",
+        "required": false,
+        "disabled": true,
+        "hidden": false,
+        "choice_list_id": "ddccba3b-c5b6-4a38-8892-805e916afacd"
+      },
+      {
+        "type": "TextField",
+        "key": "s012",
+        "label": "Rate Project ID (snapshot)",
+        "data_name": "rate_project_id_snap",
+        "description": "Blank means the rate applies to all projects.",
+        "required": false,
+        "disabled": true,
+        "hidden": false
+      },
+      {
+        "type": "CalculatedField",
+        "key": "s013",
+        "label": "Original Budget Value",
+        "data_name": "original_budget_value",
+        "description": "Original Planned Quantity x Budget Rate (Step 0.10). Quantity and rate stay separate and independently auditable.",
+        "required": false,
+        "disabled": false,
+        "hidden": false,
+        "expression": "ROUND(COALESCE(NUM($original_planned_quantity),0) * COALESCE(NUM($budget_rate),0), 2)",
+        "display": {
+          "currency": "USD",
+          "style": "currency"
+        }
+      },
+      {
+        "type": "DateTimeField",
+        "key": "s014",
+        "label": "Baseline Set Date",
+        "data_name": "baseline_set_date",
+        "description": "Stamped when the line leaves DRAFT.",
+        "required": false,
+        "disabled": true,
+        "hidden": false
+      },
+      {
+        "type": "TextField",
+        "key": "s015",
+        "label": "Baseline Set By",
+        "data_name": "baseline_set_by",
+        "required": false,
+        "disabled": true,
+        "hidden": false
+      }
+    ]
+  },
+  {
+    "type": "Section",
+    "key": "s101",
+    "label": "SCOPE MANAGEMENT",
+    "data_name": "scope_management",
+    "required": false,
+    "disabled": false,
+    "hidden": false,
+    "display": "inline",
+    "elements": [
+      {
+        "type": "TextField",
+        "key": "s016",
+        "label": "Phase / WBS",
+        "data_name": "phase_wbs",
+        "description": "Optional grouping for reporting, e.g. a route, a subdivision or a funding phase.",
+        "required": false,
+        "disabled": false,
+        "hidden": false
+      },
+      {
+        "type": "DateTimeField",
+        "key": "s017",
+        "label": "Planned Start",
+        "data_name": "planned_start",
+        "required": false,
+        "disabled": false,
+        "hidden": false
+      },
+      {
+        "type": "DateTimeField",
+        "key": "s018",
+        "label": "Planned Finish",
+        "data_name": "planned_finish",
+        "required": false,
+        "disabled": false,
+        "hidden": false
+      },
+      {
+        "type": "YesNoField",
+        "key": "s019",
+        "label": "Active",
+        "data_name": "active",
+        "description": "Deactivate rather than delete: a closed scope line must keep resolving for historical reporting.",
+        "required": false,
+        "disabled": false,
+        "hidden": false,
+        "neutral_enabled": false,
+        "positive": {
+          "label": "Yes",
+          "value": "yes"
+        },
+        "negative": {
+          "label": "No",
+          "value": "no"
+        }
+      },
+      {
+        "type": "TextField",
+        "key": "s020",
+        "label": "Notes",
+        "data_name": "notes",
+        "required": false,
+        "disabled": false,
+        "hidden": false
+      },
+      {
+        "type": "TextField",
+        "key": "s021",
+        "label": "Exceptions (auto)",
+        "data_name": "exception_flags",
+        "description": "Auto-populated by validation. Warnings never block a save.",
+        "required": false,
+        "disabled": true,
+        "hidden": false
+      },
+      {
+        "type": "ChoiceField",
+        "key": "s022",
+        "label": "Exception Severity",
+        "data_name": "exception_severity",
+        "required": false,
+        "disabled": true,
+        "hidden": false,
+        "choices": [
+          {
+            "label": "INFO",
+            "value": "INFO"
+          },
+          {
+            "label": "WARNING",
+            "value": "WARNING"
+          },
+          {
+            "label": "CRITICAL",
+            "value": "CRITICAL"
+          }
+        ]
+      }
+    ]
+  }
 ]

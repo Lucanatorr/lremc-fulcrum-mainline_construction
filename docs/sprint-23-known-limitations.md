@@ -244,8 +244,53 @@ was, and the script now only ever fills a blank unit. The four affected
 report predicates are NULL-guarded. Covered by
 `tests/unit-derivation.test.js` (19 assertions).
 
-**Not yet deployed.** `fulcrum_forms_update` rejected the elements payload
-with a generic "Fulcrum could not accept the requested operation" and no
-detail. The live form was read back afterwards and is unchanged, and the
-rejected write was not retried unchanged. Until it is deployed, every record
-entered in the editor still loses its unit.
+**Not yet deployed - forms_update is refusing every write (see L16).**
+Until it is deployed, every record entered in the editor still loses its unit.
+
+The same defect was then found in two more scripts and is fixed in the repo
+alongside it:
+
+  - `mc-project-scope-line-dev.js` - identical parse, and it cleared the unit
+    UNCONDITIONALLY (`m ? m[2] : null`), so every scope line lost its unit too.
+    The scope line now also copies the rate's unit down (s006 <- r010).
+  - `mc-change-order-dev.js` - same parse on `line_unit` inside the
+    quantity_changes repeatable, same unconditional clear.
+
+All three now only ever FILL a blank unit and never clear one.
+
+## L16 - fulcrum_forms_update is refusing all writes (2026-09-22)
+
+Every `forms_update` call is rejected with "Fulcrum could not accept the
+requested operation" and no detail. This is not payload-specific. Established
+by elimination, smallest test last:
+
+  1. the full 140-element production payload - rejected
+  2. the same payload with `removed_element_keys: []` - rejected
+  3. a 6 KB form (project scope line), one record_default added - rejected
+  4. the rate master, with NO record_default change at all - rejected
+  5. `forms_update` with only an `id` and no changes whatsoever - rejected
+
+`fulcrum_forms_validate` returns `{"valid": true}` for the full production
+payload, and every read path (`forms_get`, `query_records`,
+`choice_lists_get`) works normally. So the schemas are sound and the account
+is reachable; writes specifically are refused.
+
+Every affected form was read back afterwards and is byte-for-byte unchanged -
+the rejected writes altered nothing. No rejected write was retried unchanged.
+
+There is precedent on this account: commit 0cbf0e1 records a forms_update
+outage that cleared on its own after three days. Everything needed is
+committed and tested, so the deploy is a replay of known-good payloads once
+writes come back.
+
+**Pending deploys, in order:**
+
+  1. `mainline-construction-dev` - elements (rate_link gains m024 <- r010)
+     plus script v7.4.0
+  2. `mc-project-scope-line-dev` - elements (rate_link gains s006 <- r010)
+     plus the guarded script
+  3. `mc-change-order-dev` - script only
+
+A faster route for any of these: add the copy-down in the Fulcrum app editor
+by hand. On the rate record link, map the rate's **Unit** to the form's
+**Unit** field.

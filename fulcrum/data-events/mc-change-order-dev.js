@@ -61,12 +61,24 @@ function isDead() {
 // The unit of measure is carried in the pay-unit choice label, as everywhere
 // else in this system. Parsed on the line, not restated by the user.
 
+// RULING 2026-09-22 - THE UNIT COMES FROM THE RATE, NOT FROM A LABEL
+// This parsed the unit out of the labor code's choice LABEL. The Data Events
+// runtime exposes no labels -- a ChoiceField arrives as
+// { choice_values, other_values } -- so choiceLabel() returns the VALUE, which
+// carries no "(FT)" marker, the parse always missed, and this then cleared the
+// unit outright. Same defect as the production app, found live there on
+// PRD-2026-143C1840. The unit is copied from the linked rate instead; what is
+// left here is a guard that only ever FILLS a blank unit, never clears one.
 ON('change', 'line_labor_code', function (event) {
+  if (!isBlank(choiceValue($line_unit))) return;     // never overwrite
+
   var label = choiceLabel($line_labor_code);
-  var m = isBlank(label)
-    ? null
-    : /^(.*?)\s*\((FT|EA|HR|SPLICE|SF|EVENT)\)\s*(.*)$/.exec(label);
-  setIfChanged('line_unit', choiceValue($line_unit), m ? m[2] : null);
+  if (isBlank(label)) return;
+
+  var m = /^(.*?)\s*\((FT|EA|HR|SPLICE|SF|EVENT)\)\s*(.*)$/.exec(label);
+  if (!m) return;                                    // never clear it
+
+  setIfChanged('line_unit', choiceValue($line_unit), m[2]);
 });
 
 ON('validate-repeatable', 'quantity_changes', function (event) {
