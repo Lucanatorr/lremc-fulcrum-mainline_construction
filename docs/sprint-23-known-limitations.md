@@ -278,6 +278,26 @@ is reachable; writes specifically are refused.
 Every affected form was read back afterwards and is byte-for-byte unchanged -
 the rejected writes altered nothing. No rejected write was retried unchanged.
 
+### Causes ruled out (2026-09-22, second round)
+
+  6. **Authentication is fine.** Every read on the SAME app-mcp server with the
+     SAME credential succeeds: `forms_get`, `roles_list`, `audit_logs_list`,
+     `choice_lists_get`, and `forms_validate` (which returns `{"valid": true}`
+     for the full production payload). A bad or unsubstituted token would fail
+     all of them, not just writes.
+  7. **Authorization is fine.** The token acts as Lucas Collins, whose
+     membership role is **Owner** - `can_manage_apps: true`, confirmed from
+     `roles_list`. Form updates are exactly what that permission governs.
+  8. **Not the HTTP header.** The MCP gateway runs out of process; there is no
+     Fulcrum environment variable in the session and no gateway config to read,
+     so the header cannot be inspected or set from here. It also cannot be the
+     cause, per 6: the same credential authenticates every read.
+
+So: valid credential, sufficient role, schema-valid payload, and every read
+path working - and yet a call carrying only an `id` and no changes is refused.
+That leaves a server-side or account-level condition on form writes
+specifically. It is not something that can be fixed from this side.
+
 There is precedent on this account: commit 0cbf0e1 records a forms_update
 outage that cleared on its own after three days. Everything needed is
 committed and tested, so the deploy is a replay of known-good payloads once
