@@ -196,3 +196,56 @@ the production app has never been modified by this project.
 **Risk.** **HIGH — unresolved.** Open item 2, raised in Sprint 0 and still open.
 
 **Future.** Rotate both tokens and move them out of app script.
+
+
+---
+
+## L13 - query-mcp eats the `+` operator (client defect, worked around)
+
+The MCP client form-encodes SQL without escaping, so every `+` reaches the
+engine as a space. `SELECT 'a+b'` returns `'a b'` (length 3). Eleven of the
+24 reports use `+` arithmetic and none of them could run through MCP.
+
+Not a defect in this project's SQL: all 24 are correct standard SQL and run
+as written in Fulcrum's Query UI and over REST. `scripts/flatten_report.py
+--mcp` rewrites `a + b` to `a - -b` for MCP execution only; the canonical
+files keep `+`.
+
+## L14 - query-mcp has a request-size ceiling of roughly 6 KB
+
+A 6.3 KB statement runs; 11.9 KB returns HTTP 431. `exception-dashboard.sql`
+(11.9 KB flattened, 17 exception branches over one shared prelude) therefore
+cannot run in one piece through MCP. `scripts/slice_report.py` executes it as
+prelude + branch subsets; all 17 branches have been run against the live
+schema. The concatenation itself is unexercised through MCP, which is a
+UNION ALL of column lists that each already compiled.
+
+Neither limit affects the delivered artefact: Fulcrum runs these reports
+itself, not through this client.
+
+## L15 - the unit was erased on every editor save (FIXED, deploy pending)
+
+`applyLaborMetadata()` parsed the unit from the labor code's choice LABEL.
+The Data Events runtime exposes no labels -- a ChoiceField arrives as
+`{ choice_values, other_values }` -- so the parse always missed and the
+fallback branch nulled the unit, on every record saved in the editor, for
+every labor code. Found on the first real production record,
+PRD-2026-143C1840, which priced correctly at $12/FT and came back with
+`unit = null`.
+
+Impact: the financial model splits time-and-materials out of physical
+production on the unit, and `unit NOT IN ('HR','EVENT')` over a NULL is NULL
+rather than TRUE, so a unit-less record silently left physical value
+altogether.
+
+Fixed in the repo at v7.4.0: the unit is copied from the selected rate by
+`rate_link` record_defaults (r010 -> m024), as `labor_description` already
+was, and the script now only ever fills a blank unit. The four affected
+report predicates are NULL-guarded. Covered by
+`tests/unit-derivation.test.js` (19 assertions).
+
+**Not yet deployed.** `fulcrum_forms_update` rejected the elements payload
+with a generic "Fulcrum could not accept the requested operation" and no
+detail. The live form was read back afterwards and is unchanged, and the
+rejected write was not retried unchanged. Until it is deployed, every record
+entered in the editor still loses its unit.

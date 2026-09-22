@@ -96,3 +96,71 @@ The same rule covers the workflow stamps. `submitted_by`, `reviewed_by` and
 transition, which the platform does not track. `_updated_by_id` only knows who
 touched the record last.
 
+
+---
+
+## 6. Two query-mcp transport limits (2026-09-22)
+
+These are defects in the MCP client, not in the SQL. Every report here is
+correct standard SQL and runs as written in Fulcrum's own Query UI and over
+the REST API. Rather than disfigure the canonical SQL to route around a
+client, `scripts/flatten_report.py --mcp` translates on the way out.
+
+**The `+` operator is eaten.** The transport form-encodes the statement
+without escaping, so every `+` arrives at the engine as a space. Proven:
+
+    SELECT 'a+b' AS s, LENGTH('a+b') AS n   ->   {"s":"a b","n":3}
+    SELECT 1 + 1                            ->   syntax error at or near "1"
+
+`--mcp` rewrites `a + b` to `a - -b` outside string literals, which is
+arithmetically identical. The space between the minus signs matters: `--`
+would start a comment.
+
+**There is a request-size ceiling.** A 6.3 KB statement runs; an 11.9 KB one
+returns HTTP 431 (Request Header Fields Too Large). That leaves
+`exception-dashboard.sql` unrunnable in one piece through MCP.
+`scripts/slice_report.py` splits it into the shared prelude plus subsets of
+its UNION ALL branches, so every branch is still executed. It always leads
+with branch 0: only the first branch of a UNION carries the column aliases
+the final SELECT addresses by name.
+
+## 7. Array-typed columns (2026-09-22)
+
+Fulcrum's PhotoField, AttachmentField and ClassificationField all surface in
+Query as `text[]`, not `text`. Comparing one to a string fails the WHOLE
+statement, not the row:
+
+    WHERE qa_photos_captions = ''   ->   malformed array literal: ""
+    STRING_AGG(actual_material, ', ')
+                                    ->   function string_agg(text[], unknown)
+                                         does not exist
+
+Use `CARDINALITY(col) = 0` to test for empty and `ARRAY_TO_STRING(col, ', ')`
+to flatten one for output. This took down `closeout-readiness.sql` and
+`exception-dashboard.sql` entirely, so the missing-photo finding -- the one
+that catches production approved into billing with no evidence -- could never
+fire.
+
+## 8. Master-data join keys (2026-09-22)
+
+The Labor-Material Mapping master is keyed on **labor_code**, and its
+`material_code` is the **stock part number** it resolves to. The material
+master and the material ledger are keyed on part numbers as well. The
+production record's `conduit_material_code` is the canonical
+`CONDUIT-<size>-<n>PULL` derivation: readable, and a key in no master. Join
+the mapping master on `labor_code`, never on the canonical code.
+
+Live: `BM60(2)(1.25)DP` -> mapping `MAP-000104` -> part `114-11-2`.
+
+## 9. Reserved words as identifiers
+
+`overlaps` cannot be a CTE name: `OVERLAPS` is the reserved SQL period
+operator and the statement fails to parse. `rows` is accepted by this engine
+despite also being reserved. Prefer a descriptive name (`sequential_spans`)
+over anything in the reserved list.
+
+## 10. `_status` is the only status column
+
+A project's, rate's or scope line's lifecycle state is the record status
+column `_status`. No master carries a separate `status` field;
+`project-summary.sql` selected `m.status` and failed on exactly this.
