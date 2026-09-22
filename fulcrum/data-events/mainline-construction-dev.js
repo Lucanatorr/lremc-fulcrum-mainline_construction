@@ -1,6 +1,17 @@
 /**
  * Mainline Construction - Development
- * Data Events - v7.3.0 (2026-09-21), deployed 2026-09-21.
+ * Data Events - v7.4.0 (2026-09-22), deployed 2026-09-22.
+ *
+ * CHANGE IN v7.4.0 - THE UNIT COMES FROM THE RATE, NOT FROM A LABEL
+ * applyLaborMetadata() parsed the unit out of the labor code's choice LABEL.
+ * The Data Events runtime exposes no labels - a ChoiceField arrives as
+ * { choice_values, other_values } - so the parse always missed and the
+ * fallback branch NULLED the unit on every editor save, for every labor code
+ * (found live on PRD-2026-143C1840, which priced correctly at $12/FT but came
+ * back with unit = null). The unit is now copied physically from the selected
+ * rate by rate_link record_defaults (r010 -> m024), like labor_description
+ * already was. The function is now a guard: it fills the unit only when blank
+ * and never clears it. See tests/unit-derivation.test.js.
  *
  * CHANGE IN v7.3.0 - SPRINT 19 SCALE REVIEW
  *   No behaviour change in this script. It was audited against the brief's

@@ -36,7 +36,14 @@ WITH expected AS (
     p.contractor_id_snapshot AS contractor_id,
     p.crew,
     p.labor_code,
-    p.conduit_material_code AS material_code,
+    -- The EXPECTED part number comes from the mapping master, keyed on the
+    -- labor code. The record's own conduit_material_code is the canonical
+    -- CONDUIT-<size>-<n>PULL derivation, which reads well but is not a key in
+    -- any master: the ledger and the material master both speak stock part
+    -- numbers, so matching the ledger on it never found a row and every
+    -- conduit record reported NO MATERIAL REPORTED (ruling 2026-09-22).
+    mp.material_code        AS material_code,
+    p.conduit_material_code AS derived_conduit_code,
     p.conduit_diameter,
     p.pull_count,
     p.quantity              AS production_quantity,
@@ -44,6 +51,12 @@ WITH expected AS (
     p.total_duct_footage,
     p._status               AS record_status
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2" p
+  LEFT JOIN (
+    SELECT DISTINCT mm.labor_code, mm.material_code
+    FROM "38e3d7fd-ca78-4016-8018-ec955446c13f" mm
+    WHERE mm._status <> 'VOID'
+      AND COALESCE(mm.active, 'yes') <> 'no'
+  ) mp ON mp.labor_code = p.labor_code
   WHERE p._status <> 'VOID'
     AND p.conduit_material_code IS NOT NULL
     AND p.conduit_material_quantity IS NOT NULL

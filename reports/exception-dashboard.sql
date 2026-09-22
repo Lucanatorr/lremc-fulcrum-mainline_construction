@@ -120,10 +120,18 @@ installed_material AS (
   WHERE t._status <> 'VOID'
   GROUP BY t.production_id_snap, t.material_code_snap
 ),
--- The mapping master's own column is material_code; the header of
--- data/import/labor-material-mapping-proposed.csv is the authority on its shape.
+-- RULING 2026-09-22 - THE MAPPING MASTER IS KEYED ON THE LABOR CODE
+-- This used to join mm.material_code to the production record's derived
+-- conduit_material_code ("CONDUIT-1.25-2PULL"). Those are two different
+-- vocabularies and never match, so this warning fired on every conduit
+-- record. The mapping master holds one row per LABOR CODE, and its
+-- material_code is the STOCK PART NUMBER it resolves to ("114-11-2") - which
+-- is what the material master and the material ledger are also keyed on. The
+-- canonical CONDUIT-<size>-<n>PULL string is a readable derivation on the
+-- record, not a key in any master. Confirmed live:
+-- BM60(2)(1.25)DP -> 114-11-2 (MAP-000104).
 mapping AS (
-  SELECT DISTINCT mm.material_code
+  SELECT DISTINCT mm.labor_code, mm.material_code
   FROM "38e3d7fd-ca78-4016-8018-ec955446c13f" mm
   WHERE mm._status <> 'VOID'
     AND COALESCE(mm.active, 'yes') <> 'no'
@@ -174,13 +182,14 @@ FROM live l WHERE l.contractor_id IS NULL OR l.contractor_id = ''
 --    mapping record resolves it to a stock part number, so nothing can be
 --    ordered or reconciled against it.
 UNION ALL SELECT l._record_id, 'Missing Material Mapping', 'WARNING',
-  'Derived material code ' || l.conduit_material_code
-  || ' has no record in the Labor-Material Mapping master, so it resolves to '
-  || 'no stock part number.',
+  'Pay unit ' || COALESCE(l.labor_code, '(none)') || ' consumes conduit ('
+  || l.conduit_material_code || ') but has no row in the Labor-Material '
+  || 'Mapping master, so it resolves to no stock part number and nothing can '
+  || 'be ordered or reconciled against it.',
   'material-variance.sql', CAST(NULL AS numeric)
 FROM live l
-LEFT JOIN mapping mp ON mp.material_code = l.conduit_material_code
-WHERE l.conduit_material_code IS NOT NULL AND mp.material_code IS NULL
+LEFT JOIN mapping mp ON mp.labor_code = l.labor_code
+WHERE l.conduit_material_code IS NOT NULL AND mp.labor_code IS NULL
 
 -- 7. PRODUCTION OVER PLAN
 UNION ALL SELECT l._record_id, 'Production Over Plan',
