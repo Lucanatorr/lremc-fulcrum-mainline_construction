@@ -298,6 +298,49 @@ path working - and yet a call carrying only an `id` and no changes is refused.
 That leaves a server-side or account-level condition on form writes
 specifically. It is not something that can be fixed from this side.
 
+### Answer to Fulcrum support's retry question (2026-09-22)
+
+Fulcrum asked: *"does the same request succeed if you retry immediately after
+the error? MCP can sometimes return a one-time error that succeeds on retry."*
+
+**No. Tested both shapes, five calls, zero successes, every one a distinct
+trace ID.**
+
+| # | Request | Immediate retry? | Trace ID | Result |
+|---|---|---|---|---|
+| 1 | `forms_update` id only, no changes | — | `516c8d4f8b18b0a870497a2ce1364ed8` | refused |
+| 2 | same, back to back | yes | `bd2f3d6eec426783a3578f37b80c4830` | refused |
+| 3 | same, back to back | yes | `d1d7045ff803b660d3b0e37ade332e60` | refused |
+| 4 | same, back to back | yes | `d9b05c06015130144f7efddc922b18df` | refused |
+| 5 | scope line, full 6 KB elements payload | — | `7c2476833c62ee3197f23776c4aaa1a7` | refused |
+| 6 | **identical payload, immediate retry** | yes | `a770ad32e36a7e616aae5b85e7f7a94f` | refused |
+
+The no-change call was used first because it cannot alter anything even if it
+succeeds. It was then repeated with a real payload, because a request carrying
+no changes could conceivably be rejected for that reason alone - so the
+decisive pair is 5 and 6: the same schema-valid payload, sent twice in
+immediate succession, refused both times.
+
+Distinct trace IDs mean each call reached Fulcrum and was individually
+evaluated and rejected. This is deterministic, not a transient.
+
+`forms_history` for this form returns `null` - no version was ever recorded -
+and a full `forms_get` read-back after the attempts shows the form
+byte-for-byte unchanged. **Nothing partially applied.**
+
+### For the support ticket
+
+- Organization member acting: Lucas Collins, role **Owner**
+  (`can_manage_apps: true`, confirmed via `roles_list`)
+- Affected forms (all refused): `06c36c8e-4a88-4cf3-a691-9a792f8374d2`,
+  `aa1d8c1e-d0a9-4fd1-8d57-ca90b4555b0b`, `a5529dd0-54fa-4b8d-b595-d0218df0ee97`
+- `fulcrum_forms_validate` returns `{"valid": true}` for the full production
+  payload, so the schema is not the issue
+- Every read on the same server with the same credential succeeds:
+  `forms_get`, `forms_history`, `roles_list`, `audit_logs_list`,
+  `choice_lists_get`, `memberships_list`
+- Only writes are refused, with an error carrying no specific cause
+
 There is precedent on this account: commit 0cbf0e1 records a forms_update
 outage that cleared on its own after three days. Everything needed is
 committed and tested, so the deploy is a replay of known-good payloads once
