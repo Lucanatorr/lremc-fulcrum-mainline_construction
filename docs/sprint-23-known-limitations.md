@@ -314,6 +314,9 @@ trace ID.**
 | 4 | same, back to back | yes | `d9b05c06015130144f7efddc922b18df` | refused |
 | 5 | scope line, full 6 KB elements payload | — | `7c2476833c62ee3197f23776c4aaa1a7` | refused |
 | 6 | **identical payload, immediate retry** | yes | `a770ad32e36a7e616aae5b85e7f7a94f` | refused |
+| 7 | scope line payload (2026-09-22, later) | — | `30659084905b23d8ca33947ff47bdb84` | refused |
+| 8 | scope line payload (2026-09-23) | — | `6d3e7eac5edd5e62f1db2f3c877f9b59` | refused |
+| 9 | **identical payload, immediate retry** (2026-09-23) | yes | `aa6d43abf211c5c0d31429d8b2cb947b` | refused |
 
 The no-change call was used first because it cannot alter anything even if it
 succeeds. It was then repeated with a real payload, because a request carrying
