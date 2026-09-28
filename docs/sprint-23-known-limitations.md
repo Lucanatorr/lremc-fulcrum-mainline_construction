@@ -318,6 +318,8 @@ trace ID.**
 | 8 | scope line payload (2026-09-23) | — | `6d3e7eac5edd5e62f1db2f3c877f9b59` | refused |
 | 9 | **identical payload, immediate retry** (2026-09-23) | yes | `aa6d43abf211c5c0d31429d8b2cb947b` | refused |
 | 10 | scope line payload (2026-09-24) | — | `f9e910ae1549482c19b4c3fc293f0439` | refused |
+| 11 | scope line payload (2026-09-28) | — | `e1f9dd522bc201ecf1da78a378059d97` | refused |
+| 12 | **identical payload, immediate retry** (2026-09-28) | yes | `a4b7093d0b6f7ae60afc059ad06cde19` | refused |
 
 The no-change call was used first because it cannot alter anything even if it
 succeeds. It was then repeated with a real payload, because a request carrying
@@ -331,6 +333,24 @@ evaluated and rejected. This is deterministic, not a transient.
 `forms_history` for this form returns `null` - no version was ever recorded -
 and a full `forms_get` read-back after the attempts shows the form
 byte-for-byte unchanged. **Nothing partially applied.**
+
+### Creates succeed, updates are refused (2026-09-24 to 2026-09-28)
+
+The refusal is not limited to forms. On the same credential, on a different
+app (Hoke CAB Splicing), `report_templates_update` is refused with the same
+message, while `report_templates_create` succeeds every time:
+
+| Operation | Result | Trace ID |
+|---|---|---|
+| `report_templates_update` (template `3b3f3839-...`) | refused | `36c96487b1724b63598ac86d46230987` |
+| `report_templates_update` (template `ee7e228a-...`) | refused | `a1ac742fbfbfd42e83461deb6a27e911` |
+| `report_templates_create` x4 | created | - |
+| `reports_create` x4 (PDF generation) | completed | - |
+
+So write access in general works; the failure is specific to updating an
+existing object. That points at the update path (the API's PUT handling or a
+permission scoped to modifying existing resources), not at authentication or
+the account's role.
 
 ### For the support ticket
 
