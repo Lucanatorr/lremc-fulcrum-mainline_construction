@@ -346,6 +346,34 @@ evaluated and rejected. This is deterministic, not a transient.
 and a full `forms_get` read-back after the attempts shows the form
 byte-for-byte unchanged. **Nothing partially applied.**
 
+### Payload review and minimal-update test (2026-10-12)
+
+**Review of the payload sent in attempts 5-14.** Compared field by field with
+the live form, it makes exactly two real changes - the s006 description and a
+fifth `record_defaults` entry on s008 (`s006 <- r010`). It re-sends all 24
+elements in trimmed form (6.6 KB vs 13.8 KB live), omitting 23 attributes.
+All omitted values are defaults except s019 `neutral` and s013
+`required_conditions: []`. Because trimming or size could have been the
+trigger, the next test removed elements from the request entirely.
+
+**Smallest updates, each sent then immediately retried:**
+
+| # | Body sent (besides `id`) | Content change | Trace ID | Result |
+|---|---|---|---|---|
+| 15 | `name` = its current value | none | `36511ccb36595e7cb71fb1a055e3cae9` | refused |
+| 16 | same, immediate retry | none | `f5e7551fecd3fd39c87b319275bdc1e7` | refused |
+| 17 | `description` with 2 characters added | 2 chars, form-level text only | `e89e59c90996bad67c2c76ab30af154f` | refused |
+| 18 | same, immediate retry | 2 chars | `c7d5d8f6d5340cc8a55acbb8b5b6dae7` | refused |
+
+Read-back afterwards: description unchanged, `updated_at` still
+`2026-10-05T15:44:46Z`.
+
+**Conclusion.** A one-field, two-character change to plain form-level text -
+no elements, no script, no record links - is refused exactly like the full
+payload. Payload size, element trimming, record-default wiring and the
+Data Event script are all ruled out. Any update to this form is refused
+regardless of content.
+
 ### Creates succeed, updates are refused (2026-09-24 to 2026-09-28)
 
 The refusal is not limited to forms. On the same credential, on a different
