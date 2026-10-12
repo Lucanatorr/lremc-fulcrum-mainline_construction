@@ -320,6 +320,18 @@ trace ID.**
 | 10 | scope line payload (2026-09-24) | — | `f9e910ae1549482c19b4c3fc293f0439` | refused |
 | 11 | scope line payload (2026-09-28) | — | `e1f9dd522bc201ecf1da78a378059d97` | refused |
 | 12 | **identical payload, immediate retry** (2026-09-28) | yes | `a4b7093d0b6f7ae60afc059ad06cde19` | refused |
+| 13 | scope line payload (2026-10-12) | — | `bfd758576c9270d3c18a66c3b72f9de2` | refused |
+| 14 | **identical payload, immediate retry** (2026-10-12) | yes | `4251a312679c8decceabd355f89bc84d` | refused |
+
+**A save did land between attempts 12 and 13.** On 2026-10-12 the form's
+`updated_at` read `2026-10-05T15:44:46Z` (previously `2026-09-17T21:41:45Z`).
+A field-by-field comparison with the 2026-09-28 read-back shows nothing else
+changed - same elements, same record defaults, same script - and
+`forms_history` still returns `null`. So something wrote to this form on
+2026-10-05 15:44 UTC without changing its contents, most likely a save in the
+web App Designer. If that was a manual save, it shows the web editor can write
+this form while the API update path cannot, which is the comparison support
+needs. Attempts 13 and 14 left `updated_at` at the 2026-10-05 value.
 
 The no-change call was used first because it cannot alter anything even if it
 succeeds. It was then repeated with a real payload, because a request carrying
