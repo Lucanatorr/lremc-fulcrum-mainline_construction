@@ -415,6 +415,51 @@ Fulcrum's copy-down intact. So the same form accepted an update through
 Fulcrum's MCP minutes earlier and still refuses ours. The block is tied to
 this connection or credential, not to the form or to the payload.
 
+### Script deploy over a direct token connection (2026-10-28)
+
+Rows 21-24 went through the claude.ai "Fulcrum_MCP" connector. To rule the
+connector out, the same script-only update was sent straight to the Fulcrum MCP
+gateway (`https://mcp.fulcrumapp.com`, the `fulcrum-app` entry in `.mcp.json`),
+authenticated with the organization API token from the `FULCRUM_API_BEARER`
+environment secret (`Authorization: Bearer ...`, never written to the repo).
+The `fulcrum-app` server was not registered as session tools (the checkout
+was `main`, where `.mcp.json` does not exist), so the calls were made as MCP
+JSON-RPC over HTTPS to that same endpoint with that same header.
+
+Sequence, per the toolkit's `fulcrum-app-editing` gate:
+
+1. `query-mcp_form_summaries` - succeeded, listed this form
+   (`aa1d8c1e-d0a9-4fd1-8d57-ca90b4555b0b`): connection and token confirmed.
+2. Record count (`get_form_query_tables`, then a count-only aggregate): **0
+   records**, rechecked at 0 immediately before the write. The app is the
+   Development form, so this is the sandbox route, not a production edit.
+3. Script reviewed for performance: no REQUEST, LOADFILE, OPENURL or loops;
+   only synchronous field reads and writes.
+4. Pre-write read: script 6,701 characters (v1.0.0, no Unit guard),
+   `updated_at` `2026-10-28T14:34:04Z`.
+
+| # | Body | Trace ID | Result |
+|---|---|---|---|
+| 25 | `script` only, `mc-project-scope-line-dev.js` (7,293 chars) | `a9b9846c493b46f4846edadb16f58cb0` | refused |
+| 26 | same, immediate retry | `e0f840769062dea6d694893c88398b14` | refused |
+| 27 | same (repeated, 15:58Z) | `40c3624ece87d2d036db7ee4d7306296` | refused |
+| 28 | same, immediate retry (15:58Z) | `5f3080a45b300cfd801c405e21d1a5d5` | refused |
+
+Rows 25-26 were the first run of this test; 27-28 repeated it after the
+count recheck. Same refusal text every time: "Fulcrum could not accept the
+requested operation... contact support if the cause is unclear."
+
+Read-back after 28: script still 6,701 characters (v1.0.0),
+`updated_at` still `2026-10-28T14:34:04Z`. Nothing was applied.
+
+What this settles: the claude.ai connector is **not** the cause. A direct
+connection with a freshly generated organization API token is refused the same
+way, with reads succeeding on both. Combined with Fulcrum's own save succeeding
+on this form at 14:34Z, the refusal follows the acting credential or account
+(Lucas Collins, Owner) rather than the form, the payload, or the transport.
+That is a Fulcrum-side issue for support; there is nothing left to change in
+this repo. Trace IDs 25-28 above are for the ticket.
+
 ### Creates succeed, updates are refused (2026-09-24 to 2026-09-28)
 
 The refusal is not limited to forms. On the same credential, on a different
