@@ -394,6 +394,23 @@ can blank the Unit the new copy-down fills in. The fix (only fill a blank Unit,
 never clear it) is in `fulcrum/data-events/mc-project-scope-line-dev.js` and
 has not been deployed.
 
+### Script deploy after Fulcrum's fix (2026-10-28)
+
+Straight after confirming Fulcrum's save, the pending scope line script fix
+(the Unit guard from `mc-project-scope-line-dev.js`, script only, no elements)
+was sent from this side. Unit tests passed first (unit-derivation 19/19,
+project-scope 68/68).
+
+| # | Body | Trace ID | Result |
+|---|---|---|---|
+| 19 | `script` only | `16a8ebc20414714fe9263c59c026c1bd` | refused |
+| 20 | same, immediate retry | `b21138915cfd9c223cac5c80764ee50f` | refused |
+
+Read-back: script still v1.0.0, `updated_at` still `2026-10-28T14:34:04Z`,
+Fulcrum's copy-down intact. So the same form accepted an update through
+Fulcrum's MCP minutes earlier and still refuses ours. The block is tied to
+this connection or credential, not to the form or to the payload.
+
 ### Creates succeed, updates are refused (2026-09-24 to 2026-09-28)
 
 The refusal is not limited to forms. On the same credential, on a different
