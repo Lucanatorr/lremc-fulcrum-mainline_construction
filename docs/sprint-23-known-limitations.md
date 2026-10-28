@@ -407,6 +407,8 @@ project-scope 68/68).
 | 20 | same, immediate retry | `b21138915cfd9c223cac5c80764ee50f` | refused |
 | 21 | same, after the user refreshed the MCP connection | `9b1def2ac026b48ff18e0f4203fd48a5` | refused |
 | 22 | same, immediate retry | `5313df1ef39c7c92678e7a336d31ff22` | refused |
+| 23 | same, after the user generated a new API token and reconnected | `8deeea41fbf8b7839659100a41b87191` | refused |
+| 24 | same, immediate retry | `853ebe9e637dc48893c75eeb3a6ed0f7` | refused |
 
 Read-back: script still v1.0.0, `updated_at` still `2026-10-28T14:34:04Z`,
 Fulcrum's copy-down intact. So the same form accepted an update through
