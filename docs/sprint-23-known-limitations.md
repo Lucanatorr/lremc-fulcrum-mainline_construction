@@ -405,6 +405,8 @@ project-scope 68/68).
 |---|---|---|---|
 | 19 | `script` only | `16a8ebc20414714fe9263c59c026c1bd` | refused |
 | 20 | same, immediate retry | `b21138915cfd9c223cac5c80764ee50f` | refused |
+| 21 | same, after the user refreshed the MCP connection | `9b1def2ac026b48ff18e0f4203fd48a5` | refused |
+| 22 | same, immediate retry | `5313df1ef39c7c92678e7a336d31ff22` | refused |
 
 Read-back: script still v1.0.0, `updated_at` still `2026-10-28T14:34:04Z`,
 Fulcrum's copy-down intact. So the same form accepted an update through
