@@ -374,6 +374,26 @@ payload. Payload size, element trimming, record-default wiring and the
 Data Event script are all ruled out. Any update to this form is refused
 regardless of content.
 
+### Applied by Fulcrum support (2026-10-28)
+
+Fulcrum reported sending the pending change through their own MCP. Read-back
+on 2026-10-28 confirms it: `updated_at` is `2026-10-28T14:34:04Z`, and the
+only differences from the 2026-10-12 read-back are the two intended changes:
+
+- s006 Unit description is now the "Copied from the Budget Rate Source..." text
+- s008 Budget Rate Source has a fifth record default, `s006 <- r010`
+
+Nothing else moved: same 24 elements, same form description, same status
+field, same script. `forms_history` still returns `null`.
+
+**Still outstanding on this form:** the live script is still Sprint 9 v1.0.0.
+Its `applyLaborMetadata()` sets Unit to null whenever it cannot parse a unit
+from the labor-code label. The runtime exposes no labels, so that is every
+time, and it runs on labor-code change and on validate-record. That means it
+can blank the Unit the new copy-down fills in. The fix (only fill a blank Unit,
+never clear it) is in `fulcrum/data-events/mc-project-scope-line-dev.js` and
+has not been deployed.
+
 ### Creates succeed, updates are refused (2026-09-24 to 2026-09-28)
 
 The refusal is not limited to forms. On the same credential, on a different
