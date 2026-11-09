@@ -27,16 +27,19 @@ business owner — those are the ones to review first.
 | D-015 | 2026-09-22 | The unit is copied from the selected rate, not parsed from the labor code label | The Data Events runtime exposes no choice labels, so the documented derivation was impossible and was erasing the unit | `rate_link` record_defaults r010→m024, v7.4.0 | Claude (design) |
 | D-016 | 2026-09-22 | The Labor-Material Mapping master is keyed on **labor code**; `CONDUIT-<size>-<n>PULL` is a readable derivation, not a key | The ledger and material master are keyed on stock part numbers | exception-dashboard, material-variance | Claude (design) |
 | D-017 | 2026-09-22 | A work date is a calendar date, normalized from its UTC components | Reading UTC midnight with local getters moved every record back a day west of UTC | `parseDate`, v7.5.0 | Claude (design) |
+| D-018 | 2026-11-09 | Approved production is corrected by **REOPENED** (stamp cleared, reason required), **REVERSED** (stamp kept as evidence, reason required, approved records only — never-approved work is VOIDed) or an **Adjustment** record naming the original Production ID. A negative quantity is valid only on an Adjustment | Destructive-change condition 11: an approved record must never be silently overwritten; every correction is a visible, reasoned event. Mirrors D-009 for materials | Status list, m151–m161, `enforceLifecycleRules`, every report's status predicate, voided-reversed.sql | Claude (design) |
+| D-019 | 2026-11-09 | `calc_version` records the Data Event version that **last** calculated the record, not the first | Derived fields are recalculated on every save, so the version that last ran is the one that explains the stored values. A first-save stamp would point at code that no longer produced them | m162, `CALC_VERSION` | Claude (design) |
+| D-020 | 2026-11-09 | Rate Unit and Description are administrator-entered (Unit required); every rate is USD, stated in a Currency field; Contract Reference is recorded but not required | No script can derive the unit (no labels in the runtime) and production copies it from the rate (D-015). Requiring a contract reference would block correction of 146 legacy rates | r009, r010, r018, r019; rate-master-audit.sql | Claude (design) |
 
 ## Decisions the prompt names that are still open
 
-The prompt specifically lists these as decisions to record. Two have no answer yet.
+The prompt specifically lists these as decisions to record. One has no answer yet.
 
 | Question | Status |
 |---|---|
 | First day of the reporting week | Settled — D-001 |
 | Whether only approved production counts toward completion | Settled — D-002 |
 | The historical-rate snapshot rule | Settled — D-003 |
-| Treatment of negative transactions | Settled for materials (D-009); **open for production** — production has no Adjusted/Reversed state |
+| Treatment of negative transactions | Settled — D-009 (materials), D-018 (production) |
 | Closed-project behaviour | Partly settled — closeout gates exist; **whether a closed project hard-rejects new production is not enforced on the production app** |
 | The organizational timezone | **Open.** D-017 makes derivation timezone-independent, which removes the defect, but nobody has stated the reporting timezone for the business |

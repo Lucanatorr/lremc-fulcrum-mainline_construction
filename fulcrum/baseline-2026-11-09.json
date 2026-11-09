@@ -1,0 +1,290 @@
+{
+ "baseline_date": "2026-11-09",
+ "environment": "Development",
+ "captured_by": "read-only forms_get / choice_lists_get / query_records",
+ "forms": [
+  {
+   "name": "Mainline Construction - Development",
+   "id": "06c36c8e-4a88-4cf3-a691-9a792f8374d2",
+   "updated_at": "2026-11-09T14:26:23Z",
+   "data_event_version": "7.6.0",
+   "script_sha256": "14b642bd2d88d09f2291efc600fe8ec86c736df92b7e8a898f33e3a4d5a18c2d",
+   "script_chars": 49034,
+   "element_count": 152,
+   "elements_sha256": "c19f72576db635a362d34902fc9ba891a456dc945ed84cd1ff2b050c2e21d327",
+   "statuses": [
+    "DRAFT",
+    "SUBMITTED",
+    "UNDER REVIEW",
+    "APPROVED",
+    "REJECTED",
+    "CORRECTION REQUIRED",
+    "VOID",
+    "REOPENED",
+    "REVERSED"
+   ],
+   "record_counts_by_status": {
+    "DRAFT": 1,
+    "SUBMITTED": 1
+   }
+  },
+  {
+   "name": "MC Project Closeout - Development",
+   "id": "351bb1f1-9837-47c8-be5b-bb0727fe93a0",
+   "updated_at": "2026-09-21T22:02:18Z",
+   "data_event_version": "1.0.0",
+   "script_sha256": "afaa2d457c51858cb7364695e561f886ad96bc77daa464b9d292ef8022aa00dd",
+   "script_chars": 8522,
+   "element_count": 43,
+   "elements_sha256": "4abf2bcd385f12f32f4a9a2356a6b20d5aedfcac6c06a7763fbc1ef2424f0556",
+   "statuses": [
+    "OPEN",
+    "IN CLOSEOUT",
+    "READY TO CLOSE",
+    "CLOSED",
+    "REOPENED",
+    "VOID"
+   ],
+   "record_counts_by_status": {}
+  },
+  {
+   "name": "MC Labor-Material Mapping - Development",
+   "id": "38e3d7fd-ca78-4016-8018-ec955446c13f",
+   "updated_at": "2026-09-21T23:43:59Z",
+   "data_event_version": "1.0.0",
+   "script_sha256": "d87e81da6d1d19ebc2ae1da97d20b733d4b886a021e2223783332a9abeb51246",
+   "script_chars": 1806,
+   "element_count": 18,
+   "elements_sha256": "b47e4e02966f062b8bed952345def2a4b9580142b352b0e41b5a133de3b1ef13",
+   "statuses": [
+    "NEEDS REVIEW",
+    "APPROVED",
+    "SUPERSEDED",
+    "REJECTED"
+   ],
+   "record_counts_by_status": {
+    "APPROVED": 58,
+    "NEEDS REVIEW": 67
+   }
+  },
+  {
+   "name": "MC Structure - Development",
+   "id": "397b52cf-a4f0-4871-b8ea-1fdb592fe2ab",
+   "updated_at": "2026-11-09T13:11:16Z",
+   "data_event_version": "1.1.0",
+   "script_sha256": "d4764dc70b69c70d41a3890b4942b9c87c9c13a2e43b978cfeb4844f605a0584",
+   "script_chars": 7496,
+   "element_count": 31,
+   "elements_sha256": "85e4961c236a596ac5ca38e4500ab294ff3f9be96102bc67d65bc8edf8147d88",
+   "statuses": [
+    "PLANNED",
+    "EXISTING",
+    "INSTALLED",
+    "REMOVED"
+   ],
+   "record_counts_by_status": {}
+  },
+  {
+   "name": "MC Change Order - Development",
+   "id": "458ae172-b7b4-43b5-8917-d7a792c9e81a",
+   "updated_at": "2026-11-09T13:09:42Z",
+   "data_event_version": "1.1.0",
+   "script_sha256": "50d73608ec9505c594fb471cfb08ef78a2d93950d17c9d8aea9635b1a890df7e",
+   "script_chars": 8211,
+   "element_count": 31,
+   "elements_sha256": "1b91dee11058f15e3722cf850bb51b1627689ab339e2fa3238708c6f28ffca56",
+   "statuses": [
+    "DRAFT",
+    "SUBMITTED",
+    "APPROVED",
+    "REJECTED",
+    "CANCELLED"
+   ],
+   "record_counts_by_status": {}
+  },
+  {
+   "name": "MC Project Master - Development",
+   "id": "5ce243d4-9ec1-4fbd-8659-7be9f632b55c",
+   "updated_at": "2026-09-21T23:42:41Z",
+   "data_event_version": null,
+   "script_sha256": null,
+   "script_chars": 0,
+   "element_count": 22,
+   "elements_sha256": "aba8d3a5a12b33c59f79090bfcd8ab3683bed28159355a4ff63c6643d567d2cb",
+   "statuses": [
+    "PLANNING",
+    "ACTIVE",
+    "ON HOLD",
+    "CONSTRUCTION COMPLETE",
+    "CLOSED"
+   ],
+   "record_counts_by_status": {
+    "ACTIVE": 3
+   }
+  },
+  {
+   "name": "MC Material Master - Development",
+   "id": "658143d1-edbd-430b-81bb-1b0bb1092729",
+   "updated_at": "2026-09-21T23:43:17Z",
+   "data_event_version": null,
+   "script_sha256": null,
+   "script_chars": 0,
+   "element_count": 12,
+   "elements_sha256": "62c5fc2c555cccaca0924e381ac9541b624503c8d6243b21ec0eb2792e30a6db",
+   "statuses": [
+    "ACTIVE",
+    "INACTIVE",
+    "DISCONTINUED"
+   ],
+   "record_counts_by_status": {
+    "ACTIVE": 135
+   }
+  },
+  {
+   "name": "MC Fiber Reel - Development",
+   "id": "728477da-5f36-48cb-b3ab-cbc8c38d077f",
+   "updated_at": "2026-09-21T17:32:15Z",
+   "data_event_version": "2.0.0",
+   "script_sha256": "a1e04aca5dcd993613e1b0f51f346803ba4a54fbb488b2383fc6a29611967013",
+   "script_chars": 2985,
+   "element_count": 19,
+   "elements_sha256": "13895c19a4e71abf1a664c4bdadee17b829e032600dcb3214b7eb5dfbc70eb03",
+   "statuses": [
+    "AVAILABLE",
+    "IN USE",
+    "DEPLETED",
+    "RETURNED",
+    "DAMAGED"
+   ],
+   "record_counts_by_status": {}
+  },
+  {
+   "name": "MC Segment - Development",
+   "id": "7da87588-940a-4b9e-915d-5ec25d5c0ebc",
+   "updated_at": "2026-09-17T22:18:12Z",
+   "data_event_version": "1.0.0",
+   "script_sha256": "ba64d56e813ca63330ad54f688b682a71db5a2ae5b335c683f11e0111685d1ae",
+   "script_chars": 5992,
+   "element_count": 26,
+   "elements_sha256": "bf0b96eec8cfd3df33e6a046d0d42eca1a2c1eb76cbeaec477e57037c62f78f5",
+   "statuses": [
+    "PLANNED",
+    "IN PROGRESS",
+    "COMPLETE",
+    "ABANDONED"
+   ],
+   "record_counts_by_status": {}
+  },
+  {
+   "name": "MC Contractor Rate - Development",
+   "id": "a5529dd0-54fa-4b8d-b595-d0218df0ee97",
+   "updated_at": "2026-11-09T14:31:35Z",
+   "data_event_version": "1.1.0",
+   "script_sha256": "c8f082518a0acb8a1db4639c3464c041d0c11254205be71b6bc1f63d249763d1",
+   "script_chars": 4753,
+   "element_count": 22,
+   "elements_sha256": "d0a0114b6a47b952425cd6f8b46e99d794d65c28631e6bb7cc77281e955e71ae",
+   "statuses": [
+    "DRAFT",
+    "ACTIVE",
+    "EXPIRED",
+    "SUPERSEDED"
+   ],
+   "record_counts_by_status": {
+    "ACTIVE": 146
+   }
+  },
+  {
+   "name": "MC Project Scope Line - Development",
+   "id": "aa1d8c1e-d0a9-4fd1-8d57-ca90b4555b0b",
+   "updated_at": "2026-11-09T13:03:00Z",
+   "data_event_version": "1.1.0",
+   "script_sha256": "5da18c778209227bdb08f65dde5c6ae41aee51b1f5f884d5696aa8cb357cb049",
+   "script_chars": 7293,
+   "element_count": 24,
+   "elements_sha256": "755a8df21f958780aa7ca9adc534097d0f9a784fdb09b5b4b0824cf8ac51a3a3",
+   "statuses": [
+    "DRAFT",
+    "BASELINED",
+    "CLOSED"
+   ],
+   "record_counts_by_status": {}
+  },
+  {
+   "name": "MC Contractor Master - Development",
+   "id": "d8a368b5-1e19-4f5f-8cf9-ff8fbdd03ab4",
+   "updated_at": "2026-09-21T23:42:54Z",
+   "data_event_version": null,
+   "script_sha256": null,
+   "script_chars": 0,
+   "element_count": 10,
+   "elements_sha256": "26f354d1b630a4407c120156e9d7d782a266a6177125d5e9eb5ca905eca1a3fa",
+   "statuses": [
+    "ACTIVE",
+    "INACTIVE"
+   ],
+   "record_counts_by_status": {
+    "ACTIVE": 3
+   }
+  },
+  {
+   "name": "MC Material Transaction - Development",
+   "id": "ee204906-adb3-431b-a1d9-d7427a4c842c",
+   "updated_at": "2026-11-09T13:10:32Z",
+   "data_event_version": "1.1.0",
+   "script_sha256": "17d4eae7bb1f8a5050741937b4c4ab611ef56f164b2c1c9a78f645dda7fc1269",
+   "script_chars": 3536,
+   "element_count": 21,
+   "elements_sha256": "aeb1ee7499014d6f5848da4dc8ea7a06be4223cde353bdb4b0ec5091a6f41694",
+   "statuses": [
+    "DRAFT",
+    "POSTED",
+    "VOID"
+   ],
+   "record_counts_by_status": {}
+  }
+ ],
+ "choice_lists": [
+  {
+   "name": "MC Work Category",
+   "id": "06cf7fc6-d939-488e-bf53-4f027b603887",
+   "updated_at": "2026-09-16T21:58:46Z",
+   "entries": 11,
+   "choices_sha256": "e06753ba4314026125820ada364a7567854cd3c30b6d4dfe6a9797e0145e547b"
+  },
+  {
+   "name": "MC Construction Method",
+   "id": "5828393b-b4dc-4545-8db0-921e352c5b8c",
+   "updated_at": "2026-09-16T21:58:50Z",
+   "entries": 14,
+   "choices_sha256": "8f24a89b5a3ceafd466b644aa493aacce8d2dd0a0e06f5c36d04d7d8c6babbdf"
+  },
+  {
+   "name": "MC Unit of Measure",
+   "id": "8713e0c3-3b5e-40a5-9886-3e5b979b7461",
+   "updated_at": "2026-09-16T21:58:53Z",
+   "entries": 6,
+   "choices_sha256": "a7869a6ab443d703c2dcc79de3aa7b5cb4082af8caf5cfea16de315b90f96a0a"
+  },
+  {
+   "name": "MC QA Status",
+   "id": "9674b6ec-4e8e-4243-b9a0-f2ffeaadf771",
+   "updated_at": "2026-09-16T21:58:55Z",
+   "entries": 4,
+   "choices_sha256": "93ad822b198fc0e78636c96f045a83f92510c1221499efe59d7d3e591a49a947"
+  },
+  {
+   "name": "MC Labor Code",
+   "id": "ddccba3b-c5b6-4a38-8892-805e916afacd",
+   "updated_at": "2026-09-17T21:07:30Z",
+   "entries": 146,
+   "choices_sha256": "6d7852b04ee1a2628886a27d6de32e407c0d45245640ea950efce62ca44d0f5e"
+  }
+ ],
+ "production_app_untouched": {
+  "name": "Mainline Construction",
+  "id": "148545bf-b869-454e-a2b9-44a9860f23de",
+  "updated_at": "2026-10-21T14:11:35Z",
+  "note": "not part of this system; read only to check OI-01"
+ }
+}
