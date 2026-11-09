@@ -1,7 +1,7 @@
 /**
  * Mainline Construction - Development
- * Data Events - v7.5.0 (2026-09-22). NOT YET DEPLOYED - forms_update is
- * refusing all writes, see docs/sprint-23-known-limitations.md L16.
+ * Data Events - v7.5.0 (2026-09-22), deployed 2026-11-09. Held back until
+ * then by the forms_update refusals, see docs/sprint-23-known-limitations.md L16.
  *
  * CHANGE IN v7.5.0 - A WORK DATE IS A CALENDAR DATE, NOT AN INSTANT
  * parseDate() read a UTC-midnight date-only field with the LOCAL getters, so

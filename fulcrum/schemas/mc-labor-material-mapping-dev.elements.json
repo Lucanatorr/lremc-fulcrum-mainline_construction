@@ -135,6 +135,10 @@
       "value": "DERIVED"
      },
      {
+      "label": "OBSERVED CONSUMPTION - measured from real project consumption records",
+      "value": "OBSERVED_CONSUMPTION"
+     },
+     {
       "label": "BUSINESS RULE - a human decided this",
       "value": "BUSINESS_RULE"
      },
@@ -143,7 +147,7 @@
       "value": "NEEDS_REVIEW"
      }
     ],
-    "description": "Provenance. NEEDS REVIEW mappings must not drive production calculations until approved (Sprint 23.67).",
+    "description": "Provenance. NEEDS REVIEW mappings must not drive production calculations until approved (Sprint 23.67). OBSERVED CONSUMPTION means the ratio was measured from two real projects' consumption records - see the Confidence field for how well they agreed.",
     "disabled": false,
     "hidden": false,
     "multiple": false,

@@ -284,7 +284,7 @@ stale. Reports join `_created_by_id` to `memberships` instead. Verified live:
 Changed 2026-09-22 after the first real production record saved with a null
 unit. The Data Events runtime exposes no choice labels, so the documented
 "derived from the labor code" behaviour was impossible. The unit is now copied
-from the selected rate. **Committed and tested; not yet deployed** — see L16.
+from the selected rate. **Committed, tested and deployed 2026-11-09** — see L16.
 
 ### 4.7 The mapping master is keyed on labor code
 
@@ -343,8 +343,8 @@ process and verification rather than function:
 3. No UAT with real users (3.8)
 4. No offline capability matrix (3.7)
 5. No date-boundary or timezone confirmation (3.8)
-6. The unit fix is committed but undeployed (L16), so records entered today
-   still save without a unit
+6. ~~The unit fix is committed but undeployed (L16)~~ deployed 2026-11-09;
+   records saved before then may still carry a null unit
 
 None of these say the calculations are wrong. The financial core reconciles, the
 rate snapshot holds, the banded DP schedule is confirmed live, and 24 of 24
@@ -417,7 +417,7 @@ After §7, what remains outstanding against the prompt:
 2. No security or permission testing (OI-05)
 3. No UAT with real users, no feedback register (OI-06)
 4. Production lifecycle missing Reopened / Reversed / Adjusted (OI-03)
-5. `forms_update` outage — five scripts and two schema changes undeployed (OI-02)
+5. ~~`forms_update` outage — five scripts and two schema changes undeployed (OI-02)~~ resolved and deployed 2026-11-09
 6. Live API credentials in the production app's script (OI-01)
 
 **P2**

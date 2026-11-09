@@ -244,8 +244,9 @@ was, and the script now only ever fills a blank unit. The four affected
 report predicates are NULL-guarded. Covered by
 `tests/unit-derivation.test.js` (19 assertions).
 
-**Not yet deployed - forms_update is refusing every write (see L16).**
-Until it is deployed, every record entered in the editor still loses its unit.
+**Deployed 2026-11-09** (scope line script on 2026-11-09; its copy-down by
+Fulcrum support on 2026-10-28). Records saved before then may still carry a
+null unit and should be re-saved, or reported with the NULL guard.
 
 The same defect was then found in two more scripts and is fixed in the repo
 alongside it:
@@ -420,6 +421,25 @@ Read-back through the same connection: `updated_at` `2026-11-09T13:03:00Z`;
 the live script is byte-identical to `fulcrum/data-events/mc-project-scope-line-dev.js`
 (sha256 `5da18c77...`); no element, record default, description or status-field
 change. Fulcrum's 2026-10-28 copy-down (`s006 <- r010`) is intact.
+
+**Remaining deploys, same day (2026-11-09), all through `fulcrum-app`:**
+
+| # | Form | Change | Result | Read-back |
+|---|---|---|---|---|
+| 26 | MC Change Order | script (unit guard) | accepted | script == repo, nothing else changed |
+| 27 | MC Material Transaction | script (parseDate) | accepted | script == repo, nothing else changed |
+| 28 | MC Structure | script (parseDate) | accepted | script == repo, nothing else changed |
+| 29 | Mainline Construction - Development | script v7.5.0 | accepted | script == repo, nothing else changed |
+| 30 | Mainline Construction - Development | elements: m024 description, `m024 <- r010` | accepted | elements == intended payload; script unchanged |
+
+The 76 KB elements payload for #30 was built from the live elements with only
+the two changes applied, and sent from a file through the same server and
+credential rather than retyped. A full re-read of all eleven Development forms
+afterwards shows every repo script and schema matching live, apart from
+cosmetic differences (a trailing newline, two comments) that were left alone.
+The Labor-Material Mapping repo schema was found to be OLDER than live (it
+lacked the OBSERVED_CONSUMPTION choice added for the 2026-09-21 import) and was
+synced from live instead of being pushed.
 
 **Cause.** The refusals followed the claude.ai `Fulcrum_MCP` connector, not
 the form, the payload or the account. The same update was refused 24 times
