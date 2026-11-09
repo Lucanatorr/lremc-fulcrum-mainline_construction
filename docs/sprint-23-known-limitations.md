@@ -410,6 +410,28 @@ project-scope 68/68).
 | 23 | same, after the user generated a new API token and reconnected | `8deeea41fbf8b7839659100a41b87191` | refused |
 | 24 | same, immediate retry | `853ebe9e637dc48893c75eeb3a6ed0f7` | refused |
 
+### Resolved: the direct connection works (2026-11-09)
+
+| # | Connection | Body | Result |
+|---|---|---|---|
+| 25 | `fulcrum-app`, direct (`.mcp.json`, org API token as Bearer) | `script` only | **accepted**, first attempt |
+
+Read-back through the same connection: `updated_at` `2026-11-09T13:03:00Z`;
+the live script is byte-identical to `fulcrum/data-events/mc-project-scope-line-dev.js`
+(sha256 `5da18c77...`); no element, record default, description or status-field
+change. Fulcrum's 2026-10-28 copy-down (`s006 <- r010`) is intact.
+
+**Cause.** The refusals followed the claude.ai `Fulcrum_MCP` connector, not
+the form, the payload or the account. The same update was refused 24 times
+through that connector, including on 2026-10-28 with a newly generated token,
+and accepted the first time through a connection configured as the
+fulcrum-ai-toolkit setup guide prescribes. That connector signs in some other
+way: replacing the API token did not change its behaviour. It can read but not
+update. The direct server's `forms_update` also describes newer behaviour
+(it reads the current form itself to supply the required name and elements).
+Use the `fulcrum-app` server from `.mcp.json` for all writes.
+
+
 Read-back: script still v1.0.0, `updated_at` still `2026-10-28T14:34:04Z`,
 Fulcrum's copy-down intact. So the same form accepted an update through
 Fulcrum's MCP minutes earlier and still refuses ours. The block is tied to
