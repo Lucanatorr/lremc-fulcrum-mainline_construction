@@ -29,7 +29,14 @@ and renumbered 16 onward. The content mostly exists; the labels do not line up.
 | 22 | Auditability, exceptions, closeout | Built, but labelled **Sprints 20–22** |
 | 23 | Testing and user acceptance | Labelled Sprint 23 — the one that matches |
 
-**Sprints 24–32 were never started.** The instruction "complete the rest of the
+**Update 2026-11-09:** Sprints 24, 25 and 26 have now been carried out, as far
+as they can be without a production change: the Sprint 24 gate assessment (it
+fails), the baseline, the pilot and rollout plan and the backout procedure;
+Sprint 25 role training; Sprint 26 governance. See
+`docs/sprint-24-deployment-readiness.md`, `docs/training/` and
+`docs/sprint-26-governance.md`. Sprints 27–32 remain.
+
+**Sprints 24–32 were never started** (as of 2026-09-22). The instruction "complete the rest of the
 sprints" was carried out as though Sprint 23 ended the programme. It does not:
 24 production deployment, 25 training, 26 governance, 27 audit operations,
 28 advanced analytics, 29 Power BI readiness, 30 integration, 31 backup and
@@ -422,14 +429,14 @@ After §7, what remains outstanding against the prompt:
 
 **P2**
 
-7. No voided/reversed value view (OI-07)
-8. No calculation-version stamp (OI-08)
-9. Rate model missing Currency and contract reference (OI-09)
+7. ~~No voided/reversed value view (OI-07)~~ resolved 2026-11-09
+8. ~~No calculation-version stamp (OI-08)~~ resolved 2026-11-09
+9. ~~Rate model missing Currency and contract reference (OI-09)~~ resolved 2026-11-09
 10. QA/QC missing owner, due date, inspection type, QA ID (OI-10)
-11. Sprints 24–32 never started (OI-16)
+11. ~~Sprints 24–32 never started (OI-16)~~ 24–26 drafted 2026-11-09; 27–32 remain
 
 **P3**
 
-12. Forecasting burn-rate and previous-7-day metrics (OI-14)
+12. ~~Forecasting burn-rate and previous-7-day metrics (OI-14)~~ resolved 2026-11-09
 13. Organizational timezone never stated (OI-17) — derivation is now
     timezone-independent, so this is documentation rather than defect

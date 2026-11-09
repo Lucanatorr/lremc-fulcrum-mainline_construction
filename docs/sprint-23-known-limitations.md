@@ -211,9 +211,9 @@ as written in Fulcrum's Query UI and over REST. `scripts/flatten_report.py
 --mcp` rewrites `a + b` to `a - -b` for MCP execution only; the canonical
 files keep `+`.
 
-## L14 - query-mcp has a request-size ceiling of roughly 6 KB
+## L14 - query-mcp has a request-size ceiling between 8.6 and 11.9 KB
 
-A 6.3 KB statement runs; 11.9 KB returns HTTP 431. `exception-dashboard.sql`
+An 8.6 KB statement (`project-summary.sql`, 2026-11-09) runs; 11.9 KB returns HTTP 431. `exception-dashboard.sql`
 (11.9 KB flattened, 17 exception branches over one shared prelude) therefore
 cannot run in one piece through MCP. `scripts/slice_report.py` executes it as
 prelude + branch subsets; all 17 branches have been run against the live
@@ -223,7 +223,7 @@ UNION ALL of column lists that each already compiled.
 Neither limit affects the delivered artefact: Fulcrum runs these reports
 itself, not through this client.
 
-## L15 - the unit was erased on every editor save (FIXED, deploy pending)
+## L15 - the unit was erased on every editor save (FIXED, deployed 2026-11-09)
 
 `applyLaborMetadata()` parsed the unit from the labor code's choice LABEL.
 The Data Events runtime exposes no labels -- a ChoiceField arrives as
@@ -259,7 +259,7 @@ alongside it:
 
 All three now only ever FILL a blank unit and never clear one.
 
-## L16 - fulcrum_forms_update is refusing all writes (2026-09-22)
+## L16 - fulcrum_forms_update is refusing all writes (2026-09-22; RESOLVED 2026-11-09 via the direct fulcrum-app server)
 
 Every `forms_update` call is rejected with "Fulcrum could not accept the
 requested operation" and no detail. This is not payload-specific. Established
@@ -504,3 +504,27 @@ writes come back.
 A faster route for any of these: add the copy-down in the Fulcrum app editor
 by hand. On the rate record link, map the rate's **Unit** to the form's
 **Unit** field.
+
+## L17 - The Query engine refuses a window frame that ends before the current row
+
+**What.** `RANGE BETWEEN INTERVAL '13' DAY PRECEDING AND INTERVAL '7' DAY
+PRECEDING` fails with *"frame starting from following row cannot have
+preceding rows"*. Found 2026-11-09, running `production-trend.sql` live after
+it had passed every structural test.
+
+**Workaround.** Write the window as the difference of two frames that end at
+CURRENT ROW (14 days minus 7 days), which covers the same set of days.
+`TEST-LIFE-RPT-006` refuses the pattern in any report.
+
+**Lesson.** A structural test proves form, not that the engine accepts it.
+Every changed report is run once against live data before it is called done.
+
+## L18 - Live configuration that had never been committed
+
+**What.** The Contractor Rate and Labor-Material Mapping scripts, and the
+Project Master and Contractor Master schemas, were live but had never been
+committed. All four were found and captured unchanged on 2026-11-09, when the
+first full configuration baseline was taken.
+
+**Control.** `fulcrum/baseline-2026-11-09.json` now names all 13 apps; the
+weekly drift check in `docs/sprint-26-governance.md` §5 compares live against it.

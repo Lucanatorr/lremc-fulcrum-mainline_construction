@@ -115,7 +115,8 @@ FROM (
     WHERE _status = 'APPROVED'
     GROUP BY project_id_snapshot, labor_code
   ) prod ON prod.project_id = s.project_id_snap AND prod.labor_code = s.labor_code
-  WHERE s._status <> 'VOID'
+  -- Authorized scope only, as in remaining-work.sql. A DRAFT line is not yet scope.
+  WHERE s._status IN ('BASELINED', 'CLOSED')
 ) r
 WHERE r.remaining > 0
 GROUP BY r.project_id
@@ -175,7 +176,9 @@ UNION ALL SELECT
     || 'Authorized scope is not final while one is open.',
   'project-scope-status.sql'
 FROM "458ae172-b7b4-43b5-8917-d7a792c9e81a" co
-WHERE co._status NOT IN ('APPROVED', 'REJECTED', 'VOID')
+-- CANCELLED is a resolution too. The app has no VOID status; it stays listed
+-- so a status added later cannot silently become "unresolved".
+WHERE co._status NOT IN ('APPROVED', 'REJECTED', 'CANCELLED', 'VOID')
 GROUP BY co.project_id_snap
 
 -- 8. MISSING TEST RESULTS. Splicing with no OTDR or light-meter result. The

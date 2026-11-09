@@ -305,7 +305,15 @@ check('TEST-QA-010', 'the queue only lists pending records',
 {
   const missingReversed = [], missingReopened = [];
   for (const [name, text] of Object.entries(sql)) {
-    if (/NOT IN \('VOID'(?!, 'REVERSED')/.test(text) || /\bp\._status <> 'VOID'/.test(text)) missingReversed.push(name);
+    // A status list is about production only if every value in it is a
+    // production status. A list naming SUPERSEDED or CANCELLED filters another
+    // app (mapping, change order), where REVERSED does not exist.
+    const PRODUCTION = ['DRAFT', 'SUBMITTED', 'UNDER REVIEW', 'CORRECTION REQUIRED', 'APPROVED',
+                        'REJECTED', 'VOID', 'REOPENED', 'REVERSED'];
+    const lists = (text.match(/NOT IN \(([^)]*)\)/g) || [])
+      .map(m => (m.match(/'([^']*)'/g) || []).map(v => v.slice(1, -1)))
+      .filter(vals => vals.includes('VOID') && vals.every(v => PRODUCTION.includes(v)));
+    if (lists.some(vals => !vals.includes('REVERSED')) || /\bp\._status <> 'VOID'/.test(text)) missingReversed.push(name);
     for (const m of text.match(/IN \([^)]*'UNDER REVIEW'[^)]*\)/g) || []) {
       if (!/'REOPENED'/.test(m)) missingReopened.push(name);
     }
@@ -324,6 +332,17 @@ check('TEST-QA-010', 'the queue only lists pending records',
   // two frames that end at CURRENT ROW instead.
   const offenders = Object.keys(sql).filter(f => /AND\s+INTERVAL\s+'\d+'\s+DAY\s+PRECEDING/i.test(sql[f]));
   check('TEST-LIFE-RPT-006', 'no report uses a window frame that ends before the current row', offenders, []);
+
+  // Status filters must use statuses the filtered app actually has. Found
+  // 2026-11-09 against the live status lists: Change Order has CANCELLED and
+  // no VOID; Mapping has REJECTED/SUPERSEDED; Scope Line has DRAFT and no VOID.
+  check('TEST-STATUS-001', 'a CANCELLED change order is not an unresolved closeout blocker',
+        /co\._status NOT IN \([^)]*'CANCELLED'/.test(sql['closeout-readiness.sql']), true);
+  const mappingFilters = ['exception-dashboard.sql', 'material-variance.sql']
+    .filter(f => !/mm\._status NOT IN \('VOID', 'REJECTED', 'SUPERSEDED'\)/.test(sql[f]));
+  check('TEST-STATUS-002', 'REJECTED and SUPERSEDED mappings do not count as coverage', mappingFilters, []);
+  const draftScope = Object.keys(sql).filter(f => /\bs\._status <> 'VOID'/.test(sql[f]));
+  check('TEST-STATUS-003', 'no report treats a DRAFT scope line as authorized scope', draftScope, []);
 }
 check('TEST-QA-011', 'overlap counting treats adjacency as legitimate',
       /> 0\s*\n?\s*GROUP BY a\._record_id/.test(sql['qa-review-queue.sql']), true);

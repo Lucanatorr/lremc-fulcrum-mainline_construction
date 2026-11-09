@@ -54,7 +54,8 @@ WITH expected AS (
   LEFT JOIN (
     SELECT DISTINCT mm.labor_code, mm.material_code
     FROM "38e3d7fd-ca78-4016-8018-ec955446c13f" mm
-    WHERE mm._status <> 'VOID'
+    -- A REJECTED or SUPERSEDED mapping is not coverage.
+    WHERE mm._status NOT IN ('VOID', 'REJECTED', 'SUPERSEDED')
       AND COALESCE(mm.active, 'yes') <> 'no'
   ) mp ON mp.labor_code = p.labor_code
   WHERE p._status NOT IN ('VOID', 'REVERSED')

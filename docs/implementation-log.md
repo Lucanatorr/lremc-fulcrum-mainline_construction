@@ -6,6 +6,75 @@ Newest entries first. Every Fulcrum object this project creates is listed in
 
 ---
 
+## 2026-11-09 — Sprint 23 build closed out; Sprints 24–26 carried out as far as allowed
+
+**No production change.** All writes went to the Development apps; the
+production app was read once (OI-01).
+
+### Sprint 23 — the buildable open issues
+
+| Issue | What shipped | Deployed |
+|---|---|---|
+| OI-03 / D-018 | REOPENED and REVERSED statuses; Adjustment records (m151–m153); negative quantity refused except on an Adjustment | Mainline elements 14:22, script v7.6.0 14:26 |
+| OI-07 | `reports/voided-reversed.sql` | — |
+| OI-08 / D-019 | `calc_version` (m162), stamped on every validate | v7.6.0 |
+| OI-09 / D-020 | Rate Currency and Contract Reference; Unit and Description editable; Unit required | Rate v1.1.0 14:31 |
+| OI-10 | QA Owner and QA Due Date; missing-owner and overdue warnings | v7.6.0 |
+| OI-14 | Burn rate, previous 7 days and 7-day velocity in `production-trend.sql` | — |
+
+The Contractor Rate script had been live since Sprint 2 and was never
+committed. Its `applyLaborMetadata` cleared unit and description on every
+save, the same defect fixed everywhere else on 2026-09-22. No rate had been
+edited since import, so it never fired.
+
+### Every report run against live data
+
+All 26 reports ran through `query_records`. Two defects surfaced that
+structural tests could not see:
+
+1. **`production-trend.sql`** used a window frame ending at `7 DAY PRECEDING`,
+   which the engine refuses (L17). It is now rewritten as 14 days minus 7 days.
+2. **Status filters naming statuses an app does not have.** These were found by
+   reading every app's status list for the baseline:
+   - Change Order has **CANCELLED** and no VOID, so `closeout-readiness` would
+     have treated a cancelled order as an unresolved blocker for ever.
+   - Mapping has **REJECTED / SUPERSEDED**, which still counted as coverage.
+   - Scope Line has **DRAFT** and no VOID, so three reports counted unbaselined
+     lines as authorized scope.
+
+   All three are fixed, with tests `TEST-STATUS-001..003`. The
+   production-only REVERSED guard was narrowed so it no longer misfires on
+   other apps' status lists.
+
+### Sprint 24 — `docs/sprint-24-deployment-readiness.md`
+
+The gate fails: 5 PASS, 7 FAIL. The first reading of the configured roles
+found **a contractor can approve their own production** (P-1, now OI-22).
+The baseline in `fulcrum/baseline-2026-11-09.json` covers 13 apps and 5 choice
+lists. Four pieces of live configuration had never been committed (L18), and
+all four are now in the repo unchanged. Backout procedure:
+`docs/backout-recovery-procedure.md`, written but not rehearsed.
+
+### Sprint 25 — `docs/training/`
+
+Field Inspector, Project Manager, Contract/Finance and Administrator guides,
+plus nine quick-reference cards. They use the form's real labels and the
+script's real messages. Stale lines in `operations-guide.md` were corrected.
+
+### Sprint 26 — `docs/sprint-26-governance.md`
+
+Nine roles (unassigned), the activation rule, procedures for each master, the
+support tiers, the daily, weekly and monthly audit cadence, and exports. The
+rate approver is not capturable today (OI-20).
+
+### Needs a person
+
+OI-01 rotation · OI-22 / P-1 role decision · OI-06 UAT · names for the nine
+governance roles · a scope baseline for a pilot project · the backout
+rehearsal · PRD-2026-143C1840 needs its rate re-selected (OI-19).
+
+---
+
 ## 2026-09-21 — Master data import: pre-flighted, and three defects it exposed
 
 **The import itself could not be performed from this session**, and the reason
@@ -801,9 +870,9 @@ Data Event script**. See the security note in that document.
 | 26 | **Should work category be derived from the labor-code prefix?** It is the largest remaining entry saving in the field app, and the 2026-09-17 ruling forbids inferring category from a prefix. The ruling was written about footage classification; applying it to data entry may be stricter than intended | Sprint 18 | Open — needs a ruling |
 | 27 | **Productivity and forecast reports read `work_day_of_week`**, derived on the record. Records written by import or API without running Data Events have it blank and drop out of both reports silently | Sprint 16 | Open |
 | 28 | **Material mapping version is not snapshotted** onto production (23.47.1 asks for it "where feasible"). The mapping master has no records, so there is no version to snapshot yet | Sprint 23 | Open |
-| 29 | **No production adjustment/reversal transaction** (23.47.26). Correcting billed production edits the record rather than posting a compensating entry, so the original claim is lost. The material ledger already works this way; production does not | Sprint 23 | Open — business decision |
-| 30 | **VOID is honoured but not attributed** (23.47.28). Every report excludes VOID records, but nothing records void reason, voided-by or void date | Sprint 23 | Open |
-| 31 | **No backout/recovery procedure** (23.76 #13). Every schema and script is versioned, so rollback is a redeploy of a prior commit - but that has never been rehearsed or written down | Sprint 23 | Open |
+| 29 | **No production adjustment/reversal transaction** (23.47.26). Correcting billed production edits the record rather than posting a compensating entry, so the original claim is lost. The material ledger already works this way; production does not | Sprint 23 | **Resolved 2026-11-09** (D-018, v7.6.0) |
+| 30 | **VOID is honoured but not attributed** (23.47.28). Every report excludes VOID records, but nothing records void reason, voided-by or void date | Sprint 23 | Open. REVERSED is now attributed (by, date, reason); VOID still is not |
+| 31 | **No backout/recovery procedure** (23.76 #13). Every schema and script is versioned, so rollback is a redeploy of a prior commit - but that has never been rehearsed or written down | Sprint 23 | Written 2026-11-09 (`backout-recovery-procedure.md`); **not rehearsed** |
 | 8 | Span footage is hand-entered. Auto-derivation needs a pole dataset with coordinates; `Poles and Inspections_demo_app` (10,000 records) may be a source | Sprint 6 | Open |
 
 ## Rulings on record

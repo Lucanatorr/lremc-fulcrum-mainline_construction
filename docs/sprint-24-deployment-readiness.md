@@ -134,6 +134,17 @@ used a window frame ending at `7 DAY PRECEDING`. The Query engine refuses that
 written as the 14-day window minus the 7-day window, which covers the same set
 of days, and `TEST-LIFE-RPT-006` guards every report against the pattern.
 
+**Taking the baseline found three more report defects.** Reading every app's
+status list showed reports filtering on a VOID status that three apps do not
+have:
+- Change Order has **CANCELLED**, so a cancelled order would have blocked
+  closeout for ever.
+- Mapping has **REJECTED / SUPERSEDED**, which counted as material coverage.
+- Scope Line has **DRAFT**, which three reports counted as authorized scope.
+
+All three are fixed and tested (`TEST-STATUS-001..003`), and the changed
+predicates were executed live.
+
 **The transport limit is higher than recorded.** An 8.6 KB statement
 (`project-summary.sql`) ran; 11.9 KB is still refused. Only
 `exception-dashboard.sql` (12.1 KB) needs `scripts/slice_report.py`, and both

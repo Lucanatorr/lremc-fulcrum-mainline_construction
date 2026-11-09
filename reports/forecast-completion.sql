@@ -139,7 +139,8 @@ rows AS (
     ON p.project_id = s.project_id_snap AND p.labor_code = s.labor_code
   LEFT JOIN recent_rate rr
     ON rr.project_id = s.project_id_snap AND rr.labor_code = s.labor_code
-  WHERE s._status <> 'VOID'
+  -- Authorized scope only, as in remaining-work.sql. A DRAFT line is not yet scope.
+  WHERE s._status IN ('BASELINED', 'CLOSED')
     AND (p_project_id IS NULL OR s.project_id_snap = p_project_id)
     AND (p_labor_code IS NULL OR s.labor_code      = p_labor_code)
 )

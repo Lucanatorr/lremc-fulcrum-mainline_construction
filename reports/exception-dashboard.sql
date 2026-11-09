@@ -90,7 +90,8 @@ authorized AS (
     WHERE co._status = 'APPROVED'
     GROUP BY co.project_id_snap, line.line_labor_code
   ) ac ON ac.project_id_snap = s.project_id_snap AND ac.labor_code = s.labor_code
-  WHERE s._status <> 'VOID'
+  -- Authorized scope only, as in remaining-work.sql. A DRAFT line is not yet scope.
+  WHERE s._status IN ('BASELINED', 'CLOSED')
 ),
 approved_to_date AS (
   SELECT project_id, labor_code, SUM(COALESCE(quantity, 0)) AS approved_quantity
@@ -133,7 +134,9 @@ installed_material AS (
 mapping AS (
   SELECT DISTINCT mm.labor_code, mm.material_code
   FROM "38e3d7fd-ca78-4016-8018-ec955446c13f" mm
-  WHERE mm._status <> 'VOID'
+  -- A REJECTED or SUPERSEDED mapping is not coverage. NEEDS REVIEW still counts:
+  -- the row exists and is being worked, which is a different finding.
+  WHERE mm._status NOT IN ('VOID', 'REJECTED', 'SUPERSEDED')
     AND COALESCE(mm.active, 'yes') <> 'no'
 ),
 

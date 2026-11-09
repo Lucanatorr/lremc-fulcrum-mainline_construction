@@ -8,8 +8,11 @@ Three audiences, three sections: administrators, field users, managers.
 
 ## Before anything else
 
-**This system has never held a record.** Nothing below has been exercised
-end to end. See `docs/sprint-23-readiness.md` before deploying anything.
+**Read `docs/sprint-24-deployment-readiness.md` before deploying anything.**
+As of 2026-11-09 the masters are loaded and every report has run against
+live data, but no production has ever been approved, so the approval and
+earned-value path has not run end to end. Role-specific training is in
+`docs/training/`.
 
 ## Golden rules
 
@@ -37,7 +40,7 @@ end to end. See `docs/sprint-23-readiness.md` before deploying anything.
 #    TEST-VER-002 fails the build if the two disagree.
 
 # 3. Run everything
-for f in tests/*.test.js; do node "$f"; done     # 895 assertions
+for f in tests/*.test.js; do node "$f"; done     # 970+ assertions
 
 # 4. Deploy via the Fulcrum MCP forms_update, passing the COMPLETE element
 #    array plus removed_element_keys for anything dropped.
@@ -106,8 +109,9 @@ You need six things. Everything else fills itself in.
 | 1 | **Project** | Carries over from your last record. |
 | 2 | **Contractor / Crew** | Carries over. |
 | 3 | **Work Date** | **Does not carry over — check it.** |
-| 4 | **Work Type** | Carries over. Decides which sections appear. |
-| 5 | **Labor Code** | Fills in the unit, description, pull count, conduit size and splice band. |
+| 4 | **Work Category** | Carries over. Decides which sections appear. |
+| 5 | **Labor Code** | Fills in the description, pull count, conduit size and splice band. |
+| 5a | **Applicable Contractor Rate** | Prices the work and fills the **unit** (D-015). No rate, no approval. |
 | 6 | **Quantity *or* sequentials** | For fiber in feet, enter the range and the quantity fills itself. |
 
 Then **From / To**, and **photographs**.
@@ -153,11 +157,12 @@ report, before approval.
 
 # Part 3 — Management reporting guide
 
-All 24 reports are SQL for the Fulcrum Query API, in `reports/`. Conventions in
+All 26 reports are SQL for the Fulcrum Query API, in `reports/`. Conventions in
 `reports/_conventions.md`.
 
-> **None of these has ever been executed.** They pass structural tests, which
-> proves they will run — not that the numbers are right.
+> **All 26 ran against live data on 2026-11-09** (`docs/sprint-24-deployment-readiness.md` §3).
+> With no approved production yet, that proves they run and that the pending
+> figures reconcile. It does not yet prove the approved arithmetic.
 
 ## Start here
 
@@ -178,7 +183,8 @@ All 24 reports are SQL for the Fulcrum Query API, in `reports/`. Conventions in
 ## Four rules behind every number
 
 1. **Approved production is the only official production.** Pending is always a
-   separate column, never folded in. VOID is excluded everywhere.
+   separate column, never folded in. VOID and REVERSED are excluded everywhere;
+   see `voided-reversed` for what was taken out.
 2. **Quantities are never summed across units.** Feet, each, splices and hours
    do not add. Anything crossing pay units aggregates **value**, because
    dollars are dollars.
