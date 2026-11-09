@@ -244,7 +244,7 @@ check('TEST-SQL-002', 'pending change orders are read separately',
 check('TEST-SQL-003', 'completed counts APPROVED production only',
       /WHEN _status = 'APPROVED' THEN COALESCE\(quantity, 0\)/.test(sql), true);
 check('TEST-SQL-004', 'pending production is summed into its own column',
-      /WHEN _status IN \('SUBMITTED', 'UNDER REVIEW'\)/.test(sql), true);
+      /WHEN _status IN \('SUBMITTED', 'UNDER REVIEW', 'REOPENED'\)/.test(sql), true);
 check('TEST-SQL-005', 'percent complete guards division by zero',
       /WHEN authorized_quantity = 0 THEN NULL/.test(sql), true);
 check('TEST-SQL-006', 'remaining is a plain subtraction, never clamped',
@@ -275,7 +275,7 @@ check('TEST-SQL-021', 'unplanned production with value booked is CRITICAL',
 const overlap = fs.readFileSync(
   path.join(__dirname, '..', 'reports', 'sequential-overlap.sql'), 'utf8');
 check('TEST-SQL-030', 'the overlap report was corrected to _status',
-      /AND _status <> 'VOID'/.test(overlap), true);
+      /AND _status NOT IN \('VOID', 'REVERSED'\)/.test(overlap), true);
 check('TEST-SQL-031', 'the overlap report no longer names a table by form name',
       /FROM "Mainline Construction - Development"/.test(overlap), false);
 

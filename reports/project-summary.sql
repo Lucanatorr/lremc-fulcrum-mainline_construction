@@ -80,7 +80,7 @@ line_progress AS (
            SUM(CASE WHEN _status = 'APPROVED' THEN COALESCE(quantity, 0) ELSE 0 END)
              AS approved_quantity
     FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2"
-    WHERE _status <> 'VOID'
+    WHERE _status NOT IN ('VOID', 'REVERSED')
     GROUP BY project_id_snapshot, labor_code
   ) pr ON pr.project_id = s.project_id_snap AND pr.labor_code = s.labor_code
   WHERE s._status IN ('BASELINED', 'CLOSED')
@@ -106,7 +106,7 @@ production AS (
 
     SUM(CASE WHEN p._status = 'APPROVED' THEN COALESCE(p.extended_value,0) ELSE 0 END)
       AS approved_production_value,
-    SUM(CASE WHEN p._status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED')
+    SUM(CASE WHEN p._status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED', 'REOPENED')
              THEN COALESCE(p.extended_value,0) ELSE 0 END)
       AS pending_production_value,
 
@@ -127,13 +127,13 @@ production AS (
     -- Open QA issues: anything unapproved, and anything approved that still
     -- carries a flag. The second half matters - a record can be approved with
     -- warnings, and those warnings do not stop being true.
-    COUNT(CASE WHEN p._status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED')
+    COUNT(CASE WHEN p._status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED', 'REOPENED')
                THEN 1 END)                     AS pending_records,
-    COUNT(CASE WHEN p.exception_severity = 'CRITICAL' AND p._status <> 'VOID'
+    COUNT(CASE WHEN p.exception_severity = 'CRITICAL' AND p._status NOT IN ('VOID', 'REVERSED')
                THEN 1 END)                     AS critical_exceptions,
-    COUNT(CASE WHEN p.exception_severity = 'WARNING' AND p._status <> 'VOID'
+    COUNT(CASE WHEN p.exception_severity = 'WARNING' AND p._status NOT IN ('VOID', 'REVERSED')
                THEN 1 END)                     AS warning_exceptions,
-    COUNT(CASE WHEN p.qa_status = 'Fail' AND p._status <> 'VOID' THEN 1 END)
+    COUNT(CASE WHEN p.qa_status = 'Fail' AND p._status NOT IN ('VOID', 'REVERSED') THEN 1 END)
                                                AS qa_failures,
     COUNT(CASE WHEN p._status = 'CORRECTION REQUIRED' THEN 1 END)
                                                AS awaiting_correction,
@@ -141,7 +141,7 @@ production AS (
     MIN(CASE WHEN p._status = 'APPROVED' THEN p.work_date END) AS first_production_date,
     MAX(CASE WHEN p._status = 'APPROVED' THEN p.work_date END) AS last_production_date
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2" p
-  WHERE p._status <> 'VOID'
+  WHERE p._status NOT IN ('VOID', 'REVERSED')
   GROUP BY p.project_id_snapshot
 )
 

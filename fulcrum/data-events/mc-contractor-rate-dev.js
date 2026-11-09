@@ -1,6 +1,28 @@
 /**
  * MC Contractor Rate - Development
- * Data Events - SPRINT 2 v1.0.0 (2026-09-16)
+ * Data Events - v1.1.0 (2026-11-09), deployed 2026-11-09. v1.0.0 was live from
+ * 2026-09-16 (Sprint 2) and is the first commit of this file.
+ *
+ * CHANGE IN v1.1.0 - THE SAME TWO DEFECTS FIXED EVERYWHERE ELSE ON 2026-09-22
+ * This script was live but never committed, so it missed both fixes:
+ *   + applyLaborMetadata() parsed unit and description out of the labor code's
+ *     choice LABEL. The Data Events runtime exposes no labels, so the parse
+ *     always missed and the !m branch CLEARED both fields on every save. The
+ *     146 imported rates were never hit because an API import runs no Data
+ *     Events - but the first edit of a rate in the app would have blanked its
+ *     unit, and the rate is now where production COPIES its unit from
+ *     (r010 -> m024). It now only fills a blank, and never clears.
+ *   + parseDate() read a UTC-midnight date with the local getters. The
+ *     effective/expiry comparison compares two dates shifted alike, so it was
+ *     not wrong, but it is normalized like every other script so the rule is
+ *     stated once.
+ * Also OI-09: Currency and Contract Reference are on the record. A rate with
+ * no contract reference cannot be traced to the executed amendment in a
+ * dispute; reports/rate-master-audit.sql lists those.
+ * Unit (r010) is now an EDITABLE, REQUIRED field: the administrator states the
+ * unit of measure on the rate, because no script can derive it and production
+ * copies it from here. It was read-only, which made a rate created in the app
+ * impossible to complete (D-020).
  *
  * Pricing master. Rates are versioned, never overwritten.
  *
@@ -35,26 +57,25 @@ function setIfChanged(dataName, current, next) {
   if (a !== b) SETVALUE(dataName, isBlank(next) ? null : next);
 }
 
+// A date-only field is stored as UTC midnight; re-anchor the calendar date on
+// local midnight so the local getters return the date the field holds.
 function parseDate(v) {
   if (isBlank(v)) return null;
   var d = new Date(v);
-  return isNaN(d.getTime()) ? null : d;
+  if (isNaN(d.getTime())) return null;
+  return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
 }
 
-// Unit and description come from the choice list label, so the labor master
-// stays the single source of truth (no hard-coded table here).
+// v1.1.0: a guard, not a derivation. The runtime exposes no labels, so this
+// can only ever FILL a blank unit or description when a label happens to be
+// present - it must never clear what the import or an administrator set.
 function applyLaborMetadata() {
   var label = choiceLabel($labor_code);
-  var m = isBlank(label)
-    ? null
-    : /^(.*?)\s*\((FT|EA|HR|SPLICE|SF|EVENT)\)\s*(.*)$/.exec(label);
-  if (!m) {
-    setIfChanged('unit', choiceValue($unit), null);
-    setIfChanged('labor_description', $labor_description, null);
-    return;
-  }
-  setIfChanged('unit', choiceValue($unit), m[2]);
-  setIfChanged('labor_description', $labor_description, m[3]);
+  if (isBlank(label)) return;
+  var m = /^(.*?)\s*\((FT|EA|HR|SPLICE|SF|EVENT)\)\s*(.*)$/.exec(label);
+  if (!m) return;                                  // never clear
+  if (isBlank(choiceValue($unit))) setIfChanged('unit', choiceValue($unit), m[2]);
+  if (isBlank($labor_description)) setIfChanged('labor_description', $labor_description, m[3]);
 }
 
 ON('change', 'labor_code', applyLaborMetadata);
@@ -77,4 +98,8 @@ ON('validate-record', function (event) {
     INVALID('Unit Rate is zero. If this pay unit genuinely has no price, leave the rate record inactive instead.');
     return;
   }
+  // OI-09: a missing Contract Reference is deliberately NOT checked here. This
+  // form has no exceptions field to carry a warning, legacy rates predate the
+  // field, and blocking would stop an administrator correcting a rate.
+  // reports/rate-master-audit.sql lists rates with no reference instead.
 });

@@ -74,7 +74,7 @@ line_progress AS (
            SUM(CASE WHEN _status = 'APPROVED' THEN COALESCE(quantity, 0) ELSE 0 END)
              AS approved_quantity
     FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2"
-    WHERE _status <> 'VOID'
+    WHERE _status NOT IN ('VOID', 'REVERSED')
     GROUP BY project_id_snapshot, labor_code
   ) prod
     ON prod.project_id = s.project_id_snap AND prod.labor_code = s.labor_code
@@ -126,17 +126,17 @@ production AS (
     p.project_id_snapshot AS project_id,
     SUM(CASE WHEN p._status = 'APPROVED' THEN COALESCE(p.extended_value,0) ELSE 0 END)
       AS approved_production_value,
-    SUM(CASE WHEN p._status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED')
+    SUM(CASE WHEN p._status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED', 'REOPENED')
              THEN COALESCE(p.extended_value,0) ELSE 0 END)
       AS pending_production_value,
     SUM(CASE WHEN p._status = 'REJECTED' THEN COALESCE(p.extended_value,0) ELSE 0 END)
       AS rejected_production_value,
     -- Production value to date = everything not void and not rejected, i.e.
     -- what has been recorded as done. Distinct from approved, on purpose.
-    SUM(CASE WHEN p._status NOT IN ('VOID','REJECTED') THEN COALESCE(p.extended_value,0) ELSE 0 END)
+    SUM(CASE WHEN p._status NOT IN ('VOID', 'REVERSED', 'REJECTED') THEN COALESCE(p.extended_value,0) ELSE 0 END)
       AS production_value_to_date,
     COUNT(CASE WHEN p._status = 'APPROVED' THEN 1 END) AS approved_transactions,
-    COUNT(CASE WHEN p._status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED')
+    COUNT(CASE WHEN p._status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED', 'REOPENED')
                THEN 1 END)                              AS pending_transactions,
     MAX(CASE WHEN p._status = 'APPROVED' THEN p.work_date END) AS last_approved_work_date
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2" p

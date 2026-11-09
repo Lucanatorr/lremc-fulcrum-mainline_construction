@@ -13,6 +13,10 @@
 -- nothing (convention 2). So the project-level trend is in VALUE, and quantity
 -- trending is available per labor code via the by_unit columns.
 --
+-- DAILY BURN RATE (OI-14) is approved value per WORKING day with production over
+-- the trailing 7 days, and PREVIOUS 7 DAYS is the 7-day window before that, so
+-- velocity_change_7d says whether the crew is speeding up or slowing down.
+--
 -- AVERAGE DAILY PRODUCTION divides by WORKING days, Mon-Fri (ruling
 -- 2026-09-16), not by calendar days. Dividing a five-day week's output by seven
 -- understates a crew's rate by 29% and makes every target look missed.
@@ -30,6 +34,8 @@ daily AS (
     MAX(p.work_week)          AS work_week,
     MAX(p.work_month)         AS work_month,
     MAX(p.work_day_of_week)   AS work_day_of_week,
+    CASE WHEN MAX(p.work_day_of_week) IN ('Saturday','Sunday') THEN 0 ELSE 1 END
+      AS is_working_day,
     -- Approved only: a trend built on pending production reshapes itself every
     -- time a reviewer works through the queue.
     SUM(CASE WHEN p._status = 'APPROVED' THEN COALESCE(p.extended_value, 0) ELSE 0 END)
@@ -48,7 +54,7 @@ daily AS (
     COUNT(CASE WHEN p._status = 'APPROVED' THEN 1 END) AS approved_transactions
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2" p
   CROSS JOIN params
-  WHERE p._status <> 'VOID'
+  WHERE p._status NOT IN ('VOID', 'REVERSED')
     AND p.work_date IS NOT NULL
     AND (p_project_id    IS NULL OR p.project_id_snapshot    = p_project_id)
     AND (p_contractor_id IS NULL OR p.contractor_id_snapshot = p_contractor_id)
@@ -57,8 +63,6 @@ daily AS (
 windowed AS (
   SELECT
     d.*,
-    CASE WHEN d.work_day_of_week IN ('Saturday','Sunday') THEN 0 ELSE 1 END
-      AS is_working_day,
 
     -- Rolling 7 days by DATE, not by row: a crew that worked 3 days in a week
     -- must not have its window stretched back a fortnight by ROWS framing.
@@ -77,6 +81,34 @@ windowed AS (
       ORDER BY d.work_date
       RANGE BETWEEN INTERVAL '29' DAY PRECEDING AND CURRENT ROW
     ) AS rolling_30d_value,
+
+    -- OI-14. The window before the rolling 7 days, by date: days 7-13 back.
+    -- Written as (14 days) minus (7 days) because the Query engine refuses a
+    -- frame that ends before the current row ("frame starting from following
+    -- row cannot have preceding rows"). The two are the same set of days.
+    SUM(d.approved_value) OVER (
+      PARTITION BY d.project_id, d.contractor_id
+      ORDER BY d.work_date
+      RANGE BETWEEN INTERVAL '13' DAY PRECEDING AND CURRENT ROW
+    ) - SUM(d.approved_value) OVER (
+      PARTITION BY d.project_id, d.contractor_id
+      ORDER BY d.work_date
+      RANGE BETWEEN INTERVAL '6' DAY PRECEDING AND CURRENT ROW
+    ) AS previous_7d_value,
+    SUM(d.approved_footage) OVER (
+      PARTITION BY d.project_id, d.contractor_id
+      ORDER BY d.work_date
+      RANGE BETWEEN INTERVAL '13' DAY PRECEDING AND CURRENT ROW
+    ) - SUM(d.approved_footage) OVER (
+      PARTITION BY d.project_id, d.contractor_id
+      ORDER BY d.work_date
+      RANGE BETWEEN INTERVAL '6' DAY PRECEDING AND CURRENT ROW
+    ) AS previous_7d_footage,
+    SUM(d.is_working_day) OVER (
+      PARTITION BY d.project_id, d.contractor_id
+      ORDER BY d.work_date
+      RANGE BETWEEN INTERVAL '6' DAY PRECEDING AND CURRENT ROW
+    ) AS working_days_7d,
 
     SUM(d.approved_value) OVER (
       PARTITION BY d.project_id, d.contractor_id, d.work_week
@@ -132,6 +164,19 @@ SELECT
   ROUND(CAST(w.rolling_7d_value AS numeric), 2)           AS rolling_7d_value,
   w.rolling_7d_footage,
   ROUND(CAST(w.rolling_30d_value AS numeric), 2)          AS rolling_30d_value,
+
+  -- OI-14. Guarded against a trailing week with no working-day production.
+  CASE WHEN w.working_days_7d = 0 THEN NULL
+       ELSE ROUND(CAST(w.rolling_7d_value / w.working_days_7d AS numeric), 2) END
+                                         AS daily_burn_rate_value,
+  CASE WHEN w.working_days_7d = 0 THEN NULL
+       ELSE ROUND(CAST(w.rolling_7d_footage / w.working_days_7d AS numeric), 2) END
+                                         AS daily_burn_rate_footage,
+  w.working_days_7d,
+  ROUND(CAST(COALESCE(w.previous_7d_value, 0) AS numeric), 2) AS previous_7d_value,
+  COALESCE(w.previous_7d_footage, 0)     AS previous_7d_footage,
+  ROUND(CAST(w.rolling_7d_value - COALESCE(w.previous_7d_value, 0) AS numeric), 2)
+                                         AS velocity_change_7d_value,
 
   ROUND(CAST(w.week_value AS numeric), 2)                 AS week_to_date_value,
   w.week_footage                         AS week_footage,

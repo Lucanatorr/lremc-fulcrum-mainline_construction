@@ -1,0 +1,54 @@
+{
+  "type": "StatusField",
+  "label": "Status",
+  "key": "@status",
+  "data_name": "status",
+  "default_value": "DRAFT",
+  "choices": [
+    {
+      "label": "DRAFT",
+      "value": "DRAFT",
+      "color": "#9E9E9E"
+    },
+    {
+      "label": "SUBMITTED",
+      "value": "SUBMITTED",
+      "color": "#FF8819"
+    },
+    {
+      "label": "UNDER REVIEW",
+      "value": "UNDER REVIEW",
+      "color": "#294184"
+    },
+    {
+      "label": "APPROVED",
+      "value": "APPROVED",
+      "color": "#3DD40F"
+    },
+    {
+      "label": "REJECTED",
+      "value": "REJECTED",
+      "color": "#D40F0F"
+    },
+    {
+      "label": "CORRECTION REQUIRED",
+      "value": "CORRECTION REQUIRED",
+      "color": "#FFD300"
+    },
+    {
+      "label": "VOID",
+      "value": "VOID",
+      "color": "#242424"
+    },
+    {
+      "label": "REOPENED",
+      "value": "REOPENED",
+      "color": "#9C27B0"
+    },
+    {
+      "label": "REVERSED",
+      "value": "REVERSED",
+      "color": "#795548"
+    }
+  ]
+}

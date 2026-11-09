@@ -61,7 +61,10 @@ norm AS (
   WHERE starting_sequential IS NOT NULL
     AND ending_sequential   IS NOT NULL
     AND reel_id             IS NOT NULL
-    AND _status <> 'VOID'
+    AND _status NOT IN ('VOID', 'REVERSED')
+    -- An Adjustment corrects an original's quantity; it re-cites the original's
+    -- range rather than placing cable a second time (D-018).
+    AND COALESCE(production_type, 'Original') <> 'Adjustment'
     AND (p_reel_id IS NULL OR reel_id = p_reel_id)
 )
 SELECT

@@ -56,7 +56,7 @@ approved_so_far AS (
     SUM(CASE WHEN _status = 'APPROVED' THEN COALESCE(quantity, 0) ELSE 0 END)
       AS approved_quantity
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2"
-  WHERE _status <> 'VOID'
+  WHERE _status NOT IN ('VOID', 'REVERSED')
   GROUP BY project_id_snapshot, labor_code
 ),
 
@@ -67,7 +67,7 @@ sequential_spans AS (
   SELECT reel_id, LEAST(starting_sequential, ending_sequential) AS lo,
          GREATEST(starting_sequential, ending_sequential) AS hi, _record_id
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2"
-  WHERE _status <> 'VOID'
+  WHERE _status NOT IN ('VOID', 'REVERSED')
     AND reel_id IS NOT NULL
     AND starting_sequential IS NOT NULL
     AND ending_sequential   IS NOT NULL
@@ -137,7 +137,7 @@ queue AS (
   LEFT JOIN approved_so_far asf
     ON asf.project_id = p.project_id_snapshot AND asf.labor_code = p.labor_code
   LEFT JOIN memberships m ON m.user_id = p._created_by_id
-  WHERE p._status IN ('DRAFT', 'SUBMITTED', 'UNDER REVIEW', 'CORRECTION REQUIRED')
+  WHERE p._status IN ('DRAFT', 'SUBMITTED', 'UNDER REVIEW', 'CORRECTION REQUIRED', 'REOPENED')
     AND (p_project_id    IS NULL OR p.project_id_snapshot    = p_project_id)
     AND (p_contractor_id IS NULL OR p.contractor_id_snapshot = p_contractor_id)
     AND (p_reviewer      IS NULL OR p.reviewed_by            = p_reviewer)

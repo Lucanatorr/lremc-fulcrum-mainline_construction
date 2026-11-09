@@ -82,7 +82,7 @@ SELECT
     || 'record exists for it. Nothing to compare the as-built length against.'
                                     AS detail
 FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2" p
-WHERE p._status NOT IN ('VOID', 'REJECTED')
+WHERE p._status NOT IN ('VOID', 'REVERSED', 'REJECTED')
   AND p.segment_id IS NOT NULL
   AND NOT EXISTS (
     SELECT 1 FROM "7da87588-940a-4b9e-915d-5ec25d5c0ebc" g
@@ -105,7 +105,7 @@ WHERE g._status = 'COMPLETE'
   AND NOT EXISTS (
     SELECT 1 FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2" p
     WHERE p.segment_id = g.segment_id
-      AND p._status NOT IN ('VOID', 'REJECTED')
+      AND p._status NOT IN ('VOID', 'REVERSED', 'REJECTED')
   )
 
 UNION ALL

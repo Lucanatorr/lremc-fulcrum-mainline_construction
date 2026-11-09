@@ -29,7 +29,7 @@ base AS (
     p._status AS record_status
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2" p
   CROSS JOIN params
-  WHERE p._status <> 'VOID'
+  WHERE p._status NOT IN ('VOID', 'REVERSED')
     AND p.work_month IS NOT NULL
     AND (p_project_id    IS NULL OR p.project_id_snapshot    = p_project_id)
     AND (p_contractor_id IS NULL OR p.contractor_id_snapshot = p_contractor_id)
@@ -49,10 +49,10 @@ monthly AS (
       AS approved_quantity,
     SUM(CASE WHEN record_status = 'APPROVED' THEN COALESCE(extended_value, 0) ELSE 0 END)
       AS approved_value,
-    SUM(CASE WHEN record_status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED')
+    SUM(CASE WHEN record_status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED', 'REOPENED')
              THEN COALESCE(quantity, 0) ELSE 0 END)
       AS pending_quantity,
-    SUM(CASE WHEN record_status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED')
+    SUM(CASE WHEN record_status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED', 'REOPENED')
              THEN COALESCE(extended_value, 0) ELSE 0 END)
       AS pending_value,
     COUNT(*)                    AS transactions,

@@ -89,14 +89,14 @@ production AS (
       AS approved_quantity,
     SUM(CASE WHEN _status = 'APPROVED' THEN COALESCE(extended_value, 0) ELSE 0 END)
       AS approved_value,
-    SUM(CASE WHEN _status IN ('SUBMITTED', 'UNDER REVIEW') THEN COALESCE(quantity, 0) ELSE 0 END)
+    SUM(CASE WHEN _status IN ('SUBMITTED', 'UNDER REVIEW', 'REOPENED') THEN COALESCE(quantity, 0) ELSE 0 END)
       AS pending_quantity,
-    SUM(CASE WHEN _status IN ('SUBMITTED', 'UNDER REVIEW') THEN COALESCE(extended_value, 0) ELSE 0 END)
+    SUM(CASE WHEN _status IN ('SUBMITTED', 'UNDER REVIEW', 'REOPENED') THEN COALESCE(extended_value, 0) ELSE 0 END)
       AS pending_value,
     MIN(CASE WHEN _status = 'APPROVED' THEN work_date END) AS first_approved_work_date,
     MAX(CASE WHEN _status = 'APPROVED' THEN work_date END) AS last_approved_work_date
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2"
-  WHERE _status <> 'VOID'
+  WHERE _status NOT IN ('VOID', 'REVERSED')
   GROUP BY project_id_snapshot, labor_code
 ),
 

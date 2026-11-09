@@ -57,7 +57,7 @@ WITH expected AS (
     WHERE mm._status <> 'VOID'
       AND COALESCE(mm.active, 'yes') <> 'no'
   ) mp ON mp.labor_code = p.labor_code
-  WHERE p._status <> 'VOID'
+  WHERE p._status NOT IN ('VOID', 'REVERSED')
     AND p.conduit_material_code IS NOT NULL
     AND p.conduit_material_quantity IS NOT NULL
 ),

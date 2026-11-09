@@ -275,8 +275,64 @@
         "hidden": false,
         "numeric": true,
         "format": "decimal",
-        "min": 0,
-        "description": "The quantity this production is billed on, in the unit shown below. For fiber placement measured in FT it fills in from the sequentials as soon as you enter them (Sprint 18) - record the range OR the quantity, not both. Anything typed here wins and is never overwritten."
+        "description": "The quantity this production is billed on, in the unit shown below. For fiber placement measured in FT it fills in from the sequentials as soon as you enter them (Sprint 18) - record the range OR the quantity, not both. Anything typed here wins and is never overwritten. A negative quantity is accepted ONLY on an Adjustment (D-018); on ordinary production the save is refused."
+      },
+      {
+        "type": "ChoiceField",
+        "key": "m151",
+        "label": "Production Type",
+        "data_name": "production_type",
+        "required": true,
+        "disabled": false,
+        "hidden": false,
+        "default_value": "Original",
+        "choices": [
+          {
+            "label": "Original",
+            "value": "Original"
+          },
+          {
+            "label": "Adjustment",
+            "value": "Adjustment"
+          }
+        ],
+        "description": "Original for new work. Adjustment corrects APPROVED production without editing it: it names the original Production ID, states why, and is the only place a negative quantity is valid (D-018)."
+      },
+      {
+        "type": "TextField",
+        "key": "m152",
+        "label": "Adjusts Production ID",
+        "data_name": "adjusts_production_id",
+        "required": false,
+        "disabled": false,
+        "hidden": false,
+        "description": "The Production ID of the approved record this adjustment corrects, e.g. PRD-2026-143C1840.",
+        "visible_conditions": [
+          {
+            "field_key": "m151",
+            "operator": "equal_to",
+            "value": "Adjustment"
+          }
+        ],
+        "visible_conditions_type": "all"
+      },
+      {
+        "type": "TextField",
+        "key": "m153",
+        "label": "Adjustment Reason",
+        "data_name": "adjustment_reason",
+        "required": false,
+        "disabled": false,
+        "hidden": false,
+        "description": "Why the approved quantity is being corrected.",
+        "visible_conditions": [
+          {
+            "field_key": "m151",
+            "operator": "equal_to",
+            "value": "Adjustment"
+          }
+        ],
+        "visible_conditions_type": "all"
       },
       {
         "type": "ChoiceField",
@@ -1853,6 +1909,26 @@
         }
       },
       {
+        "type": "TextField",
+        "key": "m154",
+        "label": "QA Owner",
+        "data_name": "qa_owner",
+        "required": false,
+        "disabled": false,
+        "hidden": false,
+        "description": "Who is responsible for closing this deficiency. Flagged when QA is Fail or Conditional Pass and nobody owns it (OI-10)."
+      },
+      {
+        "type": "DateTimeField",
+        "key": "m155",
+        "label": "QA Due Date",
+        "data_name": "qa_due_date",
+        "required": false,
+        "disabled": false,
+        "hidden": false,
+        "description": "When the deficiency must be corrected by. Flagged once past and not marked corrected."
+      },
+      {
         "type": "DateTimeField",
         "key": "m139",
         "label": "Correction Completed Date",
@@ -2030,6 +2106,72 @@
         "required": false,
         "disabled": false,
         "hidden": false
+      },
+      {
+        "type": "TextField",
+        "key": "m156",
+        "label": "Reopen Reason",
+        "data_name": "reopen_reason",
+        "required": false,
+        "disabled": false,
+        "hidden": false,
+        "description": "Required to reopen APPROVED production. Reopening drops the approval until it is re-approved (D-018)."
+      },
+      {
+        "type": "TextField",
+        "key": "m157",
+        "label": "Reopened By",
+        "data_name": "reopened_by",
+        "required": false,
+        "disabled": true,
+        "hidden": false
+      },
+      {
+        "type": "DateTimeField",
+        "key": "m158",
+        "label": "Reopened Date",
+        "data_name": "reopened_date",
+        "required": false,
+        "disabled": true,
+        "hidden": false
+      },
+      {
+        "type": "TextField",
+        "key": "m159",
+        "label": "Reversal Reason",
+        "data_name": "reversal_reason",
+        "required": false,
+        "disabled": false,
+        "hidden": false,
+        "description": "Required to reverse APPROVED production. A reversed record keeps its approval stamp as evidence and is excluded from official totals (D-018)."
+      },
+      {
+        "type": "TextField",
+        "key": "m160",
+        "label": "Reversed By",
+        "data_name": "reversed_by",
+        "required": false,
+        "disabled": true,
+        "hidden": false
+      },
+      {
+        "type": "DateTimeField",
+        "key": "m161",
+        "label": "Reversed Date",
+        "data_name": "reversed_date",
+        "required": false,
+        "disabled": true,
+        "hidden": false
+      },
+      {
+        "type": "TextField",
+        "key": "m162",
+        "label": "Calculation Version",
+        "data_name": "calc_version",
+        "required": false,
+        "disabled": true,
+        "hidden": false,
+        "description": "The Data Events version that last calculated this record's derived fields (OI-08, D-019). Selects the records a rule change affects."
       }
     ],
     "display": "inline"

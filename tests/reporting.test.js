@@ -45,12 +45,14 @@ check('TEST-RPT-000', 'every expected report exists', files, [
   'project-summary.sql',
   'qa-review-queue.sql',
   'rate-audit.sql',
+  'rate-master-audit.sql',
   'reel-balance.sql',
   'reel-integrity.sql',
   'remaining-work.sql',
   'segment-integrity.sql',
   'sequential-overlap.sql',
   'unplanned-production.sql',
+  'voided-reversed.sql',
 ]);
 
 // ---------------------------------------- convention 1: Query API addressing
@@ -283,7 +285,7 @@ check('TEST-QA-002e', 'the likely overstatement is quantified',
 check('TEST-QA-003', 'duplicate pairs are never self-matched',
       /a\._record_id\s*<\s*b\._record_id/.test(sql['duplicate-production.sql']), true);
 check('TEST-QA-004', 'rejected records are excluded from duplicate pairing',
-      /NOT IN \('VOID', 'REJECTED'\)/.test(sql['duplicate-production.sql']), true);
+      /NOT IN \('VOID', 'REVERSED', 'REJECTED'\)/.test(sql['duplicate-production.sql']), true);
 check('TEST-QA-005', 'material variance counts INSTALLED only',
       /transaction_type = 'Installed'/.test(sql['material-variance.sql']), true);
 check('TEST-QA-006', 'material variance excludes the purchasing waste factor',
@@ -295,8 +297,34 @@ check('TEST-QA-008', 'a critical exception shows as blocked',
 check('TEST-QA-009', 'the queue flags production that would exceed authorized scope',
       /would_exceed_plan_by/.test(sql['qa-review-queue.sql']), true);
 check('TEST-QA-010', 'the queue only lists pending records',
-      /_status IN \('DRAFT', 'SUBMITTED', 'UNDER REVIEW', 'CORRECTION REQUIRED'\)/
+      /_status IN \('DRAFT', 'SUBMITTED', 'UNDER REVIEW', 'CORRECTION REQUIRED', 'REOPENED'\)/
         .test(sql['qa-review-queue.sql']), true);
+// D-018. REVERSED is excluded from official totals exactly like VOID, and a
+// REOPENED record is pending until re-approved. These two guards catch a
+// report that forgets either - the failure would be silent money.
+{
+  const missingReversed = [], missingReopened = [];
+  for (const [name, text] of Object.entries(sql)) {
+    if (/NOT IN \('VOID'(?!, 'REVERSED')/.test(text) || /\bp\._status <> 'VOID'/.test(text)) missingReversed.push(name);
+    for (const m of text.match(/IN \([^)]*'UNDER REVIEW'[^)]*\)/g) || []) {
+      if (!/'REOPENED'/.test(m)) missingReopened.push(name);
+    }
+  }
+  check('TEST-LIFE-RPT-001', 'every production VOID exclusion also excludes REVERSED', missingReversed, []);
+  check('TEST-LIFE-RPT-002', 'every pending-status list includes REOPENED', [...new Set(missingReopened)], []);
+  check('TEST-LIFE-RPT-003', 'adjustments are not paired as duplicates of the record they correct',
+        /production_type, 'Original'\) <> 'Adjustment'/.test(sql['duplicate-production.sql']), true);
+  check('TEST-LIFE-RPT-004', 'the voided/reversed report keeps excluded value visible',
+        /EXCLUDED FROM OFFICIAL TOTALS/.test(sql['voided-reversed.sql']), true);
+  check('TEST-LIFE-RPT-005', 'the trend reports a daily burn rate and the previous 7 days (OI-14)',
+        /daily_burn_rate_value/.test(sql['production-trend.sql']) && /previous_7d_value/.test(sql['production-trend.sql']), true);
+  // The Query engine refuses a window frame that ends before the current row
+  // ("frame starting from following row cannot have preceding rows"), found
+  // running production-trend live on 2026-11-09. Write it as a difference of
+  // two frames that end at CURRENT ROW instead.
+  const offenders = Object.keys(sql).filter(f => /AND\s+INTERVAL\s+'\d+'\s+DAY\s+PRECEDING/i.test(sql[f]));
+  check('TEST-LIFE-RPT-006', 'no report uses a window frame that ends before the current row', offenders, []);
+}
 check('TEST-QA-011', 'overlap counting treats adjacency as legitimate',
       /> 0\s*\n?\s*GROUP BY a\._record_id/.test(sql['qa-review-queue.sql']), true);
 

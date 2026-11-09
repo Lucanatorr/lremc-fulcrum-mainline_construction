@@ -178,7 +178,7 @@ run({ quantity: '-500' });
 check('TEST-23.59-3', 'a negative quantity is CRITICAL, not a warning',
       h.get('exception_severity'), 'CRITICAL');
 check('TEST-23.59-4', 'and the message directs the user to an adjustment',
-      /use an adjustment transaction/.test(h.get('exception_flags') || ''), true);
+      /record it as an Adjustment that names the original Production ID/.test(h.get('exception_flags') || ''), true);
 // The brief: "Do not allow a normal field user to accidentally enter -500 FT
 // as ordinary construction production." A CRITICAL cannot be approved.
 h.setStatus('APPROVED');

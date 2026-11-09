@@ -59,7 +59,7 @@ base AS (
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2" p
   CROSS JOIN params
   CROSS JOIN anchor a
-  WHERE p._status <> 'VOID'
+  WHERE p._status NOT IN ('VOID', 'REVERSED')
     AND p.work_date IS NOT NULL
     AND p.work_date <= a.as_at_date
     AND (p_project_id    IS NULL OR p.project_id_snapshot    = p_project_id)
@@ -105,7 +105,7 @@ SELECT
                      THEN COALESCE(quantity,0) ELSE 0 END) END
                                                AS today_approved_quantity,
   ROUND(CAST(SUM(CASE WHEN is_today = 1
-                        AND record_status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED')
+                        AND record_status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED', 'REOPENED')
                       THEN COALESCE(extended_value,0) ELSE 0 END) AS numeric), 2)
                                                AS today_pending_value,
 
@@ -135,7 +135,7 @@ SELECT
        THEN SUM(CASE WHEN record_status = 'APPROVED'
                      THEN COALESCE(quantity,0) ELSE 0 END) END
                                                AS ptd_approved_quantity,
-  ROUND(CAST(SUM(CASE WHEN record_status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED')
+  ROUND(CAST(SUM(CASE WHEN record_status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED', 'REOPENED')
                       THEN COALESCE(extended_value,0) ELSE 0 END) AS numeric), 2)
                                                AS ptd_pending_value,
 

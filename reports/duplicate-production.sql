@@ -57,7 +57,10 @@ live AS (
     _status AS record_status, _created_at
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2"
   CROSS JOIN params
-  WHERE _status NOT IN ('VOID', 'REJECTED')
+  WHERE _status NOT IN ('VOID', 'REVERSED', 'REJECTED')
+    -- An Adjustment deliberately restates an original record's identity (D-018);
+    -- matching it to the record it corrects is the point, not a duplicate.
+    AND COALESCE(production_type, 'Original') <> 'Adjustment'
     AND (p_project_id IS NULL OR project_id_snapshot = p_project_id)
 )
 

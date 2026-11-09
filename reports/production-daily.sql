@@ -47,7 +47,7 @@ rows AS (
     CASE WHEN p.unit IN ('HR', 'EVENT') THEN 0 ELSE 1 END AS is_physical
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2" p
   CROSS JOIN params
-  WHERE p._status <> 'VOID'
+  WHERE p._status NOT IN ('VOID', 'REVERSED')
     AND (p_project_id    IS NULL OR p.project_id_snapshot    = p_project_id)
     AND (p_contractor_id IS NULL OR p.contractor_id_snapshot = p_contractor_id)
     AND (p_crew          IS NULL OR p.crew                   = p_crew)
@@ -88,7 +88,7 @@ SELECT
   ROUND(CAST(SUM(extended_value) AS numeric), 2)              AS production_value,
   ROUND(CAST(SUM(CASE WHEN record_status = 'APPROVED'
                  THEN extended_value ELSE 0 END) AS numeric), 2)  AS approved_value,
-  ROUND(CAST(SUM(CASE WHEN record_status IN ('SUBMITTED', 'UNDER REVIEW', 'DRAFT', 'CORRECTION REQUIRED')
+  ROUND(CAST(SUM(CASE WHEN record_status IN ('SUBMITTED', 'UNDER REVIEW', 'DRAFT', 'CORRECTION REQUIRED', 'REOPENED')
                  THEN extended_value ELSE 0 END) AS numeric), 2)  AS pending_value,
   ROUND(CAST(SUM(CASE WHEN record_status = 'REJECTED'
                  THEN extended_value ELSE 0 END) AS numeric), 2)  AS rejected_value,

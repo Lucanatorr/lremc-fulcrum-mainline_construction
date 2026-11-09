@@ -1,7 +1,26 @@
 /**
  * Mainline Construction - Development
- * Data Events - v7.5.0 (2026-09-22), deployed 2026-11-09. Held back until
- * then by the forms_update refusals, see docs/sprint-23-known-limitations.md L16.
+ * Data Events - v7.6.0 (2026-11-09), deployed 2026-11-09 to Development.
+ * v7.5.0 was deployed earlier the same day, held back until then by the
+ * forms_update refusals - see docs/sprint-23-known-limitations.md L16.
+ *
+ * CHANGE IN v7.6.0 - REOPEN, REVERSE AND ADJUST APPROVED PRODUCTION (OI-03)
+ * Approved production had no visible way back: destructive-change conditions
+ * 11 and 13 require a visible reopening/correction/adjustment event and an
+ * auditable reversal that official totals exclude. Decision D-018:
+ *   + REOPENED - an approved record reopened for correction. Requires a
+ *     reason, stamps who/when, drops the approval stamp. Counts as PENDING
+ *     until re-approved; the approval gate applies again.
+ *   + REVERSED - only reachable from approved production. Requires a reason,
+ *     KEEPS the approval stamp as evidence, locks the record. Excluded from
+ *     official totals exactly like VOID, but stays reportable.
+ *   + ADJUSTMENT - a separate record (Production Type = Adjustment) naming the
+ *     original Production ID and a reason. The ONLY place a negative quantity
+ *     is valid. Counts in official totals once approved, so the original is
+ *     never edited to make a number come out right.
+ * Also: calc_version stamps the script version that last calculated the
+ * record (OI-08), and a QA deficiency without an owner or due date, or past
+ * its due date, is flagged (OI-10).
  *
  * CHANGE IN v7.5.0 - A WORK DATE IS A CALENDAR DATE, NOT AN INSTANT
  * parseDate() read a UTC-midnight date-only field with the LOCAL getters, so
@@ -516,8 +535,15 @@ ON('new-record', function (event) {
 
 // ==================== QA/QC and approval workflow (Sprint 12) ====================
 
-var PENDING_STATUSES  = ['DRAFT', 'SUBMITTED', 'UNDER REVIEW', 'CORRECTION REQUIRED'];
-var REVIEWED_STATUSES = ['APPROVED', 'REJECTED'];
+// Stamped on every save by validate-record. Derived fields are recalculated on
+// each save, so the version that LAST calculated the record is the one that
+// explains its current values (D-019).
+var CALC_VERSION = 'DE-7.6.0';
+
+var PENDING_STATUSES  = ['DRAFT', 'SUBMITTED', 'UNDER REVIEW', 'CORRECTION REQUIRED', 'REOPENED'];
+var REVIEWED_STATUSES = ['APPROVED', 'REJECTED', 'REVERSED'];
+
+function isAdjustment() { return choiceValue($production_type) === 'Adjustment'; }
 
 function applyWorkflowState() {
   var s = recordStatus();
@@ -525,6 +551,12 @@ function applyWorkflowState() {
   // sends a crew back to site to guess.
   SETREQUIRED('correction_detail', s === 'CORRECTION REQUIRED');
   SETREQUIRED('rejection_reason', s === 'REJECTED');
+  // Reopening or reversing approved production is the visible event the
+  // destructive-change rules require, so it must say why.
+  SETREQUIRED('reopen_reason', s === 'REOPENED');
+  SETREQUIRED('reversal_reason', s === 'REVERSED');
+  SETREQUIRED('adjusts_production_id', isAdjustment());
+  SETREQUIRED('adjustment_reason', isAdjustment());
   // Once reviewed, the production figures are what downstream money is computed
   // from, so they stop being editable in place. A correction cycle reopens them.
   var locked = REVIEWED_STATUSES.indexOf(s) !== -1;
@@ -535,6 +567,7 @@ function applyWorkflowState() {
 
 ON('load-record', applyWorkflowState);
 ON('edit-record', applyWorkflowState);
+ON('change', 'production_type', applyWorkflowState);
 
 ON('change', 'correction_completed', function (event) {
   if (choiceValue($correction_completed) === 'yes') {
@@ -572,6 +605,20 @@ ON('change-status', function (event) {
       SETVALUE('correction_completed_date', null);
       SETVALUE('correction_completed_by', null);
     }
+  } else if (s === 'REOPENED') {
+    // The approval stamp is what reports read to decide this production
+    // counts, so a reopened record must not keep one - it is pending again
+    // until re-approved. Fulcrum's record history keeps the earlier version.
+    SETVALUE('approved_by', null);
+    SETVALUE('approved_date', null);
+    SETVALUE('reopened_by', userFullName());
+    SETVALUE('reopened_date', now);
+  } else if (s === 'REVERSED') {
+    // The approval stamp is deliberately KEPT: it is the evidence that this
+    // was approved production before it was reversed. The REVERSED status is
+    // what excludes it from official totals.
+    SETVALUE('reversed_by', userFullName());
+    SETVALUE('reversed_date', now);
   }
   applyWorkflowState();
 });
@@ -703,7 +750,38 @@ function buildExceptions() {
 
   if (qty === null)    flag('WARNING', 'Quantity is blank');
   else if (qty === 0)  flag('WARNING', 'Quantity is zero');
-  else if (qty < 0)    flag('CRITICAL', 'Negative quantity - use an adjustment transaction');
+  else if (qty < 0 && !isAdjustment()) {
+    flag('CRITICAL', 'Negative quantity - record it as an Adjustment that names ' +
+                     'the original Production ID');
+  }
+
+  // An adjustment changes approved history, so it must say what it adjusts and
+  // why. Without the reference no report can trace the correction back.
+  if (isAdjustment()) {
+    var orig = isBlank($adjusts_production_id) ? '' : String($adjusts_production_id).trim().toUpperCase();
+    if (!orig) {
+      flag('CRITICAL', 'Adjustment with no original Production ID - it cannot be ' +
+                       'traced to the production it corrects');
+    } else if (!isBlank($production_id) && orig === String($production_id).trim().toUpperCase()) {
+      flag('CRITICAL', 'An adjustment cannot adjust itself');
+    }
+    if (isBlank($adjustment_reason)) flag('CRITICAL', 'Adjustment with no reason given');
+  }
+
+  // Sprint 13 / OI-10. A deficiency nobody owns, or with no date, never closes.
+  var qaS = choiceValue($qa_status);
+  if (qaS === 'Fail' || qaS === 'Conditional Pass') {
+    if (isBlank($qa_owner)) flag('WARNING', 'QA deficiency has no owner assigned');
+    var due = parseDate($qa_due_date);
+    if (!due) {
+      flag('WARNING', 'QA deficiency has no due date');
+    } else if (choiceValue($correction_completed) !== 'yes') {
+      var todayQa = new Date();
+      if (dayOnly(due) < dayOnly(todayQa)) {
+        flag('WARNING', 'QA deficiency is past its due date and not marked corrected');
+      }
+    }
+  }
 
   var ss = toNum($starting_sequential);
   var es = toNum($ending_sequential);
@@ -950,7 +1028,39 @@ function enforceApprovalGate() {
   }
 }
 
+// D-018. These block the save rather than warn: each is a statement about
+// approved money, and a reopen or reversal with no stated reason is exactly the
+// silent change the destructive-change rules forbid.
+function enforceLifecycleRules() {
+  var s = recordStatus();
+  // The Quantity field's minimum of 0 was removed so an Adjustment can carry a
+  // negative correction. This keeps the old guarantee for everything else: a
+  // crew cannot save -500 FT as ordinary production (Sprint 23.59).
+  var q = toNum($quantity);
+  if (q !== null && q < 0 && !isAdjustment()) {
+    INVALID('A negative quantity is not production. To correct approved ' +
+            'production, create an Adjustment that names the original Production ID.');
+  }
+  if (s === 'REOPENED' && isBlank($reopen_reason)) {
+    INVALID('State why this approved production is being reopened.');
+  }
+  if (s === 'REVERSED') {
+    // Only approved production can be reversed. The approval stamp survives a
+    // reversal (change-status keeps it), so its absence means this was never
+    // approved - and unapproved work is VOIDED, not reversed.
+    if (isBlank($approved_date)) {
+      INVALID('Only approved production can be REVERSED. This record was never ' +
+              'approved - use VOID instead.');
+      return;
+    }
+    if (isBlank($reversal_reason)) {
+      INVALID('State why this approved production is being reversed.');
+    }
+  }
+}
+
 ON('validate-record', function (event) {
+  setIfChanged('calc_version', $calc_version, CALC_VERSION);
   assignProductionId();
   deriveReportingPeriod();
   applyLaborMetadata();
@@ -961,5 +1071,6 @@ ON('validate-record', function (event) {
   deriveQuantityFromSequentials();   // before buildExceptions reads quantity
   buildFingerprints();          // after segment_id, which it reads
   buildExceptions();
+  enforceLifecycleRules();
   enforceApprovalGate();
 });

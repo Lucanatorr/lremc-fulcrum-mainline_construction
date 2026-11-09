@@ -37,12 +37,12 @@ production AS (
     labor_code,
     SUM(CASE WHEN _status = 'APPROVED' THEN COALESCE(quantity, 0) ELSE 0 END)
       AS approved_quantity,
-    SUM(CASE WHEN _status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED')
+    SUM(CASE WHEN _status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED', 'REOPENED')
              THEN COALESCE(quantity, 0) ELSE 0 END)
       AS pending_quantity,
     MAX(CASE WHEN _status = 'APPROVED' THEN work_date END) AS last_approved_work_date
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2"
-  WHERE _status <> 'VOID'
+  WHERE _status NOT IN ('VOID', 'REVERSED')
   GROUP BY project_id_snapshot, labor_code
 ),
 rows AS (

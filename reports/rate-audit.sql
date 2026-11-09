@@ -75,7 +75,7 @@ priced AS (
     ON  amb.contractor_id_snap = p.contractor_id_snapshot
     AND amb.labor_code         = p.labor_code
     AND amb.project_scope      = COALESCE(p.rate_project_id_snap, '*')
-  WHERE p._status <> 'VOID'
+  WHERE p._status NOT IN ('VOID', 'REVERSED')
     AND (p_project_id    IS NULL OR p.project_id_snapshot    = p_project_id)
     AND (p_contractor_id IS NULL OR p.contractor_id_snapshot = p_contractor_id)
 ),

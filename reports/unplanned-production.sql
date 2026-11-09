@@ -24,7 +24,7 @@ WITH production AS (
     MIN(work_date)                          AS first_work_date,
     MAX(work_date)                          AS last_work_date
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2"
-  WHERE _status NOT IN ('VOID', 'REJECTED')
+  WHERE _status NOT IN ('VOID', 'REVERSED', 'REJECTED')
     AND labor_code IS NOT NULL
   GROUP BY project_id_snapshot, labor_code, unit
 ),

@@ -58,7 +58,7 @@ pulls AS (
     COALESCE(p.slack_footage, 0)         AS slack_footage,
     COALESCE(p.total_installed_footage, 0) AS total_installed_footage
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2" p
-  WHERE p._status <> 'VOID'
+  WHERE p._status NOT IN ('VOID', 'REVERSED')
     AND (p.starting_sequential IS NOT NULL OR p.ending_sequential IS NOT NULL)
 ),
 

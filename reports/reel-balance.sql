@@ -66,7 +66,7 @@ consumption AS (
     SUM(CASE WHEN p._status = 'APPROVED'
              THEN COALESCE(p.other_added_footage, 0) ELSE 0 END)
       AS other_added_footage,
-    SUM(CASE WHEN p._status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED')
+    SUM(CASE WHEN p._status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED', 'REOPENED')
              THEN COALESCE(p.sequential_footage, 0) ELSE 0 END)
       AS pending_sequential_consumed,
     COUNT(CASE WHEN p._status = 'APPROVED' THEN 1 END)  AS approved_pull_count,
@@ -77,7 +77,7 @@ consumption AS (
     MAX(CASE WHEN p._status = 'APPROVED'
              THEN GREATEST(p.starting_sequential, p.ending_sequential) END) AS highest_sequential_used
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2" p
-  WHERE p._status <> 'VOID'
+  WHERE p._status NOT IN ('VOID', 'REVERSED')
     AND p.reel_id IS NOT NULL
   GROUP BY p.reel_id
 ),

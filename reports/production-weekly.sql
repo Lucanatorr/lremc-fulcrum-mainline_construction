@@ -31,13 +31,13 @@ weekly AS (
     -- Quantity is safe to sum here: one labor code means one unit.
     SUM(CASE WHEN p._status = 'APPROVED' THEN COALESCE(p.quantity, 0) ELSE 0 END)
       AS approved_quantity,
-    SUM(CASE WHEN p._status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED')
+    SUM(CASE WHEN p._status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED', 'REOPENED')
              THEN COALESCE(p.quantity, 0) ELSE 0 END)
       AS pending_quantity,
 
     SUM(CASE WHEN p._status = 'APPROVED' THEN COALESCE(p.extended_value, 0) ELSE 0 END)
       AS approved_value,
-    SUM(CASE WHEN p._status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED')
+    SUM(CASE WHEN p._status IN ('DRAFT','SUBMITTED','UNDER REVIEW','CORRECTION REQUIRED', 'REOPENED')
              THEN COALESCE(p.extended_value, 0) ELSE 0 END)
       AS pending_value,
 
@@ -50,7 +50,7 @@ weekly AS (
                         THEN p.work_date END)      AS weekend_days_worked
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2" p
   CROSS JOIN params
-  WHERE p._status <> 'VOID'
+  WHERE p._status NOT IN ('VOID', 'REVERSED')
     AND p.work_week IS NOT NULL
     AND (p_project_id    IS NULL OR p.project_id_snapshot    = p_project_id)
     AND (p_contractor_id IS NULL OR p.contractor_id_snapshot = p_contractor_id)

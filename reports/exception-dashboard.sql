@@ -70,7 +70,7 @@ live AS (
     p.segment_id, p._created_at, p._server_updated_at, p._created_by_id
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2" p
   CROSS JOIN params
-  WHERE p._status <> 'VOID'
+  WHERE p._status NOT IN ('VOID', 'REVERSED')
     AND (p_project_id    IS NULL OR p.project_id_snapshot    = p_project_id)
     AND (p_contractor_id IS NULL OR p.contractor_id_snapshot = p_contractor_id)
     AND (p_date_from     IS NULL OR p.work_date >= p_date_from)
@@ -307,7 +307,7 @@ UNION ALL SELECT l._record_id, 'Pending Approval', 'INFO',
   'qa-review-queue.sql', ROUND(CAST(COALESCE(l.extended_value, 0) AS numeric), 2)
 FROM live l
 CROSS JOIN params p
-WHERE l.record_status IN ('DRAFT', 'SUBMITTED', 'UNDER REVIEW')
+WHERE l.record_status IN ('DRAFT', 'SUBMITTED', 'UNDER REVIEW', 'REOPENED')
   AND l.work_date > CURRENT_DATE - p.p_pending_days
 
 -- 16. OLD PENDING PRODUCTION. The same records, past the threshold, where
@@ -320,7 +320,7 @@ UNION ALL SELECT l._record_id, 'Old Pending Production',
   'qa-review-queue.sql', ROUND(CAST(COALESCE(l.extended_value, 0) AS numeric), 2)
 FROM live l
 CROSS JOIN params p
-WHERE l.record_status IN ('DRAFT', 'SUBMITTED', 'UNDER REVIEW', 'CORRECTION REQUIRED')
+WHERE l.record_status IN ('DRAFT', 'SUBMITTED', 'UNDER REVIEW', 'CORRECTION REQUIRED', 'REOPENED')
   AND l.work_date <= CURRENT_DATE - p.p_pending_days
 
 -- 17. MISSING REQUIRED PHOTOS. The brief's own WARNING example. A missing

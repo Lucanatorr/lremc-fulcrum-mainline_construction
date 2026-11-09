@@ -35,7 +35,7 @@ WITH params AS (
 projects AS (
   SELECT DISTINCT project_id_snapshot AS project_id
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2"
-  WHERE project_id_snapshot IS NOT NULL AND _status <> 'VOID'
+  WHERE project_id_snapshot IS NOT NULL AND _status NOT IN ('VOID', 'REVERSED')
   UNION
   SELECT DISTINCT project_id_snap
   FROM "aa1d8c1e-d0a9-4fd1-8d57-ca90b4555b0b"
@@ -67,7 +67,7 @@ SELECT
     || ' of production value that is not yet in earned value or billing.' AS detail,
   'qa-review-queue.sql' AS see_also
 FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2" p
-WHERE p._status IN ('DRAFT', 'SUBMITTED', 'UNDER REVIEW')
+WHERE p._status IN ('DRAFT', 'SUBMITTED', 'UNDER REVIEW', 'REOPENED')
 GROUP BY p.project_id_snapshot
 
 -- 2. FAILED QA RECORDS
@@ -78,7 +78,7 @@ UNION ALL SELECT
     || 'failed inspection cannot be part of a closed project.',
   'qa-review-queue.sql'
 FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2" p
-WHERE p.qa_status = 'Fail' AND p._status <> 'VOID'
+WHERE p.qa_status = 'Fail' AND p._status NOT IN ('VOID', 'REVERSED')
 GROUP BY p.project_id_snapshot
 
 -- 3. OPEN CORRECTIONS
@@ -141,7 +141,7 @@ FROM (
     GROUP BY t.production_id_snap, t.material_code_snap
   ) im ON im.production_id_snap = p.production_id
       AND im.material_code_snap = p.conduit_material_code
-  WHERE p._status <> 'VOID'
+  WHERE p._status NOT IN ('VOID', 'REVERSED')
     AND p.conduit_material_quantity > 0
     AND ABS(im.installed_quantity - p.conduit_material_quantity)
         / p.conduit_material_quantity > p_material_variance
@@ -187,7 +187,7 @@ UNION ALL SELECT
     || 'recorded, so the fiber has no evidence of having been tested.',
   'qa-review-queue.sql'
 FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2" p
-WHERE p._status <> 'VOID'
+WHERE p._status NOT IN ('VOID', 'REVERSED')
   AND p.work_category = 'Splicing'
   AND (p.splice_test_result IS NULL
        OR p.splice_test_result = ''

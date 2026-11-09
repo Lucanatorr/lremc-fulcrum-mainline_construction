@@ -106,7 +106,7 @@ production AS (
       AS approved_quantity,
     MAX(CASE WHEN _status = 'APPROVED' THEN work_date END) AS last_approved_work_date
   FROM "06c36c8e-4a88-4cf3-a691-9a792f8374d2"
-  WHERE _status <> 'VOID'
+  WHERE _status NOT IN ('VOID', 'REVERSED')
   GROUP BY project_id_snapshot, labor_code
 ),
 
