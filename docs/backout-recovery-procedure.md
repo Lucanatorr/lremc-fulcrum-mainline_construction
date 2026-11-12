@@ -33,12 +33,15 @@ and 5 need the Business Owner first.
 
 ## 2. What can be rolled back to what
 
-Every live script and schema is in git, and `fulcrum/baseline-2026-11-09.json`
-records the hash of what was live on that date.
+Every live script and schema is in git, and `fulcrum/baseline-2026-11-12.json`
+records the hash of what was live on that date. **Since Sprint 31 the exact live
+bytes, and the rollback target, are retained in `fulcrum/known-good/`**:
+`python3 scripts/known_good.py rollback <app>` prints the rollback script, or refuses
+and says why (`docs/sprint-31-backup-recovery.md` §3).
 
 | App | Live | Roll back to | Commit holding the rollback target | Caveat |
 |---|---|---|---|---|
-| Mainline Construction | v7.6.0 | v7.5.0 | `0933a86` | v7.5.0 does not know REOPENED / REVERSED / Adjustment. Records already in those states keep them, but v7.5.0 treats them as unknown statuses. Their fields stay on the form (additive), unused. |
+| Mainline Construction | v7.7.0 | v7.6.0 | `6b2a9a3` (exact bytes in `fulcrum/known-good/mainline-construction-dev.rollback.js`) | v7.6.0 does not block self-approval (OI-22). Until v7.7.x is back, the weekly audit W-8 must review every approval. Rolling back further, to v7.5.0, would also lose REOPENED / REVERSED / Adjustment handling |
 | MC Contractor Rate | v1.1.0 | **do not** | `2c363e4` is v1.0.0 | **v1.0.0 clears unit and description on every save.** Never redeploy it. Fix forward. |
 | MC Project Scope Line | v1.1.0 | v1.0.0 | `964460a` | v1.0.0 can erase the unit; prefer fixing forward |
 | MC Change Order | v1.1.0 | v1.0.0 | `964460a` | as above |
@@ -57,7 +60,7 @@ version fixed. Rolling back reintroduces it.
 
 ### Level 1 — script rollback (minutes)
 
-1. `git show <commit>:fulcrum/data-events/<app>.js > /tmp/rollback.js`
+1. `python3 scripts/known_good.py rollback <app> > /tmp/rollback.js` (or `git show <commit>:fulcrum/data-events/<app>.js` for an older version)
 2. Read the live form with `forms_get` and keep the full JSON as the pre-rollback state.
 3. Call `forms_update` with the **same elements**, and with `script` set to the rollback file.
 4. Read it back and compare: the script must match the rollback file byte for byte.
@@ -153,11 +156,11 @@ Before pasting, run `node tests/reporting.test.js` against that version.
 Not run yet. It needs records to be created, which this toolchain cannot do
 (see limitation L4), and a person with the app open.
 
-1. Note the current Mainline script hash from `fulcrum/baseline-2026-11-09.json`.
-2. Create one record, save it, and note `calc_version` = `DE-7.6.0`.
-3. Level 1: roll the script back to v7.5.0 (`0933a86`). Read back and compare.
-4. Edit the record and save it. Confirm `calc_version` is unchanged: v7.5.0 does not set it. The field is left as it was, which demonstrates that a rollback does not erase what a later version wrote.
-5. Roll forward to v7.6.0 (`6b2a9a3`). Read back and compare against the baseline hash.
+1. `python3 scripts/known_good.py preflight mainline-construction-dev <forms_get.json>`: the live script is the registered v7.7.0.
+2. Create one record, save it, and note `calc_version` = `DE-7.7.0`.
+3. Level 1: roll the script back to v7.6.0 (`known_good.py rollback`). Read back and compare.
+4. Edit the record and save it. Confirm `calc_version` now reads `DE-7.6.0`: the script stamps the version that last calculated the record, which is how Level 3 finds what a bad version touched.
+5. Roll forward to v7.7.0 (`fulcrum/known-good/mainline-construction-dev.js`). Read back and run `known_good.py preflight` again: it must pass.
 6. Level 3 drill: approve the record, then REVERSE it with a reason. Confirm
    it drops out of `production-daily` and appears in `voided-reversed`.
 7. Record the elapsed time for steps 3 to 5, and anything that surprised you, in

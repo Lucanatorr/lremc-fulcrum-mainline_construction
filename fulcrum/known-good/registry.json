@@ -1,0 +1,169 @@
+{
+ "purpose": "Exact bytes of every Data Event verified live, and the version to roll back to. Maintained by scripts/known_good.py; procedure in docs/sprint-31-backup-recovery.md section 3.",
+ "captured": "2026-11-12 from read-only forms_get (the same read as fulcrum/baseline-2026-11-12.json)",
+ "apps": {
+  "mainline-construction-dev": {
+   "form_id": "06c36c8e-4a88-4cf3-a691-9a792f8374d2",
+   "live": {
+    "version": "7.7.0",
+    "sha256": "f5aaf2df6f49414569dc09e3a62b6d276366a162efc7973dff6d1f543f56023b",
+    "commit": "97b67c8",
+    "verified_live": "2026-11-12"
+   },
+   "repo_file": "fulcrum/data-events/mainline-construction-dev.js",
+   "repo_vs_live": "identical",
+   "rollback": {
+    "version": "7.6.0",
+    "commit": "6b2a9a3",
+    "verified_live": "2026-11-09 (fulcrum/baseline-2026-11-09.json)",
+    "safe_to_redeploy": true,
+    "reason": "Live 2026-11-09 to 2026-11-12. Rolling back removes the no-self-approval guard (OI-22): the approver must then be checked by the weekly audit W-8 until v7.7.x is restored.",
+    "sha256": "14b642bd2d88d09f2291efc600fe8ec86c736df92b7e8a898f33e3a4d5a18c2d"
+   }
+  },
+  "mc-contractor-rate-dev": {
+   "form_id": "a5529dd0-54fa-4b8d-b595-d0218df0ee97",
+   "live": {
+    "version": "1.1.0",
+    "sha256": "c8f082518a0acb8a1db4639c3464c041d0c11254205be71b6bc1f63d249763d1",
+    "commit": "6b2a9a3",
+    "verified_live": "2026-11-12"
+   },
+   "repo_file": "fulcrum/data-events/mc-contractor-rate-dev.js",
+   "repo_vs_live": "identical",
+   "rollback": {
+    "version": "1.0.0",
+    "commit": "2c363e4",
+    "safe_to_redeploy": false,
+    "reason": "v1.0.0 clears unit and description on every save. Never redeploy it; fix forward.",
+    "sha256": "88d944102bdbc642289ff96411f1c078ebc9b1dbca7cf9c5e51d459b50ea45ea"
+   }
+  },
+  "mc-project-scope-line-dev": {
+   "form_id": "aa1d8c1e-d0a9-4fd1-8d57-ca90b4555b0b",
+   "live": {
+    "version": "1.1.0",
+    "sha256": "5da18c778209227bdb08f65dde5c6ae41aee51b1f5f884d5696aa8cb357cb049",
+    "commit": "b086d3a",
+    "verified_live": "2026-11-12"
+   },
+   "repo_file": "fulcrum/data-events/mc-project-scope-line-dev.js",
+   "repo_vs_live": "identical",
+   "rollback": {
+    "version": "1.0.0",
+    "commit": "964460a",
+    "safe_to_redeploy": false,
+    "reason": "v1.0.0 can erase the unit on save (fixed in v1.1.0). Fix forward.",
+    "sha256": "09d7eb3fd251496beebe12db67536311cd8deab4c2ea2941782de4b92a2e6b69"
+   },
+   "header_note": "The script's own header comment still reads v1.0.0; the deployed fix is registered as v1.1.0 here and in docs/data-event-inventory.md. Correct the header at the next deployment of this app (OI-24)."
+  },
+  "mc-change-order-dev": {
+   "form_id": "458ae172-b7b4-43b5-8917-d7a792c9e81a",
+   "live": {
+    "version": "1.1.0",
+    "sha256": "50d73608ec9505c594fb471cfb08ef78a2d93950d17c9d8aea9635b1a890df7e",
+    "commit": "b086d3a",
+    "verified_live": "2026-11-12"
+   },
+   "repo_file": "fulcrum/data-events/mc-change-order-dev.js",
+   "repo_vs_live": "identical",
+   "rollback": {
+    "version": "1.0.0",
+    "commit": "964460a",
+    "safe_to_redeploy": false,
+    "reason": "v1.0.0 can erase the line unit on save (fixed in v1.1.0). Fix forward.",
+    "sha256": "8edd6a786af5f4b867de9bed80705d6c7b60b07f1023c5a150da194d35549d78"
+   },
+   "header_note": "The script's own header comment still reads v1.0.0; the deployed fix is registered as v1.1.0 here and in docs/data-event-inventory.md. Correct the header at the next deployment of this app (OI-24)."
+  },
+  "mc-fiber-reel-dev": {
+   "form_id": "728477da-5f36-48cb-b3ab-cbc8c38d077f",
+   "live": {
+    "version": "2.0.0",
+    "sha256": "a1e04aca5dcd993613e1b0f51f346803ba4a54fbb488b2383fc6a29611967013",
+    "commit": "f345372",
+    "verified_live": "2026-11-12"
+   },
+   "repo_file": "fulcrum/data-events/mc-fiber-reel-dev.js",
+   "repo_vs_live": "trailing newline only",
+   "note": "v1.0.0 predates the repository and stored totals, which D-012 removed. No rollback target: fix forward, or disable the handler."
+  },
+  "mc-material-transaction-dev": {
+   "form_id": "ee204906-adb3-431b-a1d9-d7427a4c842c",
+   "live": {
+    "version": "1.1.0",
+    "sha256": "17d4eae7bb1f8a5050741937b4c4ab611ef56f164b2c1c9a78f645dda7fc1269",
+    "commit": "4b432e0",
+    "verified_live": "2026-11-12"
+   },
+   "repo_file": "fulcrum/data-events/mc-material-transaction-dev.js",
+   "repo_vs_live": "identical",
+   "rollback": {
+    "version": "1.0.0",
+    "commit": "46ab591",
+    "safe_to_redeploy": false,
+    "reason": "v1.0.0 shifts every transaction date back a day (timezone, fixed in v1.1.0). Fix forward.",
+    "sha256": "73db4b9648eac76b1d4e8913e8b484f0af52f7c0d30bdd8b4467fc97bb0638c4"
+   },
+   "header_note": "The script's own header comment still reads v1.0.0; the deployed fix is registered as v1.1.0 here and in docs/data-event-inventory.md. Correct the header at the next deployment of this app (OI-24)."
+  },
+  "mc-structure-dev": {
+   "form_id": "397b52cf-a4f0-4871-b8ea-1fdb592fe2ab",
+   "live": {
+    "version": "1.1.0",
+    "sha256": "d4764dc70b69c70d41a3890b4942b9c87c9c13a2e43b978cfeb4844f605a0584",
+    "commit": "4b432e0",
+    "verified_live": "2026-11-12"
+   },
+   "repo_file": "fulcrum/data-events/mc-structure-dev.js",
+   "repo_vs_live": "identical",
+   "rollback": {
+    "version": "1.0.0",
+    "commit": "403af3f",
+    "safe_to_redeploy": false,
+    "reason": "v1.0.0 has the same timezone date shift. Fix forward.",
+    "sha256": "f17ee86447d488611f97368b19baf04a6945cd6059958f6beb01e87f204e71b8"
+   },
+   "header_note": "The script's own header comment still reads v1.0.0; the deployed fix is registered as v1.1.0 here and in docs/data-event-inventory.md. Correct the header at the next deployment of this app (OI-24)."
+  },
+  "mc-segment-dev": {
+   "form_id": "7da87588-940a-4b9e-915d-5ec25d5c0ebc",
+   "live": {
+    "version": "1.0.0",
+    "sha256": "ba64d56e813ca63330ad54f688b682a71db5a2ae5b335c683f11e0111685d1ae",
+    "commit": "403af3f",
+    "verified_live": "2026-11-12"
+   },
+   "repo_file": "fulcrum/data-events/mc-segment-dev.js",
+   "repo_vs_live": "comments only (see registry note)",
+   "note": "First version. No rollback target: disable the handler instead.",
+   "repo_vs_live_detail": "The repo file has one comment line extended after deployment (points to reports/segment-integrity.sql). No code differs. known-good/mc-segment-dev.js holds the live bytes."
+  },
+  "mc-project-closeout-dev": {
+   "form_id": "351bb1f1-9837-47c8-be5b-bb0727fe93a0",
+   "live": {
+    "version": "1.0.0",
+    "sha256": "afaa2d457c51858cb7364695e561f886ad96bc77daa464b9d292ef8022aa00dd",
+    "commit": "a625ba2",
+    "verified_live": "2026-11-12"
+   },
+   "repo_file": "fulcrum/data-events/mc-project-closeout-dev.js",
+   "repo_vs_live": "comments only (see registry note)",
+   "note": "First version. No rollback target: disable the handler instead.",
+   "repo_vs_live_detail": "The repo file has one comment edited after deployment ('a field identifier' -> 'a $field identifier') plus a trailing newline. No code differs. known-good/mc-project-closeout-dev.js holds the live bytes."
+  },
+  "mc-labor-material-mapping-dev": {
+   "form_id": "38e3d7fd-ca78-4016-8018-ec955446c13f",
+   "live": {
+    "version": "1.0.0",
+    "sha256": "d87e81da6d1d19ebc2ae1da97d20b733d4b886a021e2223783332a9abeb51246",
+    "commit": "f5ee7e3",
+    "verified_live": "2026-11-12"
+   },
+   "repo_file": "fulcrum/data-events/mc-labor-material-mapping-dev.js",
+   "repo_vs_live": "identical",
+   "note": "First version. No rollback target: disable the handler instead."
+  }
+ }
+}
