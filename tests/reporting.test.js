@@ -27,6 +27,10 @@ function check(id, label, actual, expected) {
 }
 
 check('TEST-RPT-000', 'every expected report exists', files, [
+  'audit-daily.sql',
+  'audit-history-fingerprint.sql',
+  'audit-monthly.sql',
+  'audit-weekly.sql',
   'closeout-readiness.sql',
   'contractor-financial.sql',
   'duplicate-production.sql',
@@ -45,6 +49,7 @@ check('TEST-RPT-000', 'every expected report exists', files, [
   'project-summary.sql',
   'qa-review-queue.sql',
   'rate-audit.sql',
+  'rate-expected-audit.sql',
   'rate-master-audit.sql',
   'reel-balance.sql',
   'reel-integrity.sql',
@@ -342,6 +347,29 @@ check('TEST-QA-010', 'the queue only lists pending records',
     .filter(f => !/mm\._status NOT IN \('VOID', 'REJECTED', 'SUPERSEDED'\)/.test(sql[f]));
   check('TEST-STATUS-002', 'REJECTED and SUPERSEDED mappings do not count as coverage', mappingFilters, []);
   const draftScope = Object.keys(sql).filter(f => /\bs\._status <> 'VOID'/.test(sql[f]));
+  // ----------------------------------------------- Sprint 27 audit operations
+  const rea = sql['rate-expected-audit.sql'];
+  const reaCols = ['contractor_id', 'project_id', 'labor_code', 'production_date', 'rate_used',
+                   'expected_rate', 'rate_source', 'difference'].filter(c => !new RegExp('\\b' + c + '\\b').test(rea));
+  check('TEST-AUD-001', 'the expected-rate audit carries every column the brief names', reaCols, []);
+  check('TEST-AUD-002', 'the expected rate is the one in force on the WORK date',
+        /effective_date AS date\) <= pr\.work_date/.test(rea) && /expiration_date AS date\) >= pr\.work_date/.test(rea), true);
+  check('TEST-AUD-003', 'a project-specific rate beats an all-projects rate', /scope_rank/.test(rea) && /MIN\(c\.scope_rank\)/.test(rea), true);
+  check('TEST-AUD-004', 'a draft rate is never the expected rate', /r\._status <> 'DRAFT'/.test(rea), true);
+  const dailyIds = (sql['audit-daily.sql'].match(/'D-\d+'/g) || []).length;
+  const weeklyIds = (sql['audit-weekly.sql'].match(/'W-\d+[ab]?'/g) || []).length;
+  const monthlyIds = (sql['audit-monthly.sql'].match(/'M-\d+[abc]?'/g) || []).length;
+  check('TEST-AUD-005', 'daily, weekly and monthly checklists are all populated', [dailyIds >= 6, weeklyIds >= 8, monthlyIds >= 7], [true, true, true]);
+  check('TEST-AUD-006', 'the weekly audit includes the self-approval check (OI-22)', /Self-approved production/.test(sql['audit-weekly.sql']), true);
+  check('TEST-AUD-007', 'the monthly permission check counts ACTIVE members only',
+        /membership_status = 'active'/.test(sql['audit-monthly.sql']), true);
+  const fp = sql['audit-history-fingerprint.sql'];
+  check('TEST-AUD-008', 'the history fingerprint covers quantity, rate, value, status and relationships',
+        ['quantity', 'contractor_rate', 'extended_value', '_status', 'rate_source_id', 'segment_id', 'reel_id', 'approved_by']
+          .filter(c => !new RegExp('COALESCE\\(CAST\\(' + c + '|COALESCE\\(' + c + '|\\|\\| ' + c).test(fp)), []);
+  check('TEST-AUD-009', 'the fingerprint is order-independent of storage (ORDER BY inside STRING_AGG)',
+        /STRING_AGG\(signature, ',' ORDER BY item_id\)/.test(fp), true);
+
   check('TEST-STATUS-003', 'no report treats a DRAFT scope line as authorized scope', draftScope, []);
 }
 check('TEST-QA-011', 'overlap counting treats adjacency as legitimate',

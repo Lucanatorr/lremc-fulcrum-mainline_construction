@@ -1,0 +1,6 @@
+{"rows": [
+ {"ledger":"PRODUCTION","project_id":"PRJ-000001","contractor_id":"CON-0001","period":"2026-09","unit":"FT","records":3,"total_quantity":1500,"total_value":15000,"fingerprint":"aaa"},
+ {"ledger":"PRODUCTION","project_id":"PRJ-000001","contractor_id":"CON-0001","period":"2026-10","unit":"FT","records":2,"total_quantity":800,"total_value":8800,"fingerprint":"bbb-changed"},
+ {"ledger":"MATERIAL","project_id":"PRJ-000001","contractor_id":"CON-0001","period":"2026-09","unit":"FT","records":1,"total_quantity":1500,"total_value":0,"fingerprint":"ccc"},
+ {"ledger":"PRODUCTION","project_id":"PRJ-000001","contractor_id":"CON-0001","period":"2026-11","unit":"FT","records":4,"total_quantity":2000,"total_value":20000,"fingerprint":"eee"}
+]}

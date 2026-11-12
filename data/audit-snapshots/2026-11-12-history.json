@@ -1,0 +1,6 @@
+{
+ "report": "reports/audit-history-fingerprint.sql",
+ "run_at": "2026-11-12",
+ "note": "First snapshot. Empty by design: no production has been APPROVED or REVERSED and the material ledger holds no posted rows yet. The first non-empty snapshot will be the first monthly review after an approval.",
+ "rows": []
+}

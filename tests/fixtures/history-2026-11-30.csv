@@ -1,0 +1,5 @@
+ledger,project_id,contractor_id,period,unit,records,total_quantity,total_value,fingerprint
+PRODUCTION,PRJ-000001,CON-0001,2026-09,FT,3,1500,15000,aaa
+PRODUCTION,PRJ-000001,CON-0001,2026-10,FT,2,800,8800,bbb-changed
+MATERIAL,PRJ-000001,CON-0001,2026-09,FT,1,1500,0,ccc
+PRODUCTION,PRJ-000001,CON-0001,2026-11,FT,4,2000,20000,eee
