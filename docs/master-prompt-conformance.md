@@ -34,7 +34,9 @@ as they can be without a production change: the Sprint 24 gate assessment (it
 fails), the baseline, the pilot and rollout plan and the backout procedure;
 Sprint 25 role training; Sprint 26 governance. See
 `docs/sprint-24-deployment-readiness.md`, `docs/training/` and
-`docs/sprint-26-governance.md`. Sprints 27–32 remain.
+`docs/sprint-26-governance.md`. **Update 2026-11-12:** Sprint 27 (audit and compliance
+operations, `docs/sprint-27-audit-operations.md`) and Sprint 28 (management analytics,
+`docs/sprint-28-analytics.md`) built and run against live data. Sprints 29–32 remain.
 
 **Sprints 24–32 were never started** (as of 2026-09-22). The instruction "complete the rest of the
 sprints" was carried out as though Sprint 23 ended the programme. It does not:

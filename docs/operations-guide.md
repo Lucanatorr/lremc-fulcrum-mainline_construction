@@ -157,7 +157,7 @@ report, before approval.
 
 # Part 3 — Management reporting guide
 
-All 26 reports are SQL for the Fulcrum Query API, in `reports/`. Conventions in
+All 37 reports are SQL for the Fulcrum Query API, in `reports/`: 26 operational, 5 audit (Sprint 27, `docs/sprint-27-audit-operations.md`) and 6 management analytics (Sprint 28, `docs/sprint-28-analytics.md`). Conventions in
 `reports/_conventions.md`.
 
 > **All 26 ran against live data on 2026-11-09** (`docs/sprint-24-deployment-readiness.md` §3).

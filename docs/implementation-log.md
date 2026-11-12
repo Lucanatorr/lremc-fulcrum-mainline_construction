@@ -6,6 +6,47 @@ Newest entries first. Every Fulcrum object this project creates is listed in
 
 ---
 
+## 2026-11-12 — Gate remediation; Sprints 27 and 28
+
+### Why the gate failed, and what was fixable here
+
+Re-scored: **4 PASS, 8 FAIL**. The 2026-11-09 page miscounted it as 5/7. One
+failure was a defect in code; the other seven need a person, a decision or
+data. Each is now a named task with its kit (`sprint-24-deployment-readiness.md` §0).
+
+- **Fixed: self-approval (OI-22, CRITICAL).** `USERFULLNAME` resolves live,
+  so Mainline **v7.7.0** refuses an approval whose stamp names the record's
+  inspector or submitter. Deployed 2026-11-12 16:19; read back
+  byte-identical; elements unchanged. Seven tests. `approval_independence` in
+  the audit trail catches what the app can't see.
+- **Prepared:** two-person chain runbook (gate 1); disposition sheet with the
+  rate-sheet evidence for every billing gap (gate 2); all 89 unmapped pay units
+  classified, plus one derivable mapping row (gate 4); scope baseline
+  validator (gate 6); role model on Fulcrum's 15 real switches, plus a
+  permission matrix (gate 7); full UAT pack, 57 cases (gate 10).
+- **Not possible from here:** records cannot be created or approved (no MCP
+  record tool; `api.fulcrumapp.com` still refused, re-checked), and roles
+  cannot be edited (list-only).
+
+### Sprint 27 — audit operations
+
+`rate-expected-audit` (the brief's rate audit: the expected rate is looked up
+independently, in force on the work date); `audit-daily`, `-weekly` and
+`-monthly` checklists; `audit-history-fingerprint` plus
+`scripts/audit_history_check.py` for "has history changed". All run live.
+The daily check flagged PRD-2026-143C1840's missing unit unprompted. The
+**memberships table includes inactive members** (29 rows against 19 active),
+so the permission check filters on status.
+
+### Sprint 28 — analytics
+
+Six reports: executive summary, project performance, contractor, crew
+productivity, daily burn rate, production velocity. All run live. Units are
+never added together (TEST-ANL-*). Fulcrum vs Power BI boundary in
+`docs/sprint-28-analytics.md`.
+
+---
+
 ## 2026-11-09 — Sprint 23 build closed out; Sprints 24–26 carried out as far as allowed
 
 **No production change.** All writes went to the Development apps; the

@@ -27,6 +27,12 @@ function check(id, label, actual, expected) {
 }
 
 check('TEST-RPT-000', 'every expected report exists', files, [
+  'analytics-contractor.sql',
+  'analytics-crew-productivity.sql',
+  'analytics-daily-burn-rate.sql',
+  'analytics-executive-summary.sql',
+  'analytics-production-velocity.sql',
+  'analytics-project-performance.sql',
   'audit-daily.sql',
   'audit-history-fingerprint.sql',
   'audit-monthly.sql',
@@ -369,6 +375,32 @@ check('TEST-QA-010', 'the queue only lists pending records',
           .filter(c => !new RegExp('COALESCE\\(CAST\\(' + c + '|COALESCE\\(' + c + '|\\|\\| ' + c).test(fp)), []);
   check('TEST-AUD-009', 'the fingerprint is order-independent of storage (ORDER BY inside STRING_AGG)',
         /STRING_AGG\(signature, ',' ORDER BY item_id\)/.test(fp), true);
+
+  // ------------------------------------------- Sprint 28 management analytics
+  // Rule 2: quantities never add across units. The executive summary and the
+  // burn rate cover whole projects, so they must be value-only; the quantity
+  // reports must carry the unit in their grain.
+  const exec = stripComments(sql['analytics-executive-summary.sql']);
+  const burn = stripComments(sql['analytics-daily-burn-rate.sql']);
+  const execQtyOutsidePayUnit = (exec.match(/SUM\(COALESCE\(quantity/g) || []).length;
+  check('TEST-ANL-001', 'the executive summary sums quantity only inside its per-pay-unit CTE',
+        [execQtyOutsidePayUnit, /approved_qty AS \(\s*SELECT project_id_snapshot AS project_id, labor_code, SUM\(COALESCE\(quantity, 0\)\)/.test(exec)], [1, true]);
+  check('TEST-ANL-002', 'the daily burn rate is value-only', /quantity/.test(burn.replace(/original_planned_quantity|line_quantity_change|\/quantity_changes/g, '')), false);
+  check('TEST-ANL-003', 'crew productivity is per unit',
+        /GROUP BY COALESCE\(crew, '\(no crew recorded\)'\), contractor_id_snapshot, COALESCE\(unit, '\(no unit\)'\)/.test(sql['analytics-crew-productivity.sql']), true);
+  check('TEST-ANL-004', 'project performance and velocity are per pay unit (and so per unit)',
+        [/GROUP BY project_id_snapshot, labor_code\b/.test(sql['analytics-project-performance.sql']),
+         /GROUP BY project_id_snapshot, labor_code, work_week/.test(sql['analytics-production-velocity.sql'])], [true, true]);
+  check('TEST-ANL-005', 'the burn rate gives every working day a row, worked or not',
+        /generate_series\(CURRENT_DATE - p_window_days, CURRENT_DATE/.test(burn) && /ISODOW FROM g\.d\) < 6/.test(burn) && /CROSS JOIN days d/.test(burn), true);
+  check('TEST-ANL-006', 'productivity divides by ACTIVE days, never elapsed days',
+        /pr\.qty \/ pr\.active_days/.test(sql['analytics-crew-productivity.sql']), true);
+  const anl = Object.keys(sql).filter(f => f.startsWith('analytics-'));
+  const noVoidGuard = anl.filter(f => !/NOT IN \('VOID', 'REVERSED'\)|_status = 'APPROVED'/.test(sql[f]));
+  check('TEST-ANL-007', 'every analytics report keeps VOID and REVERSED out of production', [anl.length, noVoidGuard], [6, []]);
+  check('TEST-ANL-008', 'forecasts decline to guess on fewer than 3 active days',
+        ['analytics-executive-summary.sql', 'analytics-project-performance.sql']
+          .filter(f => !/< 3/.test(sql[f])), []);
 
   check('TEST-STATUS-003', 'no report treats a DRAFT scope line as authorized scope', draftScope, []);
 }
