@@ -26,7 +26,8 @@
 --   Who approved it?              approved_by / approved_by_user
 --   When was it approved?         approved_date
 --   Was it subsequently changed?  record_version, last_changed_at,
---                                 last_changed_by, changed_after_approval
+--                                 last_changed_by, changed_after_approval,
+--                                 approval_independence (OI-22)
 --   What material was associated?  material_rows, material_codes,
 --                                 material_installed_quantity, and the
 --                                 conduit figures derived on the record
@@ -166,6 +167,17 @@ SELECT
     WHEN p._updated_at > p.approved_date THEN 'CHANGED AFTER APPROVAL'
     ELSE 'UNCHANGED SINCE APPROVAL'
   END                                          AS changed_after_approval,
+  -- OI-22. v7.7.0 refuses self-approval in the app; this catches what the app
+  -- cannot: approvals from before v7.7.0, from a device still on an older
+  -- script, or from the API.
+  CASE
+    WHEN p.approved_by IS NULL THEN NULL
+    WHEN LOWER(TRIM(p.approved_by)) IN (LOWER(TRIM(COALESCE(p.inspector, ''))),
+                                        LOWER(TRIM(COALESCE(p.submitted_by, ''))),
+                                        LOWER(TRIM(COALESCE(cb.name, ''))))
+      THEN 'SELF-APPROVED'
+    ELSE 'INDEPENDENT'
+  END                                          AS approval_independence,
   CASE WHEN p._version > 1 THEN p._version - 1 ELSE 0 END AS edits_after_creation,
 
   -- ------------------------------------------------------- the material

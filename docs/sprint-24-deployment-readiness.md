@@ -1,7 +1,38 @@
 # Sprint 24 — Pre-Deployment Gate, Configuration Baseline, Pilot and Rollout Plan
 
 **Date:** 2026-11-09
-**Verdict: DO NOT DEPLOY. The pre-deployment gate fails on 7 of 12 items.**
+**Verdict (2026-11-09): DO NOT DEPLOY. The pre-deployment gate fails on 8 of 12 items.**
+**Re-assessed 2026-11-12, see §0: still DO NOT DEPLOY. 4 PASS, 8 FAIL, but 1 failing item is
+fixed in code and the other 7 are now each a named task for a named role.**
+
+> **Correction.** The original version of this page said "5 PASS, 7 FAIL". The
+> table itself always showed 4 PASS (items 3, 5, 8, 9) and 8 FAIL. The summary
+> line was miscounted.
+
+---
+
+## 0. Remediation, 2026-11-12
+
+For each failing item: why it failed, what was done today, and what is left.
+"Done" means done and verified. Nothing below claims a pass that needs a person.
+
+| # | Item | Why it failed | Done 2026-11-12 | Left, and who | Now |
+|---|---|---|---|---|---|
+| 1 | Sprint 23 complete | No record has ever been approved, so the approval → earned value → reconciliation chain has never run | v7.7.0 deployed. A 20-minute in-app runbook with seven report checks: `docs/uat/chain-demonstration.md` | Creator + a **second** account holder run steps 1–8; the Technical Owner runs C-1..C-7 | FAIL — ready to run |
+| 2 | Defect disposition | P-1 (CRITICAL) open; HIGH OI-01, OI-13 open | **P-1 fixed in the app** (v7.7.0, `TEST-SOD-001..007`, live), plus an audit column. A disposition sheet with the rate-sheet evidence for each billing gap: `docs/defect-disposition.md` | Business Owner: rotate tokens (OI-01), rule on the 7 gaps (OI-13), decide the role change (P-1 residual) | FAIL — 4 signatures |
+| 4 | Material validation | 89 of 146 pay units unmapped; 67 mappings NEEDS REVIEW | **All 89 classified** with their basis: `data/material-coverage-register.csv`. 59 need no mapping (18 by existing rulings, 41 proposed); 1 derivable (`HO-1 (49-72)`, import row in `data/import/proposed-mapping-additions.csv`); 14 blocked on OI-12 part numbers; 15 need part numbers | Material Administrator signs the register; Purchasing supplies 29 SKUs | FAIL — sign-off + SKUs |
+| 6 | Scope validation | No project has a baseline | Template + validator: `data/import/scope-baseline-template.csv`, `scripts/validate_scope_baseline.py` (`TEST-SCOPE-IMP-*`). Rejects unknown projects, unpriced codes, negative or duplicate lines; warns on unmapped units | Project Administrator fills in the pilot's planned quantities; a second person baselines | FAIL — needs the plan quantities |
+| 7 | Permissions | P-1..P-4; nothing tested with users | P-1 closed in the app. **Role model** built on Fulcrum's 15 real switches, the platform limits and a 15-test permission matrix: `docs/uat/role-model.md` | An Owner applies the roles (no tool can); one user per role runs PERM-01..15 | FAIL — apply + test |
+| 10 | UAT | Not held | **Complete UAT pack:** 8 role sessions with 57 scripted cases, the feedback register and sign-off: `docs/uat/` | The eight role representatives | FAIL — ready to run |
+| 11 | Production ownership | Nobody named | — | Business Owner names the nine roles (`sprint-26-governance.md` §1) | FAIL — names |
+| 12 | Support process | Nobody assigned | — | Same: the Support Contact and the tier-2 and tier-3 owners | FAIL — names |
+
+**Why none of these can be closed from the toolchain:** no record can be
+created or approved from it (no MCP record tool; `api.fulcrumapp.com` is
+refused by the environment's network policy, re-checked 2026-11-12); roles
+cannot be changed (the MCP server lists roles but cannot edit them); and the
+remaining items are decisions, prices, part numbers, names and signatures.
+
 
 > Master prompt, end of Sprint 23: *"Once Sprint 23 is complete, STOP. Do not
 > make production changes until test results and readiness findings have been
@@ -39,7 +70,7 @@ NOT APPLICABLE, with the evidence.
 | 11 | Production ownership | **FAIL** | No one is named. `docs/sprint-26-governance.md` defines the nine roles; every name is blank. |
 | 12 | Support process | **FAIL** | A procedure is written (`docs/sprint-26-governance.md` §4), but nobody is assigned to answer it. |
 
-**Five PASS, seven FAIL, none NOT APPLICABLE.**
+**Four PASS, eight FAIL, none NOT APPLICABLE.** *(Originally printed as "Five PASS, seven FAIL" in error; see the correction above.)*
 
 ### Re-reading the Sprint 23 readiness gate with today's evidence
 

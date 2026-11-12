@@ -117,7 +117,7 @@ check('TEST-LIFE-027', 'choosing Adjustment makes reference and reason required'
 
 // --------------------------------------------------------- calc_version (D-019)
 validate('DRAFT', { calc_version: 'DE-7.3.0' });
-check('TEST-LIFE-030', 'calc_version records the version that last calculated the record', h.get('calc_version'), 'DE-7.6.0');
+check('TEST-LIFE-030', 'calc_version records the version that last calculated the record', h.get('calc_version'), 'DE-7.7.0');
 
 // ------------------------------------------------------- QA ownership (OI-10)
 validate('DRAFT', { qa_status: 'Fail', qa_owner: null, qa_due_date: null });
@@ -129,6 +129,39 @@ validate('DRAFT', { qa_status: 'Fail', qa_owner: 'R. Locklear', qa_due_date: '20
 check('TEST-LIFE-043', 'a corrected deficiency is not overdue', /past its due date/.test(flags()), false);
 validate('DRAFT', { qa_status: 'Pass', qa_owner: null, qa_due_date: null });
 check('TEST-LIFE-044', 'a passing record needs no QA owner', /no owner assigned|no due date/.test(flags()), false);
+
+// ------------------------------------- segregation of duties (OI-22, P-1)
+// The approver is stamped from USERFULLNAME at change-status; the harness's
+// current user is record.__user (default 'Test User').
+function approveAs(user, extra) {
+  h.reset(cleanRecord(Object.assign({ __user: user }, extra || {})));
+  h.setStatus('APPROVED');
+  h.fire('change-status');
+  h.fire('validate-record');
+  return h;
+}
+const selfMsg = m => /cannot approve it/.test(m);
+approveAs('R. Locklear', { inspector: 'R. Locklear', submitted_by: 'R. Locklear' });
+check('TEST-SOD-001', 'the inspector cannot approve their own record', h.invalids.some(selfMsg), true);
+approveAs('r.  LOCKLEAR ', { inspector: 'R. Locklear' });
+check('TEST-SOD-002', 'name match ignores case and spacing', h.invalids.some(selfMsg), true);
+approveAs('J. Smith', { inspector: 'A. Crew', submitted_by: 'J. Smith' });
+check('TEST-SOD-003', 'the submitter cannot approve either', h.invalids.some(selfMsg), true);
+approveAs('Reviewer Two', { inspector: 'R. Locklear', submitted_by: 'R. Locklear' });
+check('TEST-SOD-004', 'a second person can approve a clean record', h.invalids, []);
+// The creator re-opening and saving a record someone ELSE approved is fine:
+// the check reads the approval stamp, not the current user.
+h.reset(cleanRecord({ __user: 'R. Locklear', inspector: 'R. Locklear', submitted_by: 'R. Locklear',
+                      approved_by: 'Reviewer Two', approved_date: '2026-11-10T12:00:00Z' }));
+h.setStatus('APPROVED'); h.fire('validate-record');
+check('TEST-SOD-005', 'the creator can still save a record someone else approved', h.invalids, []);
+// A runtime that cannot name the user stamps nothing; the control claims nothing.
+h.reset(cleanRecord({ inspector: 'R. Locklear', submitted_by: 'R. Locklear', approved_by: null }));
+h.setStatus('APPROVED'); h.fire('validate-record');
+check('TEST-SOD-006', 'a blank approver stamp is not treated as a match', h.invalids.some(selfMsg), false);
+h.reset(cleanRecord({ inspector: 'R. Locklear', submitted_by: 'R. Locklear', approved_by: 'R. Locklear' }));
+h.setStatus('SUBMITTED'); h.fire('validate-record');
+check('TEST-SOD-007', 'the control applies only to APPROVED', h.invalids.some(selfMsg), false);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -48,7 +48,7 @@ structural tests could not see:
 
 ### Sprint 24 — `docs/sprint-24-deployment-readiness.md`
 
-The gate fails: 5 PASS, 7 FAIL. The first reading of the configured roles
+The gate fails: 4 PASS, 8 FAIL (first printed as 5/7, a miscount corrected 2026-11-12). The first reading of the configured roles
 found **a contractor can approve their own production** (P-1, now OI-22).
 The baseline in `fulcrum/baseline-2026-11-09.json` covers 13 apps and 5 choice
 lists. Four pieces of live configuration had never been committed (L18), and

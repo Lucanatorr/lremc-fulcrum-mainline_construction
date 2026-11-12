@@ -1,0 +1,4 @@
+project_id,labor_code,phase_wbs,original_planned_quantity,budget_rate,planned_start,planned_finish,notes
+PRJ-000001,BM60(1)(1.25) P,UG-1,25000,,2026-01-05,2026-03-27,test project underground
+PRJ-000001,AFO,AER-1,30000,1.85,2026-02-02,2026-04-24,test project aerial
+PRJ-000001,HO-1 (25-48),SPL-1,25,,2026-04-01,2026-04-30,

@@ -1,8 +1,20 @@
 /**
  * Mainline Construction - Development
- * Data Events - v7.6.0 (2026-11-09), deployed 2026-11-09 to Development.
- * v7.5.0 was deployed earlier the same day, held back until then by the
- * forms_update refusals - see docs/sprint-23-known-limitations.md L16.
+ * Data Events - v7.7.0 (2026-11-12), deployed 2026-11-12 to Development.
+ *
+ * CHANGE IN v7.7.0 - NOBODY APPROVES THEIR OWN PRODUCTION (OI-22, P-1)
+ * The approval gate checked the DATA (exceptions, QA, rate) but not WHO was
+ * approving, and the Contractor role can change status - so a contractor could
+ * approve their own work into earned value and billing. Fulcrum's status
+ * permission is all-or-nothing and the runtime exposes no role, but it does
+ * expose USERFULLNAME (live: inspector and submitted_by both resolve). So:
+ *   + APPROVED is refused when approved_by - stamped from USERFULLNAME by
+ *     change-status - matches the record's inspector or submitter.
+ * It compares the approval STAMP, not the current user, so the creator can
+ * still open and save a record someone else approved. Works offline. It does
+ * not stop one contractor approving ANOTHER contractor's record; that needs
+ * the role change in docs/sprint-24-deployment-readiness.md P-1, and the
+ * weekly audit reports it (reports/audit-weekly.sql).
  *
  * CHANGE IN v7.6.0 - REOPEN, REVERSE AND ADJUST APPROVED PRODUCTION (OI-03)
  * Approved production had no visible way back: destructive-change conditions
@@ -538,7 +550,7 @@ ON('new-record', function (event) {
 // Stamped on every save by validate-record. Derived fields are recalculated on
 // each save, so the version that LAST calculated the record is the one that
 // explains its current values (D-019).
-var CALC_VERSION = 'DE-7.6.0';
+var CALC_VERSION = 'DE-7.7.0';
 
 var PENDING_STATUSES  = ['DRAFT', 'SUBMITTED', 'UNDER REVIEW', 'CORRECTION REQUIRED', 'REOPENED'];
 var REVIEWED_STATUSES = ['APPROVED', 'REJECTED', 'REVERSED'];
@@ -1059,6 +1071,22 @@ function enforceLifecycleRules() {
   }
 }
 
+// v7.7.0 (OI-22). Names are compared case- and space-insensitively; a blank
+// stamp means the runtime could not name the user, and nothing is claimed.
+function normName(v) {
+  return isBlank(v) ? '' : String(v).replace(/\s+/g, ' ').trim().toLowerCase();
+}
+
+function enforceSegregationOfDuties() {
+  if (recordStatus() !== 'APPROVED') return;
+  var approver = normName($approved_by);
+  if (!approver) return;
+  if (approver === normName($inspector) || approver === normName($submitted_by)) {
+    INVALID('You entered or submitted this record, so you cannot approve it. ' +
+            'Approval needs a second person: leave it SUBMITTED for a reviewer.');
+  }
+}
+
 ON('validate-record', function (event) {
   setIfChanged('calc_version', $calc_version, CALC_VERSION);
   assignProductionId();
@@ -1073,4 +1101,5 @@ ON('validate-record', function (event) {
   buildExceptions();
   enforceLifecycleRules();
   enforceApprovalGate();
+  enforceSegregationOfDuties();
 });
