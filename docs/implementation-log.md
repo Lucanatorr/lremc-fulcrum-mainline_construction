@@ -6,6 +6,31 @@ Newest entries first. Every Fulcrum object this project creates is listed in
 
 ---
 
+## 2026-11-12 — Sprints 29 and 30: analytics and integration readiness
+
+**Sprint 29.** 17 Power BI datasets in `reports/bi/` (4 facts, approval events,
+scope, 10 dimensions including a generated date dimension, 1 bridge). All 17 run
+live; row counts match the masters. Tests forbid any dataset multiplying
+quantity by a rate, and check `dim_date`'s ISO weeks against the shipped Data
+Event's `isoWeek()` at the year boundary.
+
+**Sprint 30.** Nothing connected; no fields added.
+- **Found:** two active, account-wide Power Automate webhooks that already
+  receive every MC app's record events (OI-23). Their URLs are secrets and
+  were not copied.
+- **Stable IDs** verified live: all PASS (`integration-id-integrity.sql`).
+- **Idempotency:** export current state and post deltas. Event feeds would
+  double-count, because only the latest approval stamp is kept. The reference
+  consumer `scripts/export_delta.py` is proven through approve, re-export,
+  reopen, re-approve, reverse, adjust and partial-export cases.
+- **Invoice reconciliation** is ready to use: a basis report plus
+  `scripts/reconcile_invoice.py`, covering all the brief's findings, a guard
+  against billing a record by ID and again inside a lump line, and exit 1 on
+  any CRITICAL. Live demo: billing the submitted test record → UNAPPROVED
+  PRODUCTION BILLED.
+
+---
+
 ## 2026-11-12 — Gate remediation; Sprints 27 and 28
 
 ### Why the gate failed, and what was fixable here

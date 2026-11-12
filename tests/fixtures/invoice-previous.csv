@@ -1,0 +1,2 @@
+invoice_number,invoice_date,contractor_id,project_id,period,labor_code,production_id,quantity,unit_rate,amount
+INV-099,2026-11-15,CON-1,PRJ-1,2026-11,BFO.72.I,PRD-L,100,1.5,150

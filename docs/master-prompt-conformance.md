@@ -36,7 +36,9 @@ Sprint 25 role training; Sprint 26 governance. See
 `docs/sprint-24-deployment-readiness.md`, `docs/training/` and
 `docs/sprint-26-governance.md`. **Update 2026-11-12:** Sprint 27 (audit and compliance
 operations, `docs/sprint-27-audit-operations.md`) and Sprint 28 (management analytics,
-`docs/sprint-28-analytics.md`) built and run against live data. Sprints 29–32 remain.
+`docs/sprint-28-analytics.md`) built and run against live data. Sprint 29 (Power BI
+datasets, `docs/sprint-29-power-bi-readiness.md`) and Sprint 30 (integration readiness,
+`docs/sprint-30-integration-readiness.md`) prepared, nothing external connected. Sprints 31–32 remain.
 
 **Sprints 24–32 were never started** (as of 2026-09-22). The instruction "complete the rest of the
 sprints" was carried out as though Sprint 23 ended the programme. It does not:

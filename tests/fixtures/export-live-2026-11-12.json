@@ -1,0 +1,5 @@
+{"note": "Live result of reports/integration-export-production.sql, 2026-11-12. Two test records, both unofficial.",
+ "rows": [
+ {"production_id":"PRD-2026-143C1840","project_id":"PRJ-000001","contractor_id":"CON-0001","labor_code":"BM60(2)(1.25)DP","unit":null,"period":"2026-09","record_status":"SUBMITTED","official_quantity":0,"official_value":0,"export_hash":"73c3e0bde71b9f2b480bc830b66da153"},
+ {"production_id":"PRD-2026-FB71F938","project_id":"PRJ-000001","contractor_id":"CON-0001","labor_code":"BM60(1)(1.25)DP","unit":"FT","period":"2026-11","record_status":"DRAFT","official_quantity":0,"official_value":0,"export_hash":"b488ddc07d0097c047f1ff88cf0e36fd"}
+]}

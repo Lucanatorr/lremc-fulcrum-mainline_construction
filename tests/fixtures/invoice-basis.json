@@ -1,0 +1,14 @@
+{"rows": [
+ {"production_id":"PRD-A","project_id":"PRJ-1","contractor_id":"CON-1","labor_code":"BM60(1)(1.25)DP","unit":"FT","period":"2026-11","record_status":"APPROVED","quantity":500,"rate_applied":10,"rate_id":"RATE-000083"},
+ {"production_id":"PRD-B","project_id":"PRJ-1","contractor_id":"CON-1","labor_code":"BM60(2)(1.25)DP","unit":"FT","period":"2026-11","record_status":"APPROVED","quantity":300,"rate_applied":12,"rate_id":"RATE-000084"},
+ {"production_id":"PRD-C","project_id":"PRJ-1","contractor_id":"CON-1","labor_code":"AFO","unit":"FT","period":"2026-11","record_status":"SUBMITTED","quantity":1000,"rate_applied":1.85,"rate_id":"RATE-000001"},
+ {"production_id":"PRD-D","project_id":"PRJ-1","contractor_id":"CON-1","labor_code":"HO-1 (25-48)","unit":"SPLICE","period":"2026-11","record_status":"APPROVED","quantity":36,"rate_applied":28,"rate_id":"RATE-000102"},
+ {"production_id":"PRD-E","project_id":"PRJ-1","contractor_id":"CON-1","labor_code":"HO-1 (25-48)","unit":"SPLICE","period":"2026-11","record_status":"APPROVED","quantity":24,"rate_applied":28,"rate_id":"RATE-000102"},
+ {"production_id":"PRD-F","project_id":"PRJ-1","contractor_id":"CON-1","labor_code":"BFO.12.I","unit":"FT","period":"2026-10","record_status":"APPROVED","quantity":1000,"rate_applied":1.5,"rate_id":"RATE-000010"},
+ {"production_id":"PRD-G","project_id":"PRJ-1","contractor_id":"CON-2","labor_code":"AFO","unit":"FT","period":"2026-11","record_status":"APPROVED","quantity":100,"rate_applied":1.85,"rate_id":"RATE-000201"},
+ {"production_id":"PRD-H","project_id":"PRJ-1","contractor_id":"CON-1","labor_code":"BMHD","unit":"FT","period":"2026-11","record_status":"SUBMITTED","quantity":10,"rate_applied":24,"rate_id":"RATE-000096"},
+ {"production_id":"PRD-I","project_id":"PRJ-1","contractor_id":"CON-1","labor_code":"BM60(1)(1.25) P","unit":"FT","period":"2026-11","record_status":"APPROVED","quantity":200,"rate_applied":3.25,"rate_id":"RATE-000051"},
+ {"production_id":"PRD-J","project_id":"PRJ-1","contractor_id":"CON-1","labor_code":"AFO.B","unit":"FT","period":"2026-11","record_status":"APPROVED","quantity":100,"rate_applied":1.95,"rate_id":"RATE-000002"},
+ {"production_id":"PRD-K","project_id":"PRJ-1","contractor_id":"CON-1","labor_code":"BFO.48.I","unit":"FT","period":"2026-11","record_status":"APPROVED","quantity":400,"rate_applied":1.5,"rate_id":"RATE-000011"},
+ {"production_id":"PRD-L","project_id":"PRJ-1","contractor_id":"CON-1","labor_code":"BFO.72.I","unit":"FT","period":"2026-11","record_status":"APPROVED","quantity":100,"rate_applied":1.5,"rate_id":"RATE-000012"}
+]}

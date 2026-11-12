@@ -42,6 +42,9 @@ check('TEST-RPT-000', 'every expected report exists', files, [
   'duplicate-production.sql',
   'exception-dashboard.sql',
   'forecast-completion.sql',
+  'integration-export-production.sql',
+  'integration-id-integrity.sql',
+  'invoice-reconciliation-basis.sql',
   'material-variance.sql',
   'production-audit-trail.sql',
   'production-daily.sql',
@@ -324,7 +327,9 @@ check('TEST-QA-010', 'the queue only lists pending records',
     const lists = (text.match(/NOT IN \(([^)]*)\)/g) || [])
       .map(m => (m.match(/'([^']*)'/g) || []).map(v => v.slice(1, -1)))
       .filter(vals => vals.includes('VOID') && vals.every(v => PRODUCTION.includes(v)));
-    if (lists.some(vals => !vals.includes('REVERSED')) || /\bp\._status <> 'VOID'/.test(text)) missingReversed.push(name);
+    // A report may keep REVERSED rows only by saying so, with its reason.
+    const optOut = /-- INCLUDES REVERSED ON PURPOSE/.test(text);
+    if (!optOut && (lists.some(vals => !vals.includes('REVERSED')) || /\bp\._status <> 'VOID'/.test(text))) missingReversed.push(name);
     for (const m of text.match(/IN \([^)]*'UNDER REVIEW'[^)]*\)/g) || []) {
       if (!/'REOPENED'/.test(m)) missingReopened.push(name);
     }
