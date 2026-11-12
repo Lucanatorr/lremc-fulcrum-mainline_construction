@@ -39,6 +39,7 @@ check('TEST-RPT-000', 'every expected report exists', files, [
   'audit-weekly.sql',
   'closeout-readiness.sql',
   'contractor-financial.sql',
+  'data-quality-scorecard.sql',
   'duplicate-production.sql',
   'exception-dashboard.sql',
   'forecast-completion.sql',

@@ -6,6 +6,60 @@ Newest entries first. Every Fulcrum object this project creates is listed in
 
 ---
 
+## 2026-11-12 — Sprints 31 and 32: continuity, maturity and the final handoff
+
+**No app, record, field or script changed.** Every query ran read-only through
+`query_records`, and every configuration read used `forms_get`.
+
+**Sprint 31: backup, recovery, continuity** (`docs/sprint-31-backup-recovery.md`)
+- 15 backup exports and a manifest (`reports/continuity/`).
+  `scripts/backup_verify.py` proves an export complete and lists any record
+  deleted since the last backup.
+  - **Live run: 15 datasets, 0 FAIL.** Python's fingerprint equals the Query
+    API's for every table. Evidence: `data/backup-manifests/2026-11-12.json`.
+- `scripts/config_snapshot.py` reproduces `fulcrum/baseline-2026-11-12.json`
+  exactly (18/18 SAME).
+- `fulcrum/known-good/` keeps the exact live bytes of all 10 Data Events, plus
+  the Mainline v7.6.0 rollback target. `scripts/known_good.py` runs preflight,
+  promote and rollback, and refuses the never-redeploy versions with the
+  reason.
+  - **Found:** three repo scripts differ from live in comments or a newline
+    only, and four headers say v1.0.0 for a deployed v1.1.0 (OI-24).
+- `scripts/mass_change.py` covers plan → sample → reconcile, with money
+  impact per project × contractor, and blocks historical records (D-022).
+  - Tried read-only on live data: rate 12 for PRJ-000001 → 2 records,
+    +$1,000.00 estimated, not applied.
+- Incident register: 10 incidents from this project's history.
+- Recovery playbooks R-1..R-8. Backout procedure updated for v7.7.0.
+
+**Sprint 32: continuous improvement** (`docs/sprint-32-continuous-improvement.md`)
+- Enhancement backlog: 16 requests, all seven classes.
+- Release history: 0.1.0–0.10.0; 1.0.0 is reserved for production (D-021).
+- Release process; quarterly periodic review, with a first baseline including
+  live query timings of 1.0–1.4 s.
+- Data-quality scorecard, run live:
+  - 6 measures MEET TARGET
+  - **DQ-02, contract references, 0 of 146: BELOW TARGET**
+  - 2 INFO
+  - 2 NO DATA
+- Automation opportunities. Final financial approval stays human.
+- AI/MCP operating model: 15 rules, also in `CLAUDE.md` so future sessions
+  load them.
+- Final inventories:
+  - `docs/final-inventory.md`
+  - `docs/report-inventory.md`, generated, 74 reports, each with an audience
+  - `docs/field-dictionary.md`, generated, 387 fields
+- `docs/relationship-map.md`: Mermaid diagram and the seven chains; every
+  cited field key is test-checked.
+- **`docs/HANDOFF.md`**: the 36 sections.
+- **Corrected stale docs:** `architecture.md` said Mainline v7.3.0 / 140
+  elements and mappings "Empty". `fulcrum-inventory.md` said v7.3.0.
+
+Tests: `tests/continuity.test.js` (37), `tests/handoff.test.js` (23), and the
+scorecard is in `reporting.test.js`. Full suite green.
+
+---
+
 ## 2026-11-12 — Sprints 29 and 30: analytics and integration readiness
 
 **Sprint 29.** 17 Power BI datasets in `reports/bi/` (4 facts, approval events,

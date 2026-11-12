@@ -25,6 +25,13 @@ what makes all of them fully offline.
 
 ## Deployment state, plainly
 
+**Since Sprint 31 (2026-11-12):** the exact live bytes of every script are kept in
+`fulcrum/known-good/`, with versions, SHA-256 and rollback rules in `registry.json`.
+`python3 scripts/known_good.py check` proves they match the live baseline. Three
+repo files differ from live in comments or a trailing newline only, and four
+headers still read v1.0.0 for a deployed v1.1.0 (OI-24). The registry is the
+source of truth for versions.
+
 All nine scripts match the repo in every way that affects behaviour. `mc-contractor-rate-dev` was live but uncommitted until 2026-11-09; it is now in the repo at v1.1.0. The five
 held back by the `forms_update` outage (OI-02) were deployed on 2026-11-09
 through the direct `fulcrum-app` server (`.mcp.json`), each read back and

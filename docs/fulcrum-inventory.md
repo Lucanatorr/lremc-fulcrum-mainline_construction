@@ -50,7 +50,7 @@ no production object has been modified.
 
 | Object | Schema | Data Events |
 |---|---|---|
-| Mainline Construction - Development | `fulcrum/schemas/mainline-construction-dev.elements.json` | `fulcrum/data-events/mainline-construction-dev.js` (v7.3.0, deployed 2026-09-21) |
+| Mainline Construction - Development | `fulcrum/schemas/mainline-construction-dev.elements.json` | `fulcrum/data-events/mainline-construction-dev.js` (v7.7.0, deployed 2026-11-12; see `fulcrum/known-good/registry.json`) |
 | MC Fiber Reel - Development | `fulcrum/schemas/mc-fiber-reel-dev.elements.json` | `fulcrum/data-events/mc-fiber-reel-dev.js` (v2.0.0, deployed 2026-09-21) |
 | MC Project Closeout - Development | `fulcrum/schemas/mc-project-closeout-dev.elements.json` | `fulcrum/data-events/mc-project-closeout-dev.js` (v1.0.0, deployed 2026-09-21) |
 | MC Labor-Material Mapping - Development | `fulcrum/schemas/mc-labor-material-mapping-dev.elements.json` | (deployed script, not yet exported) |

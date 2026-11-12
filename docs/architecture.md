@@ -120,7 +120,7 @@ is the number a manager needs.
 
 | App | Role |
 |---|---|
-| Mainline Construction | Production transactions. 140 elements, Data Events v7.3.0. |
+| Mainline Construction | Production transactions. 152 elements, Data Events v7.7.0 (live versions: `fulcrum/known-good/registry.json`). |
 | MC Project Master | Projects. |
 | MC Contractor Master | Contractors. |
 | MC Contractor Rate | 146 pay units. The pricing source of truth. |
@@ -129,7 +129,7 @@ is the number a manager needs.
 | MC Segment | FROM→TO paths, direction-normalized. |
 | MC Material Master | Stock items. |
 | MC Material Transaction | Atomic material ledger. Balances are never stored. |
-| MC Labor-Material Mapping | Pay unit → material multipliers. **Empty.** |
+| MC Labor-Material Mapping | Pay unit → material multipliers. 125 rows: 58 APPROVED, 67 NEEDS REVIEW (2026-11-12). |
 | MC Project Scope Line | Baseline scope, one per project + labor code. |
 | MC Change Order | Signed scope deltas. |
 | MC Project Closeout | Eleven milestones, readiness review, authorized override. |
